@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+*{
+  box-sizing: border-box;
+}
+
+p, Link{
+  font-family: 'MyPFOnt', sans-serif;
+}
+h1{
+  font-family: 'MyHeaderFont', sans-serif;
+}
+@font-face {
+  font-family: 'MyHeaderFont';
+  src: url('./assets/fonts/Fontspring-DEMO-integralcf-bold.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'MyPFOnt';
+  src: url('./assets/fonts/Satoshi-Variable.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+.scroll-animate {
+  display: flex;
+  flex-wrap: nowrap;
+  flex: 1 1 auto;
+  animation: scroll 30s linear infinite;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Optional: pause on hover */
+.scroll-animate:hover {
+  animation-play-state: paused;
+}
