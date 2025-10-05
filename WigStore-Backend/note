@@ -1,0 +1,915 @@
+this is my cloudinary.js
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+module.exports = cloudinary;
+
+this is my db.js
+const { Sequelize } = require('sequelize');
+require('dotenv').config();
+
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASS,
+  {
+    host: process.env.DB_HOST,
+    dialect: 'mysql',
+    port: process.env.DB_PORT,
+    logging: false,
+  }
+);
+
+module.exports = sequelize;
+
+this is my admin.controller.js
+// controllers/admin.controller.js
+const bcrypt = require('bcryptjs');
+const User = require('../models/user.model');
+const generateToken = require('../utils/generateToken');
+
+// 🧍 Create Admin (must be an existing admin to create another)
+exports.createAdmin = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const existing = await User.findOne({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ message: 'Admin already exists' });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const admin = await User.create({
+      name,
+      email,
+      password: hashed,
+      role: 'admin',
+    });
+
+    res.status(201).json({
+      message: 'Admin created successfully',
+      admin: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 🔑 Admin login
+exports.loginAdmin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide email and password' });
+    }
+
+    const admin = await User.findOne({ where: { email, role: 'admin' } });
+    if (!admin) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    generateToken(admin.id, res); // sets JWT in cookie
+
+    res.json({
+      message: 'Admin login successful',
+      admin: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 👥 Get all users (admin only)
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] },
+      where: { role: 'user' },
+    });
+
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+this is my category.controller
+// controllers/categoryController.js
+const { Category, Product } = require('../models');
+
+exports.createCategory = async (req, res, next) => {
+  try {
+    const { name, description } = req.body;
+    const image = req.file ? req.file.path : null;
+    if (!name) return res.status(400).json({ message: 'Name is required' });
+
+    const exists = await Category.findOne({ where: { name } });
+    if (exists) return res.status(400).json({ message: 'Category already exists' });
+
+    const category = await Category.create({ name, description, image });
+    res.status(201).json(category);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+exports.getCategories = async (req, res, next) => {
+  try {
+    const categories = await Category.findAll();
+    res.json(categories);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getCategory = async (req, res, next) => {
+  try {
+    const category = await Category.findByPk(req.params.id, {
+      include: { model: Product, attributes: ['id', 'name', 'price', 'quantity'] },
+    });
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+    res.json(category);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateCategory = async (req, res, next) => {
+  try {
+    const category = await Category.findByPk(req.params.id);
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+
+    category.name = req.body.name || category.name;
+    category.description = req.body.description || category.description;
+    if (req.file) category.image = req.file.path;
+
+    await category.save();
+    res.json({ message: 'Category updated', category });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteCategory = async (req, res, next) => {
+  try {
+    const productsCount = await Product.count({ where: { categoryId: req.params.id } });
+    if (productsCount > 0) {
+      return res.status(400).json({ message: 'Cannot delete category with products. Remove or reassign products first.' });
+    }
+    const deleted = await Category.destroy({ where: { id: req.params.id } });
+    if (!deleted) return res.status(404).json({ message: 'Category not found' });
+    res.json({ message: 'Category deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+this is my order.controller
+// controllers/orderController.js
+const { sequelize, Order, OrderItem, Product } = require('../models');
+
+exports.createOrder = async (req, res, next) => {
+  const t = await sequelize.transaction();
+  try {
+    const userId = req.user.id;
+    const { items, shippingAddress } = req.body;
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      await t.rollback();
+      return res.status(400).json({ message: 'Order items are required' });
+    }
+
+    // Calculate total and validate stock + product existence
+    let total = 0;
+    const itemsData = [];
+
+    for (const it of items) {
+      const { productId, quantity } = it;
+      if (!productId || !quantity || quantity <= 0) {
+        await t.rollback();
+        return res.status(400).json({ message: 'Each item needs productId and quantity > 0' });
+      }
+      const product = await Product.findByPk(productId, { transaction: t, lock: t.LOCK.UPDATE });
+      if (!product) {
+        await t.rollback();
+        return res.status(400).json({ message: `Product ${productId} not found` });
+      }
+      if (product.quantity < quantity) {
+        await t.rollback();
+        return res.status(400).json({ message: `Insufficient stock for product ${product.name}` });
+      }
+
+      const linePrice = parseFloat(product.price) * parseInt(quantity);
+      total += linePrice;
+      itemsData.push({ product, quantity, linePrice });
+    }
+
+    // create order
+    const order = await Order.create({ userId, total, shippingAddress }, { transaction: t });
+
+    // create order items and decrement stock
+    for (const it of itemsData) {
+      await OrderItem.create({
+        orderId: order.id,
+        productId: it.product.id,
+        quantity: it.quantity,
+        price: it.product.price,
+      }, { transaction: t });
+
+      // decrement product quantity
+      it.product.quantity = it.product.quantity - it.quantity;
+      await it.product.save({ transaction: t });
+    }
+
+    await t.commit();
+    const fullOrder = await Order.findByPk(order.id, {
+      include: [{ model: OrderItem, include: ['Product'] }],
+    });
+    res.status(201).json(fullOrder);
+  } catch (err) {
+    await t.rollback();
+    next(err);
+  }
+};
+
+exports.getUserOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.findAll({
+      where: { userId: req.user.id },
+      include: [{ model: OrderItem, include: [Product] }],
+      order: [['createdAt', 'DESC']],
+    });
+    res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getOrderById = async (req, res, next) => {
+  try {
+    const order = await Order.findByPk(req.params.id, {
+      include: [{ model: OrderItem, include: [Product] }],
+    });
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    // only owner or admin
+    if (order.userId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    res.json(order);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    // admin only
+    const orders = await Order.findAll({
+      include: [{ model: OrderItem, include: [Product] }, 'User'],
+      order: [['createdAt', 'DESC']],
+    });
+    res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateOrderStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const allowed = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
+    if (!allowed.includes(status)) return res.status(400).json({ message: 'Invalid status' });
+
+    const order = await Order.findByPk(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    order.status = status;
+    await order.save();
+    res.json(order);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteOrder = async (req, res, next) => {
+  try {
+    const deleted = await Order.destroy({ where: { id: req.params.id } });
+    if (!deleted) return res.status(404).json({ message: 'Order not found' });
+    res.json({ message: 'Order deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+this is my product.controller
+// controllers/productController.js
+const { Product, Category } = require('../models');
+
+exports.createProduct = async (req, res, next) => {
+  try {
+    const { name, description, price, quantity, review, categoryId } = req.body;
+    const imageUrls = req.files ? req.files.map((file) => file.path) : [];
+
+    const category = await Category.findByPk(categoryId);
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+
+    const product = await Product.create({
+      name,
+      description,
+      price,
+      quantity,
+      review,
+      CategoryId: categoryId,
+      images: JSON.stringify(imageUrls),
+    });
+
+    res.status(201).json(product);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update product
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findByPk(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    if (req.files && req.files.length > 0) {
+      product.images = JSON.stringify(req.files.map(f => f.path));
+    }
+
+    Object.assign(product, req.body);
+    await product.save();
+
+    res.json({ message: 'Product updated', product });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getProducts = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20, q, category } = req.query;
+    const offset = (page - 1) * limit;
+    const where = {};
+    if (q) where.name = { [require('sequelize').Op.like]: `%${q}%` };
+    if (category) where.categoryId = category;
+
+    const products = await Product.findAndCountAll({
+      where,
+      include: { model: Category, attributes: ['id', 'name'] },
+      offset: parseInt(offset),
+      limit: parseInt(limit),
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.json({
+      total: products.count,
+      page: parseInt(page),
+      pages: Math.ceil(products.count / limit),
+      data: products.rows,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findByPk(req.params.id, {
+      include: { model: Category, attributes: ['id', 'name'] },
+    });
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const deleted = await Product.destroy({ where: { id: req.params.id } });
+    if (!deleted) return res.status(404).json({ message: 'Product not found' });
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+this is my user.controller
+const bcrypt = require('bcryptjs');
+const User = require('../models/user.model');
+const generateToken = require('../utils/generateToken');
+
+
+exports.registerUser = async (req, res, next) => {
+  try {
+    if (req.body.role && req.body.role === 'admin') {
+      return res.status(403).json({ message: 'Cannot self-assign admin role' });
+    }
+    const { name, email, password, address, phone } = req.body;
+    const imageUrl = req.file ? req.file.path : null;
+
+    if (!email || !password || !name)
+      return res.status(400).json({ message: 'Please fill all required fields' });
+
+    const exists = await User.findOne({ where: { email } });
+    if (exists) return res.status(400).json({ message: 'Email already registered' });
+
+    const hashed = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hashed, address, phone, image: imageUrl });
+
+    generateToken(user.id, res);
+    res.status(201).json({ message: 'User created successfully', user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Upload profile image
+exports.uploadProfileImage = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.image = req.file.path;
+    await user.save();
+
+    res.json({ message: 'Profile image updated', image: user.image });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// Login
+exports.loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+    generateToken(user.id, res);
+    res.json({ message: 'Login successful', user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Logout
+exports.logoutUser = async (req, res) => {
+  res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+  res.json({ message: 'Logged out' });
+};
+
+// Get profile (protected)
+exports.getProfile = async (req, res) => {
+  res.json(req.user);
+};
+
+this is my auth.middleware
+const jwt = require('jsonwebtoken');
+const User = require('../models/user.model');
+
+exports.protect = async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: 'Not authorized, no token' });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findByPk(decoded.id, {
+      attributes: { exclude: ['password'] },
+    });
+
+    if (!req.user) return res.status(401).json({ message: 'User not found' });
+
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Not authorized, token failed' });
+  }
+};
+
+// 🛡️ Admin-only middleware
+exports.adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied, admin only' });
+  }
+};
+
+this is my error.middleware
+exports.notFound = (req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
+  next(error);
+};
+
+exports.errorHandler = (err, req, res, next) => {
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode).json({
+    message: err.message,
+    stack: process.env.NODE_ENV === 'production' ? '🥞 Hidden' : err.stack,
+  });
+};
+
+this is my uploadMiddleware
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
+
+// User avatar upload
+const userStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'wig-store/users',
+    allowed_formats: ['jpg', 'png', 'jpeg'],
+  },
+});
+
+const uploadUserImage = multer({ storage: userStorage });
+
+// Category image upload
+const categoryStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'wig-store/categories',
+    allowed_formats: ['jpg', 'png', 'jpeg'],
+  },
+});
+
+const uploadCategoryImage = multer({ storage: categoryStorage });
+
+// Product image upload (multiple)
+const productStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'wig-store/products',
+    allowed_formats: ['jpg', 'png', 'jpeg'],
+  },
+});
+
+const uploadProductImages = multer({ storage: productStorage });
+
+module.exports = {
+  uploadUserImage,
+  uploadCategoryImage,
+  uploadProductImages,
+};
+
+this is my category.model
+// models/categoryModel.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Category = sequelize.define('Category', {
+  name: { type: DataTypes.STRING, allowNull: false, unique: true },
+  description: { type: DataTypes.TEXT },
+  image: { type: DataTypes.STRING },
+});
+
+module.exports = Category;
+
+this is my index.js
+// models/index.js
+const sequelize = require('../config/db');
+
+const User = require('./user.model');
+const Category = require('./category.model');
+const Product = require('./product.model');
+const Order = require('./order.model');
+const OrderItem = require('./orderItem.model');
+
+// associations
+Category.hasMany(Product, { foreignKey: 'categoryId', onDelete: 'SET NULL' });
+Product.belongsTo(Category, { foreignKey: 'categoryId' });
+
+User.hasMany(Order, { foreignKey: 'userId' });
+Order.belongsTo(User, { foreignKey: 'userId' });
+
+Order.hasMany(OrderItem, { foreignKey: 'orderId', onDelete: 'CASCADE' });
+OrderItem.belongsTo(Order, { foreignKey: 'orderId' });
+
+Product.hasMany(OrderItem, { foreignKey: 'productId' });
+OrderItem.belongsTo(Product, { foreignKey: 'productId' });
+
+module.exports = {
+  sequelize,
+  User,
+  Category,
+  Product,
+  Order,
+  OrderItem,
+};
+
+this is my order.model
+// models/orderModel.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Order = sequelize.define('Order', {
+  total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+  status: {
+    type: DataTypes.ENUM('pending', 'paid', 'shipped', 'delivered', 'cancelled'),
+    defaultValue: 'pending',
+  },
+  shippingAddress: DataTypes.STRING,
+});
+
+module.exports = Order;
+
+this is my orderItem.model
+// models/orderItemModel.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const OrderItem = sequelize.define('OrderItem', {
+  quantity: { type: DataTypes.INTEGER, allowNull: false },
+  price: { type: DataTypes.DECIMAL(10, 2), allowNull: false }, // price at order time
+});
+
+module.exports = OrderItem;
+
+this is my product.model
+// models/productModel.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Product = sequelize.define('Product', {
+  name: { type: DataTypes.STRING, allowNull: false },
+  description: DataTypes.TEXT,
+  price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+  review: DataTypes.TEXT,
+  quantity: { type: DataTypes.INTEGER, defaultValue: 0 },
+  images: {
+  type: DataTypes.TEXT, // Store JSON array of Cloudinary URLs
+  get() {
+    const raw = this.getDataValue('images');
+    return raw ? JSON.parse(raw) : [];
+  },
+  set(value) {
+    this.setDataValue('images', JSON.stringify(value));
+  },
+},
+});
+
+module.exports = Product;
+
+this is my user.model
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const User = sequelize.define('User', {
+  name: { type: DataTypes.STRING, allowNull: false },
+  email: { type: DataTypes.STRING, allowNull: false, unique: true },
+  password: { type: DataTypes.STRING, allowNull: false },
+  address: DataTypes.STRING,
+  phone: DataTypes.STRING,
+  image: DataTypes.STRING,
+  role: {
+    type: DataTypes.ENUM('user', 'admin'),
+    allowNull: false,
+    defaultValue: 'user',
+  },
+});
+
+module.exports = User;
+
+this is my admin.routes
+// routes/admin.routes.js
+const express = require('express');
+const router = express.Router();
+const {
+  createAdmin,
+  loginAdmin,
+  getAllUsers,
+} = require('../controllers/admin.controller');
+const { protect, admin } = require('../middleware/auth.middleware');
+
+// 🧍 Create a new admin (only an existing admin can do this)
+router.post('/create', protect, admin, createAdmin);
+
+// 🔑 Admin login
+router.post('/login', loginAdmin);
+
+// 👥 Get all users (admin only)
+router.get('/users', protect, admin, getAllUsers);
+
+module.exports = router;
+
+this is my category.routes
+const express = require('express');
+const router = express.Router();
+const categoryController = require('../controllers/category.controller');
+const { protect, adminOnly } = require('../middleware/auth.middleware');
+const { uploadCategoryImage } = require('../middleware/uploadMiddleware');
+
+// Public routes
+router.get('/', categoryController.getCategories);
+router.get('/:id', categoryController.getCategory);
+
+// Admin-only routes
+router.post('/', protect, adminOnly, uploadCategoryImage.single('image'), categoryController.createCategory);
+router.put('/:id', protect, adminOnly, uploadCategoryImage.single('image'), categoryController.updateCategory);
+router.delete('/:id', protect, adminOnly, categoryController.deleteCategory);
+
+module.exports = router;
+
+this is my order.routes
+// routes/order.routes.js
+const express = require('express');
+const router = express.Router();
+const orderController = require('../controllers/order.controller');
+const { protect, adminOnly } = require('../middleware/auth.middleware');
+
+// 🛍️ User creates order
+router.post('/', protect, orderController.createOrder);
+
+// 👤 User gets their own orders
+router.get('/my-orders', protect, orderController.getUserOrders);
+
+// 👁️ Get single order (user or admin)
+router.get('/:id', protect, orderController.getOrderById);
+
+// 🧑‍💼 Admin-only routes
+router.get('/', protect, adminOnly, orderController.getAllOrders);
+router.put('/:id/status', protect, adminOnly, orderController.updateOrderStatus);
+router.delete('/:id', protect, adminOnly, orderController.deleteOrder);
+
+module.exports = router;
+
+this is my product.routes
+const express = require('express');
+const router = express.Router();
+const productController = require('../controllers/product.controller');
+const { protect, adminOnly } = require('../middleware/auth.middleware');
+const { uploadProductImages } = require('../middleware/uploadMiddleware');
+
+// Public routes
+router.get('/', productController.getProducts);
+router.get('/:id', productController.getProduct);
+
+// Admin-only routes
+router.post('/', protect, adminOnly, uploadProductImages.array('images', 5), productController.createProduct);
+router.put('/:id', protect, adminOnly, uploadProductImages.array('images', 5), productController.updateProduct);
+router.delete('/:id', protect, adminOnly, productController.deleteProduct);
+
+module.exports = router;
+
+this is my user.routes
+const express =require('express');
+const { registerUser, loginUser, logoutUser, uploadProfileImage } = require('../controllers/user.controller');
+const { uploadUserImage } = require('../middleware/uploadMiddleware');
+const { protect } = require('../middleware/auth.middleware');
+const router = express.Router();
+
+router.post('/register', registerUser)
+router.post('/login', loginUser)
+router.post('/logout', logoutUser);
+router.post('/upload-avatar', protect, uploadUserImage.single('image'), uploadProfileImage);
+
+module.exports = router
+
+this is my generateToken.js
+// utils/generateToken.js
+const jwt = require('jsonwebtoken');
+
+const generateToken = (userId, res) => {
+  const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || '7d',
+  });
+
+  const isProd = process.env.NODE_ENV === 'production';
+
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'None' : 'Lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: '/',
+  });
+
+  return token;
+};
+
+module.exports = generateToken;
+
+this is my server.js
+// server.js
+require('dotenv').config();
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const { sequelize } = require('./models');
+const { notFound, errorHandler } = require('./middleware/error.middleware');
+
+// Import routes
+const userRoutes = require('./routes/user.routes');
+const categoryRoutes = require('./routes/category.routes');
+const productRoutes = require('./routes/product.routes');
+const orderRoutes = require('./routes/order.routes');
+const adminRoutes = require('./routes/admin.routes');
+
+const app = express();
+
+// Middlewares
+app.use(express.json());
+app.use(cookieParser());
+app.use(helmet());
+app.use(compression());
+app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+
+// API Routes
+app.use('/users', userRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/products', productRoutes);
+app.use('/orders', orderRoutes);
+app.use('/admin', adminRoutes);
+
+// Error handling
+app.use(notFound);
+app.use(errorHandler);
+
+// 🧠 Sync DB & Seed Default Admin
+sequelize
+  .sync({ alter: false })
+  .then(async () => {
+    const PORT = process.env.PORT || 5000;
+
+    // 🧩 Create default admin if missing
+    const User = require('./models/user.model');
+    const bcrypt = require('bcryptjs');
+    const defaultEmail = 'admin@wigstore.com';
+    const adminExists = await User.findOne({ where: { email: defaultEmail } });
+
+    if (!adminExists) {
+      const hash = await bcrypt.hash('Admin123', 10);
+      await User.create({
+        name: 'Super Admin',
+        email: defaultEmail,
+        password: hash,
+        role: 'admin',
+      });
+      console.log(`✅ Default admin created (email: ${defaultEmail}, password: Admin123)`);
+    } else {
+      console.log('⚙️  Admin already exists, skipping creation');
+    }
+
+    app.listen(PORT, () =>
+      console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+    );
+  })
+  .catch((err) => {
+    console.error('❌ Database connection failed:', err.message);
+    process.exit(1);
+  });
+
+this is my .env
+PORT=5000
+DB_NAME=wigstore
+DB_USER=root
+DB_PASS=
+DB_HOST=localhost
+DB_PORT=3306
+JWT_SECRET=wigstoresecretkey
+JWT_EXPIRE=7d
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+NODE_ENV=development
+CLIENT_URL=http://localhost:5173
