@@ -1,22 +1,21 @@
 import React from 'react'
 import Hero from '../components/Hero'
 import Brand from '../components/Brand'
-import NewArrival from '../components/NewArrival'
-import TopSelling from '../components/TopSelling'
 import Category from '../components/Category'
-import Newsletter from '../components/Newsletter'
 import CustomerReview from '../components/CustomerReview'
+import FeaturedListings from '../components/FeaturedListings'
+import BestDeal from '../components/BestDeal'
 
 const LandingPage = () => {
   return (
     <div>
       <Hero />
+      <FeaturedListings />
       <Brand />
-      <NewArrival />
-      <TopSelling />
+      <BestDeal />
       <Category />
       <CustomerReview />
-      <Newsletter />
+      
     </div>
   )
 }

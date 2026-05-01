@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import login_illustrator from "../../public/login_illustrator.png";
+import login_illustrator from "/login_illustrator.png";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { BiHide, BiShow } from "react-icons/bi";
