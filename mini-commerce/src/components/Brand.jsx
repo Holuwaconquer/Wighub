@@ -1,11 +1,23 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { TbTruckDelivery } from 'react-icons/tb'
 import { RiCustomerService2Fill } from 'react-icons/ri'
 import { MdVerified } from 'react-icons/md'
 import { FaShieldAlt, FaStar } from 'react-icons/fa'
 import { GiReturnArrow } from 'react-icons/gi'
+import AOS from 'aos' 
+import 'aos/dist/aos.css'
+
 
 const WhyChooseUs = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,      
+      easing: 'ease-in-out',      
+      mirror: false,       
+      offset: 120,         
+    });
+  }, []);
+
   const benefits = [
     {
       icon: <TbTruckDelivery className="text-2xl" />,
@@ -48,7 +60,7 @@ const WhyChooseUs = () => {
   const scrollingBenefits = [...benefits, ...benefits]
 
   return (
-    <div className='w-full bg-gradient-to-r from-[#9b83a3] to-[#8c6020] overflow-hidden'>
+    <div data-aos="fade-up" className='w-full bg-gradient-to-r from-[#9b83a3] to-[#8c6020] overflow-hidden'>
       {/* Mobile Horizontal Scrolling Ticker */}
       <div className='md:hidden relative'>
         <div className='flex overflow-hidden py-4'>

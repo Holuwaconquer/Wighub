@@ -1,9 +1,22 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import ProductCard from './ProductCard'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const FeaturedListings = () => {
+
+  useEffect(() => {
+      AOS.init({
+        duration: 1000,      
+        easing: 'ease-in-out', 
+        once: false,          
+        mirror: false,       
+        offset: 120,         
+      });
+    }, []);
+
   const navigate = useNavigate()
   const scrollContainerRef = useRef(null)
 
@@ -76,7 +89,7 @@ const FeaturedListings = () => {
   ]
 
   return (
-    <div className='w-full py-[50px] px-[20px] md:px-[7%] bg-white'>
+    <div data-aos="fade-up" className='w-full py-[50px] px-[20px] md:px-[7%] bg-white'>
       {/* Header Section */}
       <div className='flex flex-col md:flex-row justify-between items-center mb-8 gap-4'>
         <div>

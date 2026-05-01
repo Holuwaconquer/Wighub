@@ -1,7 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import AOS from 'aos'  // Changed from 'Aos' to 'AOS'
+import 'aos/dist/aos.css'
 
 const Category = () => {
+
+    useEffect(() => {
+    AOS.init({
+      duration: 1000,      
+      easing: 'ease-in-out', 
+      once: true,          
+      mirror: false,       
+      offset: 120,         
+    });
+  }, []);
+
   const categories = [
     {
       name: 'WIGS',
@@ -41,7 +54,7 @@ const Category = () => {
   ]
 
   return (
-    <div className='w-full py-[50px] px-[20px] md:px-[7%] bg-gradient-to-br from-gray-50 to-purple-50'>
+    <div data-aos="zoom-in" className='w-full py-[50px] px-[20px] md:px-[7%] bg-gradient-to-br from-gray-50 to-purple-50'>
       {/* Header Section */}
       <div className='text-center mb-12'>
         <h1 className='text-3xl md:text-[48px] font-bold mb-4' style={{ color: '#9b83a3' }}>
@@ -143,7 +156,7 @@ const Category = () => {
         <p className='text-white/90 mb-4'>
           Contact our hair experts for personalized recommendations
         </p>
-        <button className='bg-white px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg' style={{ color: '#8c6020' }}>
+        <button onClick={() => window.location.href='https://wa.me/message/DSAULOSKOI4XG1'} className='bg-white px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg' style={{ color: '#8c6020' }}>
           Chat with Expert →
         </button>
       </div>
