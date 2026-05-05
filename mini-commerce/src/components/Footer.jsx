@@ -10,7 +10,7 @@ const Footer = () => {
   const date = new Date();
   const year = date.getFullYear();
   return (
-    <div className='w-full pt-[5%]  flex flex-col gap-4 justify-center items-center bg-gradient-to-br from-purple-100 to-pink-100'>
+    <div className='w-full pt-[14%] md:pt-[5%]  flex flex-col gap-4 justify-center items-center bg-gradient-to-br from-purple-100 to-pink-100'>
 
       <div className='w-full py-[3%] px-[7%] flex flex-col md:flex-row items-start justify-between border-b-2 border-[#0000001A]'>
         {/* for footer logo */}

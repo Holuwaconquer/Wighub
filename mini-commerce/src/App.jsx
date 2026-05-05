@@ -8,6 +8,23 @@ import ShopPage from './pages/ShopPage'
 import ScrollToTop from './ScrollToTop'
 import AOS from 'aos' 
 import 'aos/dist/aos.css'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
+import CheckoutPage from './pages/CheckoutPage'
+import CartPage from './pages/CartPage'
+import ProductDetails from './pages/ProductDetails'
+import OrderConfirmationPage from './pages/OrderConfirmationPage'
+import AdminLogin from './pages/admin/AdminLogin'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import Products from './pages/admin/Products'
+import AddProduct from './pages/admin/AddProduct'
+import Orders from './pages/admin/Orders'
+import OrderDetails from './pages/admin/OrderDetails'
+import Customers from './pages/admin/Customers'
+import Reviews from './pages/admin/Reviews'
+import Coupons from './pages/admin/Coupons'
+import Analytics from './pages/admin/Analytics'
+import Settings from './pages/admin/Settings'
 
 const App = () => {
   useEffect(() => {
@@ -28,10 +45,31 @@ const App = () => {
         <Route path='/' element={<HomePage />}>
           <Route index element={<LandingPage />} />
           <Route path='/shop' element={<ShopPage />} />
+          {/* other routes */}
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='/register' element={<RegisterPage />} />
+
+          <Route path='/product/:id' element={<ProductDetails />} />
+          <Route path='/cart' element={<CartPage />} />
+          <Route path='/checkout' element={<CheckoutPage />} />
+          <Route path='/order-confirmation/:id' element={<OrderConfirmationPage />} />
         </Route>
-        {/* other routes */}
         <Route path='/login' element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage />} />
+        <Route path='/forgot-password' element={<ForgotPasswordPage />} />
+        <Route path='/reset-password/:token' element={<ResetPasswordPage />} />
+
+        <Route path='/admin/login' element={<AdminLogin />} />
+        <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        <Route path='/admin/products' element={<Products />} />
+        <Route path='/admin/products/add' element={<AddProduct />} />
+        <Route path='/admin/orders' element={<Orders />} />
+        <Route path='/admin/orders/:id' element={<OrderDetails />} />
+        <Route path='/admin/customers' element={<Customers />} />
+        <Route path='/admin/reviews' element={<Reviews />} />
+        <Route path='/admin/coupons' element={<Coupons />} />
+        <Route path='/admin/analytics' element={<Analytics />} />
+        <Route path='/admin/settings' element={<Settings />} />
       </Routes>
 
       <a

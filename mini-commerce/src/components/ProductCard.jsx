@@ -25,6 +25,7 @@ const ProductCard = ({ product }) => {
       className='w-full group relative'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => window.location.href = `/product/${product.id}`}
     >
       {/* Badges */}
       <div className='absolute top-3 left-3 z-10 flex gap-2'>

@@ -1,152 +1,242 @@
-import React, { useState } from "react";
-import login_illustrator from "/login_illustrator.png";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import { BiHide, BiShow } from "react-icons/bi";
-import axios from "axios";
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { FaEnvelope, FaLock, FaUser, FaPhone, FaEye, FaEyeSlash } from 'react-icons/fa'
 
 const RegisterPage = () => {
-  const [passwordtype, setpasswordtype] = useState("password");
-  const API_URL = import.meta.env.VITE_BACKEND_PORT;
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-      name: ""
-    },
-    onSubmit: (values) => {
-      console.log(values);
-      axios.post(`${API_URL}/user/register`, values)
-      .then((res) =>{
-        console.log('user registered!', res);
-        if(res.status === 400){
-            console.log("an account with this email has already been registered");   
-        }else if(res.data.status){
-            console.log("Account registered successfully");
-        }
-      }).catch((err) =>{
-        console.log('cannot register user', err);
-      })
-    },
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    agreeTerms: false
+  })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+    setError('')
+  }
 
-    validationSchema: yup.object({
-        name: yup.string().required("This field is required"),
-      email: yup
-        .string()
-        .required("This field is required")
-        .email("This is not a valid email"),
-      password: yup.string().required("This field is required"),
-    }),
-  });
+  const validateForm = () => {
+    if (!formData.fullName.trim()) {
+      setError('Full name is required')
+      return false
+    }
+    if (!formData.email.trim()) {
+      setError('Email is required')
+      return false
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError('Please enter a valid email address')
+      return false
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return false
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match')
+      return false
+    }
+    if (!formData.agreeTerms) {
+      setError('You must agree to the terms and conditions')
+      return false
+    }
+    return true
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+    
+    setLoading(true)
+    
+    // Simulate API call
+    setTimeout(() => {
+      const userData = {
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        isAuthenticated: true
+      }
+      localStorage.setItem('user', JSON.stringify(userData))
+      navigate('/')
+      setLoading(false)
+    }, 1000)
+  }
+
   return (
-    <div className="w-full h-full justify-center md:justify-stretch flex flex-col gap-4 px-[20px] md:px-[7%] py-[4%] bg-[#F4F6FA]">
-      <h1>PROMAX CARE</h1>
-      <div className="w-full grid md:grid-cols-2 md:gap-4 md:justify-between items-center">
-        <div className="w-full flex flex-col gap-4 ">
-          <h1 className="text-[20px] md:text-[48px] font-bold text-[#030637] ">
-            Build for maximum care and support
-          </h1>
-          <p className="w-full font-[18px]">
-            Easily manage day to day operations from onboarding through to
-            appointment booking and more
-          </p>
-          <img src={login_illustrator} className="w-3/4" alt="" />
-        </div>
-
-        <div className="w-full flex flex-col gap-8 justify-center items-center bg-white py-[60px] px-[10px] md:px-[50px] rounded-[35px]">
-          <h1 className="text-[24px]">PROMAX CARE</h1>
-          <form
-            onSubmit={formik.handleSubmit}
-            className="w-full flex flex-col gap-4"
-          >
-            <h1>Register</h1>
-            <div className="w-full flex flex-col gap-0">
-              <label
-                htmlFor="name"
-                className="text-[16px] font-medium text-[#4E4E4E]"
-              >
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                placeholder="Name"
-                className="w-full p-3 outline-0 border-b border-[#ABABAB] rounded-[5px]"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              <small className="text-red-600">{formik.errors.name && formik.touched.name ? formik.errors.name : null}</small>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center py-20 px-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold" style={{ color: '#9b83a3' }}>MINKA LUXURY HAIR</h1>
+            <p className="text-gray-600 mt-2">Create your account</p>
+          </div>
+          
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {error}
             </div>
-            <div className="w-full flex flex-col gap-0">
-              <label
-                htmlFor="email"
-                className="text-[16px] font-medium text-[#4E4E4E]"
-              >
-                Email
-              </label>
-              <input
-                type="text"
-                name="email"
-                placeholder="Email"
-                className="w-full p-3 outline-0 border-b border-[#ABABAB] rounded-[5px]"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              <small className="text-red-600">{formik.errors.email && formik.touched.email ? formik.errors.email : null}</small>
-            </div>
-            <div className="w-full flex flex-col gap-0">
-              <label
-                htmlFor="email"
-                className="text-[16px] font-medium text-[#4E4E4E]"
-              >
-                Password
+          )}
+          
+          {/* Registration Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name *
               </label>
               <div className="relative">
+                <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type={passwordtype}
-                  name="password"
-                  placeholder="Password"
-                  className="w-full p-3 outline-0 border-b border-[#ABABAB] rounded-[5px]"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  placeholder="John Doe"
                 />
-                <button>
-                  {passwordtype === "password" ? (
-                    <BiHide
-                      onClick={() => setpasswordtype("text")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                    />
-                  ) : (
-                    <BiShow
-                      onClick={() => setpasswordtype("password")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                    />
-                  )}
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address *
+              </label>
+              <div className="relative">
+                <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number (Optional)
+              </label>
+              <div className="relative">
+                <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  placeholder="+234 801 234 5678"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password *
+              </label>
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  placeholder="Minimum 6 characters"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
-                <small className="text-red-600">{formik.errors.password && formik.touched.password ? formik.errors.password : null}</small>
               </div>
             </div>
-            <div className="w-full flex justify-between items-center gap-2">
-              <div className="flex gap-2 items-center">
-                <input type="checkbox" className="text-[#FFFFFF] w-[20px] h-[20px]" />
-                <p className="text-[14px]">Remember me</p>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm Password *
+              </label>
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  placeholder="Confirm your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
               </div>
-
-              <a href="#" className="text-[14px]">
-                Forgot password?
-              </a>
             </div>
-
-            <button type="submit" disabled={!(formik.isValid && formik.dirty)} className={`bg-[#030637] text-white rounded-[5px] p-[10px] gap-[10] mb-[3px] w-full hover:scale-[1.02] transition-transform ${!(formik.isValid && formik.dirty) ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
-              Sign Up
+            
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="agreeTerms"
+                checked={formData.agreeTerms}
+                onChange={handleChange}
+                className="w-4 h-4 accent-[#9b83a3]"
+              />
+              <label className="text-sm text-gray-600">
+                I agree to the{' '}
+                <Link to="/terms" className="text-[#8c6020] hover:underline">
+                  Terms & Conditions
+                </Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="text-[#8c6020] hover:underline">
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Creating account...' : 'Create Account'}
             </button>
-            <p className="text-center justify-center items-center text-[#5C5C5C]">Already have an Account? <a href="/login" className="text-[#405189]">Login here</a></p>
           </form>
+          
+          {/* Login Link */}
+          <p className="text-center text-gray-600 mt-6">
+            Already have an account?{' '}
+            <Link to="/login" className="text-[#8c6020] font-semibold hover:underline">
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RegisterPage;
+export default RegisterPage

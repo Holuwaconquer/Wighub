@@ -1,24 +1,21 @@
+ 
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaStore } from 'react-icons/fa'
 
-const LoginPage = () => {
+const AdminLogin = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    rememberMe: false
+    password: ''
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
     setError('')
   }
 
@@ -26,21 +23,18 @@ const LoginPage = () => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    
-    // Simulate API call
+
+    // Demo admin credentials
+    // In production, replace with actual API call
     setTimeout(() => {
-      // Demo credentials: demo@minka.com / password123
-      if (formData.email === 'demo@minka.com' && formData.password === 'password123') {
-        const userData = {
+      if (formData.email === 'admin@minka.com' && formData.password === 'admin123') {
+        const adminData = {
           email: formData.email,
-          name: 'Demo User',
+          role: 'admin',
           isAuthenticated: true
         }
-        localStorage.setItem('user', JSON.stringify(userData))
-        if (formData.rememberMe) {
-          localStorage.setItem('rememberMe', 'true')
-        }
-        navigate('/')
+        localStorage.setItem('adminAuth', JSON.stringify(adminData))
+        navigate('/admin/dashboard')
       } else {
         setError('Invalid email or password')
       }
@@ -49,27 +43,30 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center py-20 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center py-20 px-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#9b83a3' }}>MINKA LUXURY HAIR</h1>
-            <p className="text-gray-600 mt-2">Welcome back! Please login to your account</p>
+            <div className="w-16 h-16 bg-[#9b83a3] rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaStore className="text-white text-2xl" />
+            </div>
+            <h1 className="text-2xl font-bold" style={{ color: '#9b83a3' }}>Admin Portal</h1>
+            <p className="text-gray-600 mt-2">Minka Luxury Hair</p>
           </div>
-          
-          {/* Error Message */}
+
+          {/* Error */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
-          
+
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                Admin Email
               </label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -79,12 +76,12 @@ const LoginPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
-                  placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  placeholder="admin@minka.com"
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Password
@@ -97,59 +94,33 @@ const LoginPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
-                  placeholder="Enter your password"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
             </div>
-            
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  checked={formData.rememberMe}
-                  onChange={handleChange}
-                  className="w-4 h-4 accent-[#9b83a3]"
-                />
-                <span className="text-sm text-gray-600">Remember me</span>
-              </label>
-              
-              <Link to="/forgot-password" className="text-sm text-[#8c6020] hover:underline">
-                Forgot password?
-              </Link>
-            </div>
-            
+
             <button
               type="submit"
               disabled={loading}
               className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
             >
-              {loading ? 'Logging in...' : 'Sign In'}
+              {loading ? 'Logging in...' : 'Login to Admin'}
             </button>
           </form>
-          
-          {/* Sign Up Link */}
-          <p className="text-center text-gray-600 mt-6">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-[#8c6020] font-semibold hover:underline">
-              Sign up
-            </Link>
-          </p>
-          
-          {/* Demo Credentials */}
+
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <p className="text-xs text-gray-500 text-center">
               Demo Credentials:<br />
-              Email: demo@minka.com<br />
-              Password: password123
+              Email: admin@minka.com<br />
+              Password: admin123
             </p>
           </div>
         </div>
@@ -158,4 +129,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default AdminLogin
