@@ -92,7 +92,7 @@ const Settings = () => {
                 name="name"
                 value={settings.store.name}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
             <div>
@@ -102,7 +102,7 @@ const Settings = () => {
                 name="email"
                 value={settings.store.email}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
             <div>
@@ -112,7 +112,7 @@ const Settings = () => {
                 name="phone"
                 value={settings.store.phone}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
             <div>
@@ -122,7 +122,7 @@ const Settings = () => {
                 name="address"
                 value={settings.store.address}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
           </div>
@@ -142,7 +142,7 @@ const Settings = () => {
                 name="freeShippingThreshold"
                 value={settings.shipping.freeShippingThreshold}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
             <div>
@@ -152,7 +152,7 @@ const Settings = () => {
                 name="shippingCost"
                 value={settings.shipping.shippingCost}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
             <div>
@@ -162,7 +162,7 @@ const Settings = () => {
                 name="processingTime"
                 value={settings.shipping.processingTime}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
             <div>
@@ -172,7 +172,7 @@ const Settings = () => {
                 name="deliveryEstimate"
                 value={settings.shipping.deliveryEstimate}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
               />
             </div>
           </div>

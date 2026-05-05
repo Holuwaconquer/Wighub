@@ -62,7 +62,7 @@ const OrderDetails = () => {
             <h2 className="text-lg font-bold mb-4">Order Items</h2>
             <div className="space-y-3">
               {order.items.map((item, idx) => (
-                <div key={idx} className="flex gap-4 py-3 border-b last:border-0">
+                <div key={idx} className="flex gap-4 py-3 border-b border-gray-300 last:border-0">
                   <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-semibold">{item.name}</p>
@@ -140,7 +140,7 @@ const OrderDetails = () => {
                 <span className="text-gray-600">Tax</span>
                 <span>{formatNaira(order.tax)}</span>
               </div>
-              <div className="flex justify-between text-lg font-bold pt-2 border-t">
+              <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-300">
                 <span>Total</span>
                 <span className="text-[#9b83a3]">{formatNaira(order.total)}</span>
               </div>
@@ -164,7 +164,7 @@ const OrderDetails = () => {
             <select
               value={order.status}
               onChange={(e) => updateOrderStatus(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] mb-3"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] mb-3"
             >
               <option value="pending">Pending</option>
               <option value="processing">Processing</option>

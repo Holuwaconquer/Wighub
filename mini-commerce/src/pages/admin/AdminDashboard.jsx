@@ -4,10 +4,11 @@ import AdminLayout from './AdminLayout'
 import { 
   FaBox, FaShoppingCart, FaUsers, FaStar, 
   FaDollarSign, FaEye, FaChartLine, FaArrowUp, 
-  FaArrowDown, FaRegClock
+  FaArrowDown, FaRegClock, FaTags
 } from 'react-icons/fa'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js'
+import { useNavigate } from 'react-router-dom'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
@@ -20,6 +21,8 @@ const AdminDashboard = () => {
     pendingOrders: 0,
     averageRating: 0
   })
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Load data from localStorage
@@ -140,19 +143,19 @@ const AdminDashboard = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm">
         <h2 className="text-lg font-bold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <button onClick={() => navigate('/admin/products')} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <FaBox className="text-2xl text-[#9b83a3] mx-auto mb-2" />
             <p className="text-sm font-medium">Add Product</p>
           </button>
-          <button className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <button onClick={() => navigate('/admin/orders')} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <FaShoppingCart className="text-2xl text-[#9b83a3] mx-auto mb-2" />
             <p className="text-sm font-medium">View Orders</p>
           </button>
-          <button className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <button onClick={() => navigate('/admin/coupons')} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <FaTags className="text-2xl text-[#9b83a3] mx-auto mb-2" />
             <p className="text-sm font-medium">Add Coupon</p>
           </button>
-          <button className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <button onClick={() => navigate('/admin/analytics')} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <FaChartLine className="text-2xl text-[#9b83a3] mx-auto mb-2" />
             <p className="text-sm font-medium">Analytics</p>
           </button>

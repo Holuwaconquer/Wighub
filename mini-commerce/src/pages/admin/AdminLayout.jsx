@@ -41,7 +41,7 @@ const AdminLayout = ({ children }) => {
       {/* Mobile Sidebar Toggle */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-white rounded-lg shadow-md"
       >
         <FaBars />
       </button>
@@ -59,9 +59,9 @@ const AdminLayout = ({ children }) => {
         fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-6 border-b">
+        <div className="p-6 border-b border-gray-300">
           <div className="flex items-center justify-between">
-            <div>
+            <div className='cursor-pointer' onClick={() => navigate('/')}>
               <h2 className="text-xl font-bold" style={{ color: '#9b83a3' }}>Admin Panel</h2>
               <p className="text-xs text-gray-500">Minka Luxury Hair</p>
             </div>

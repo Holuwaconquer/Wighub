@@ -25,6 +25,7 @@ import Reviews from './pages/admin/Reviews'
 import Coupons from './pages/admin/Coupons'
 import Analytics from './pages/admin/Analytics'
 import Settings from './pages/admin/Settings'
+import EditProduct from './pages/admin/EditProduct'
 
 const App = () => {
   useEffect(() => {
@@ -63,6 +64,7 @@ const App = () => {
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
         <Route path='/admin/products' element={<Products />} />
         <Route path='/admin/products/add' element={<AddProduct />} />
+        <Route path='/admin/products/edit/:id' element={<EditProduct />} />
         <Route path='/admin/orders' element={<Orders />} />
         <Route path='/admin/orders/:id' element={<OrderDetails />} />
         <Route path='/admin/customers' element={<Customers />} />
