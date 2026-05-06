@@ -26,6 +26,14 @@ import Coupons from './pages/admin/Coupons'
 import Analytics from './pages/admin/Analytics'
 import Settings from './pages/admin/Settings'
 import EditProduct from './pages/admin/EditProduct'
+import Dashboard from './pages/user/Dashboard'
+import Profile from './pages/user/Profile'
+import UserOrders from './pages/user/Orders'
+import UserOrderDetails from './pages/user/OrderDetails'
+import Wishlist from './pages/user/Wishlist'
+import Addresses from './pages/user/Addresses'
+import ChangePassword from './pages/user/ChangePassword'
+import UserSettings from './pages/user/Settings'
 
 const App = () => {
   useEffect(() => {
@@ -60,6 +68,7 @@ const App = () => {
         <Route path='/forgot-password' element={<ForgotPasswordPage />} />
         <Route path='/reset-password/:token' element={<ResetPasswordPage />} />
 
+        {/* admin routes */}
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
         <Route path='/admin/products' element={<Products />} />
@@ -72,7 +81,18 @@ const App = () => {
         <Route path='/admin/coupons' element={<Coupons />} />
         <Route path='/admin/analytics' element={<Analytics />} />
         <Route path='/admin/settings' element={<Settings />} />
+        
+        <Route path='/user/dashboard' element={<Dashboard />} />
+        <Route path='/user/profile' element={<Profile />} />
+        <Route path='/user/orders' element={<UserOrders />} />
+        <Route path='/user/orders/:id' element={<UserOrderDetails />} />
+        <Route path='/user/wishlist' element={<Wishlist />} />
+        <Route path='/user/addresses' element={<Addresses />} />
+        <Route path='/user/change-password' element={<ChangePassword />} />
+        <Route path='/user/settings' element={<UserSettings />} />
       </Routes>
+
+      {/* user routes */}
 
       <a
         href='https://wa.me/message/DSAULOSKOI4XG1'

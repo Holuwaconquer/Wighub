@@ -1,0 +1,90 @@
+const mongoose = require('mongoose');
+
+const orderSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  orderItems: [
+    {
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true
+      },
+      name: String,
+      price: Number,
+      quantity: Number,
+      size: String,
+      color: String,
+      image: String
+    }
+  ],
+  shippingAddress: {
+    fullName: { type: String, required: true },
+    phone: { type: String, required: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zipCode: { type: String, required: true }
+  },
+  paymentMethod: {
+    type: String,
+    required: true,
+    enum: ['card', 'bank', 'cod']
+  },
+  paymentResult: {
+    id: String,
+    status: String,
+    updateTime: String,
+    emailAddress: String
+  },
+  itemsPrice: {
+    type: Number,
+    required: true,
+    default: 0.0
+  },
+  taxPrice: {
+    type: Number,
+    required: true,
+    default: 0.0
+  },
+  shippingPrice: {
+    type: Number,
+    required: true,
+    default: 0.0
+  },
+  totalPrice: {
+    type: Number,
+    required: true,
+    default: 0.0
+  },
+  coupon: {
+    code: String,
+    discount: Number
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  isPaid: {
+    type: Boolean,
+    default: false
+  },
+  paidAt: Date,
+  isDelivered: {
+    type: Boolean,
+    default: false
+  },
+  deliveredAt: Date,
+  trackingNumber: String,
+  notes: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+module.exports = mongoose.model('Order', orderSchema);
