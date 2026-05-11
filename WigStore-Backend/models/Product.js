@@ -33,11 +33,13 @@ const productSchema = new mongoose.Schema({
   },
   hairType: {
     type: String,
-    enum: ['Brazilian', 'Peruvian', 'Malaysian', 'Indian', 'Spanish', 'Italian']
+    trim: true,
+    default: ''
   },
   texture: {
     type: String,
-    enum: ['Straight', 'Body Wave', 'Deep Wave', 'Kinky Curly', 'Water Wave']
+    trim: true,
+    default: ''
   },
   length: String,
   weight: String,
@@ -50,7 +52,8 @@ const productSchema = new mongoose.Schema({
   sku: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true,
+    default: null
   },
   images: [String],
   features: [String],
@@ -92,7 +95,13 @@ const productSchema = new mongoose.Schema({
 
 // Generate slug before saving
 productSchema.pre('save', function() {
-  if (this.isModified('name') || !this.slug) {
+  if (!this.slug) {
+    this.slug = this.name
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  } else if (this.isModified('name') && !this.isModified('slug')) {
     this.slug = this.name
       .toLowerCase()
       .replace(/[^a-zA-Z0-9]/g, '-')

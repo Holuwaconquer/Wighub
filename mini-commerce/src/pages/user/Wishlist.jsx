@@ -63,18 +63,18 @@ const Wishlist = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {wishlist.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div key={item._id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="relative">
-                <img src={item.image} alt={item.name} className="w-full h-48 object-cover" />
+                <img src={item.images?.[0] || '/placeholder.jpg'} alt={item.name} className="w-full h-48 object-cover" />
                 <button
-                  onClick={() => removeFromWishlist(item.id)}
+                  onClick={() => removeFromWishlist(item._id)}
                   className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 transition-colors"
                 >
                   <FaTrash className="text-red-500" />
                 </button>
               </div>
               <div className="p-4">
-                <Link to={`/product/${item.id}`}>
+                <Link to={`/product/${item.slug || item._id}`}>
                   <h3 className="font-semibold text-gray-800 hover:text-[#9b83a3] transition-colors line-clamp-2">
                     {item.name}
                   </h3>

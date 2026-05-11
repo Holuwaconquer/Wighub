@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaEnvelope, FaLock, FaUser, FaPhone, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { register } from '../services/api'
 
 const RegisterPage = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',  // Changed from fullName to name to match API
     email: '',
     phone: '',
     password: '',
@@ -27,7 +28,7 @@ const RegisterPage = () => {
   }
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) {
+    if (!formData.name.trim()) {
       setError('Full name is required')
       return false
     }
@@ -61,49 +62,51 @@ const RegisterPage = () => {
     
     setLoading(true)
     
-    // Simulate API call
-    setTimeout(() => {
-      const userData = {
-        name: formData.fullName,
+    try {
+      const userData = await register({
+        name: formData.name,
         email: formData.email,
-        phone: formData.phone,
-        isAuthenticated: true
+        password: formData.password,
+        phone: formData.phone
+      })
+      
+      // Redirect to login or dashboard based on role
+      if (userData.role === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/user/dashboard')
       }
-      localStorage.setItem('user', JSON.stringify(userData))
-      navigate('/')
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center py-20 px-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold" style={{ color: '#9b83a3' }}>MINKA LUXURY HAIR</h1>
             <p className="text-gray-600 mt-2">Create your account</p>
           </div>
           
-          {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
           
-          {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
               <div className="relative">
                 <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  name="fullName"
-                  value={formData.fullName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
@@ -113,9 +116,7 @@ const RegisterPage = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -131,9 +132,7 @@ const RegisterPage = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number (Optional)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
               <div className="relative">
                 <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -148,9 +147,7 @@ const RegisterPage = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -173,9 +170,7 @@ const RegisterPage = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm Password *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -226,7 +221,6 @@ const RegisterPage = () => {
             </button>
           </form>
           
-          {/* Login Link */}
           <p className="text-center text-gray-600 mt-6">
             Already have an account?{' '}
             <Link to="/login" className="text-[#8c6020] font-semibold hover:underline">

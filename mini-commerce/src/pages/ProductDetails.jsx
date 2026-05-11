@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { FaStar, FaStarHalfAlt, FaRegStar, FaTruck, FaShieldAlt, FaUndo, FaHeart, FaRegHeart, FaFacebook, FaTwitter, FaInstagram, FaWhatsapp, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { HiMinus, HiPlus } from 'react-icons/hi'
+import { useDispatch, useSelector } from 'react-redux'
+import { addToCart } from '../store/slices/cartSlice'
+import api from '../services/api'
 
 const ProductDetails = () => {
-  const { id } = useParams()
+  const { slug } = useParams()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [selectedSize, setSelectedSize] = useState('')
   const [selectedColor, setSelectedColor] = useState('')
@@ -16,213 +21,37 @@ const ProductDetails = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [relatedProducts, setRelatedProducts] = useState([])
 
-  // All products data (in real app, this would come from an API)
-  const productsDatabase = {
-    1: {
-      id: 1,
-      name: '5x5 Closure Wig - Brazilian Straight',
-      price: 888000,
-      originalPrice: 890000,
-      rating: 4.8,
-      reviews: 124,
-      description: 'Experience luxury with our 100% virgin human hair 5x5 closure wig. This premium wig features a natural hairline, tangle-free texture, and long-lasting durability. Perfect for everyday wear or special occasions.',
-      features: [
-        '100% Virgin Human Hair',
-        '5x5 Silk Base Closure',
-        'Pre-plucked with baby hair',
-        'Bleached knots',
-        'Swiss lace material',
-        'Can be dyed and styled'
-      ],
-      specifications: {
-        'Hair Type': 'Brazilian',
-        'Texture': 'Straight',
-        'Length': '22 inches',
-        'Weight': '300 grams',
-        'Cap Size': 'Medium (22.5")',
-        'Lace Color': 'Transparent'
-      },
-      careInstructions: [
-        'Wash with sulfate-free shampoo',
-        'Condition regularly',
-        'Air dry or low heat',
-        'Store on mannequin head'
-      ],
-      images: [
-        '/image1.jpg',
-      ],
-      availableSizes: ['18 inch', '20 inch', '22 inch', '24 inch'],
-      availableColors: ['Natural Black', 'Dark Brown', 'Auburn', 'Bleached Blonde'],
-      inStock: true,
-      sku: 'MLH-WIG-001',
-      category: 'Wigs',
-      tags: ['wig', 'brazilian', 'straight', 'luxury'],
-      isBestSeller: true,
-      isNew: false
-    },
-    2: {
-      id: 2,
-      name: '28 inches Bone Straight 300grams 5x5 closure',
-      price: 850000,
-      originalPrice: 950000,
-      rating: 4.7,
-      reviews: 89,
-      description: 'Premium 28-inch bone straight wig made from 100% virgin human hair. Features a 5x5 closure for a natural look.',
-      features: ['100% Virgin Hair', '5x5 Closure', 'Bone Straight', 'Pre-plucked'],
-      specifications: {
-        'Hair Type': 'Peruvian',
-        'Texture': 'Bone Straight',
-        'Length': '28 inches',
-        'Weight': '300 grams'
-      },
-      careInstructions: ['Gentle wash', 'Air dry', 'Avoid heat'],
-      images: [
-        '/image2.jpg',
-      ],
-      availableSizes: ['26 inch', '28 inch', '30 inch'],
-      availableColors: ['Natural Black', '#1a1a1a'],
-      inStock: true,
-      sku: 'MLH-WIG-002',
-      category: 'Wigs',
-      isBestSeller: false,
-      isNew: true
-    },
-    3: {
-      id: 3,
-      name: '22" 20" 18" inches 300grams 5x5 closure',
-      price: 519000,
-      originalPrice: 600000,
-      rating: 4.9,
-      reviews: 203,
-      description: 'Multi-length bundle deal with 5x5 closure. Perfect for creating volume and length.',
-      features: ['3 Bundle Deal', '5x5 Closure', 'Multi-length', '300 grams total'],
-      specifications: {
-        'Hair Type': 'Brazilian',
-        'Texture': 'Body Wave',
-        'Lengths': '18", 20", 22"',
-        'Weight': '300 grams'
-      },
-      careInstructions: ['Brush gently', 'Moisturize regularly'],
-      images: [
-        '/image3.jpg',
-      ],
-      availableSizes: ['Bundle Deal'],
-      availableColors: ['Natural Black', 'Dark Brown'],
-      inStock: true,
-      sku: 'MLH-BND-003',
-      category: 'Bundles',
-      isBestSeller: true,
-      isNew: false
-    },
-    4: {
-      id: 4,
-      name: 'Donor 100% virgin hair extensions Dark brown bone straight 16 inches',
-      price: 920000,
-      originalPrice: 1100000,
-      rating: 4.9,
-      reviews: 312,
-      description: 'High-quality donor hair extensions, 100% virgin human hair, bone straight texture.',
-      features: ['Donor Quality', '100% Virgin', 'Bone Straight', '16 inches'],
-      specifications: {
-        'Hair Type': 'Brazilian',
-        'Texture': 'Bone Straight',
-        'Length': '16 inches',
-        'Weight': '300 grams'
-      },
-      careInstructions: ['Use sulfate-free products', 'Deep condition weekly'],
-      images: [
-        '/image4.jpg',
-      ],
-      availableSizes: ['14 inch', '16 inch', '18 inch'],
-      availableColors: ['Dark Brown', 'Natural Black'],
-      inStock: true,
-      sku: 'MLH-EXT-004',
-      category: 'Extensions',
-      isBestSeller: true,
-      isNew: false
-    },
-    5: {
-      id: 5,
-      name: 'Donor 100% virgin hair extensions Light brown bone straight 14 inches',
-      price: 315000,
-      originalPrice: 375000,
-      rating: 4.6,
-      reviews: 67,
-      description: 'Light brown donor quality hair extensions. Perfect for highlights and dimension.',
-      features: ['Light Brown Color', 'Donor Quality', '14 inches'],
-      specifications: {
-        'Hair Type': 'Peruvian',
-        'Texture': 'Bone Straight',
-        'Length': '14 inches',
-        'Weight': '200 grams'
-      },
-      careInstructions: ['Color safe products', 'Avoid over-washing'],
-      images: [
-        '/image1.jpg', 
-      ],
-      availableSizes: ['14 inch'],
-      availableColors: ['Light Brown'],
-      inStock: true,
-      sku: 'MLH-EXT-005',
-      category: 'Extensions',
-      isBestSeller: false,
-      isNew: true
-    },
-    6: {
-      id: 6,
-      name: 'Burn orange 🍊 luxury hair 14 inches 229gram Closure 5x5',
-      price: 380000,
-      originalPrice: 450000,
-      rating: 4.8,
-      reviews: 156,
-      description: 'Unique burn orange color luxury hair with 5x5 closure. Stand out with this vibrant color.',
-      features: ['Custom Color', '5x5 Closure', 'Vibrant Orange'],
-      specifications: {
-        'Hair Type': 'Brazilian',
-        'Texture': 'Straight',
-        'Length': '14 inches',
-        'Weight': '229 grams'
-    },
-      careInstructions: ['Color protectant products', 'Cold water wash'],
-      images: [
-        '/image1.jpg', 
-      ],
-      availableSizes: ['14 inch'],
-      availableColors: ['Burn Orange'],
-      inStock: true,
-      sku: 'MLH-WIG-006',
-      category: 'Wigs',
-      isBestSeller: false,
-      isNew: true
-    }
-  }
-
-  // Get related products
-  const getRelatedProducts = (currentProduct) => {
-    if (!currentProduct) return []
-    return Object.values(productsDatabase)
-      .filter(p => p.id !== currentProduct.id && p.category === currentProduct.category)
-      .slice(0, 4)
-  }
-
   // Fetch product data
   useEffect(() => {
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      const productData = productsDatabase[id]
-      if (productData) {
-        setProduct(productData)
-        setSelectedSize(productData.availableSizes[0] || '')
-        setSelectedColor(productData.availableColors[0] || '')
-        setRelatedProducts(getRelatedProducts(productData))
-      } else {
-        // Product not found
-        navigate('/shop')
+    const loadProduct = async () => {
+      try {
+        setLoading(true)
+        const response = await api.get(`/products/slug/${slug}`)
+        setProduct(response.data)
+        setError(null)
+      } catch (err) {
+        setError('Product not found')
+        console.error('Failed to load product:', err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
-    }, 500)
-  }, [id, navigate])
+    }
+
+    if (slug) {
+      loadProduct()
+    }
+  }, [slug])
+
+  // Set default selections when product loads
+  useEffect(() => {
+    if (product) {
+      setSelectedSize(product.availableSizes?.[0] || '')
+      setSelectedColor(product.availableColors?.[0] || '')
+      // Get related products (same category, limit 4)
+      const related = product.relatedProducts || []
+      setRelatedProducts(related.slice(0, 4))
+    }
+  }, [product])
 
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -247,35 +76,25 @@ const ProductDetails = () => {
     return stars
   }
 
-  const addToCart = () => {
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
+  const handleAddToCart = () => {
+    if (!product) return
+
+    dispatch(addToCart({
+      productId: product._id,
       quantity: quantity,
+      price: product.price,
+      name: product.name,
       size: selectedSize,
       color: selectedColor,
-      image: product.images[0]
-    }
-    
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]')
-    const existingIndex = existingCart.findIndex(item => 
-      item.id === cartItem.id && item.size === cartItem.size && item.color === cartItem.color
-    )
-    
-    if (existingIndex > -1) {
-      existingCart[existingIndex].quantity += quantity
-    } else {
-      existingCart.push(cartItem)
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(existingCart))
+      image: product.images?.[0] || product.image
+    }))
+
     setShowSuccessMessage(true)
     setTimeout(() => setShowSuccessMessage(false), 3000)
   }
 
   const buyNow = () => {
-    addToCart()
+    handleAddToCart()
     setTimeout(() => navigate('/checkout'), 500)
   }
 
@@ -291,7 +110,16 @@ const ProductDetails = () => {
   }
 
   if (!product) {
-    return null
+    return (
+      <div className="min-h-screen bg-gray-50 pt-32 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Product not found</p>
+          <Link to="/shop" className="mt-4 inline-block px-6 py-2 bg-[#9b83a3] text-white rounded-lg">
+            Back to Shop
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -319,13 +147,13 @@ const ProductDetails = () => {
           {/* Product Images */}
           <div>
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg mb-4 relative group">
-              <img 
-                src={product.images[activeImage]} 
+              <img
+                src={product.images?.[activeImage] || product.image || '/placeholder.jpg'}
                 alt={product.name}
                 className="w-full h-[400px] object-cover"
               />
               {/* Navigation Arrows */}
-              {product.images.length > 1 && (
+              {product.images && product.images.length > 1 && (
                 <>
                   <button
                     onClick={() => setActiveImage(prev => (prev === 0 ? product.images.length - 1 : prev - 1))}
@@ -342,19 +170,21 @@ const ProductDetails = () => {
                 </>
               )}
             </div>
-            <div className="grid grid-cols-4 gap-3">
-              {product.images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveImage(idx)}
-                  className={`bg-white rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                    activeImage === idx ? 'border-[#9b83a3] shadow-lg' : 'border-transparent'
-                  }`}
-                >
-                  <img src={img} alt={`View ${idx + 1}`} className="w-full h-24 object-cover" />
-                </button>
-              ))}
-            </div>
+            {product.images && product.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-3">
+                {product.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(idx)}
+                    className={`bg-white rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                      activeImage === idx ? 'border-[#9b83a3] shadow-lg' : 'border-transparent'
+                    }`}
+                  >
+                    <img src={img} alt={`View ${idx + 1}`} className="w-full h-24 object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -375,11 +205,11 @@ const ProductDetails = () => {
             </div>
 
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">{product.name}</h1>
-            
+
             {/* Rating */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex gap-1">{renderStars(product.rating)}</div>
-              <span className="text-gray-500">({product.reviews} reviews)</span>
+              <div className="flex gap-1">{renderStars(product.rating || 0)}</div>
+              <span className="text-gray-500">({product.reviews || 0} reviews)</span>
               <span className="text-green-600 text-sm">✓ In Stock</span>
             </div>
 
@@ -406,8 +236,8 @@ const ProductDetails = () => {
                       key={size}
                       onClick={() => setSelectedSize(size)}
                       className={`px-4 py-2 border rounded-lg transition-all duration-300 ${
-                        selectedSize === size 
-                          ? 'border-[#9b83a3] bg-[#9b83a3] text-white' 
+                        selectedSize === size
+                          ? 'border-[#9b83a3] bg-[#9b83a3] text-white'
                           : 'border-gray-300 hover:border-[#9b83a3]'
                       }`}
                     >
@@ -428,8 +258,8 @@ const ProductDetails = () => {
                       key={color}
                       onClick={() => setSelectedColor(color)}
                       className={`px-4 py-2 border rounded-lg transition-all duration-300 ${
-                        selectedColor === color 
-                          ? 'border-[#9b83a3] bg-[#9b83a3] text-white' 
+                        selectedColor === color
+                          ? 'border-[#9b83a3] bg-[#9b83a3] text-white'
                           : 'border-gray-300 hover:border-[#9b83a3]'
                       }`}
                     >
@@ -463,7 +293,7 @@ const ProductDetails = () => {
             {/* Action Buttons */}
             <div className="flex gap-4 mb-6">
               <button
-                onClick={addToCart}
+                onClick={handleAddToCart}
                 className="flex-1 py-3 rounded-full border-2 border-[#9b83a3] text-[#9b83a3] font-semibold hover:bg-[#9b83a3] hover:text-white transition-all duration-300"
               >
                 Add to Cart
@@ -500,7 +330,7 @@ const ProductDetails = () => {
 
             {/* SKU */}
             <div className="mt-4 pt-4 border-t border-gray-300">
-              <p className="text-xs text-gray-400">SKU: {product.sku}</p>
+              <p className="text-xs text-gray-400">SKU: {product.sku || product._id}</p>
             </div>
 
             {/* Share */}
@@ -525,55 +355,61 @@ const ProductDetails = () => {
         </div>
 
         {/* Product Details Tabs */}
-        <div className="mt-16">
-          <div className="border-b border-amber-50">
-            <div className="flex gap-8 overflow-x-auto">
-              <button className="pb-4 px-2 border-b-2 border-[#9b83a3] text-[#9b83a3] font-semibold whitespace-nowrap">
-                Features
-              </button>
+        {product.features && product.features.length > 0 && (
+          <div className="mt-16">
+            <div className="border-b border-amber-50">
+              <div className="flex gap-8 overflow-x-auto">
+                <button className="pb-4 px-2 border-b-2 border-[#9b83a3] text-[#9b83a3] font-semibold whitespace-nowrap">
+                  Features
+                </button>
+              </div>
+            </div>
+            <div className="pt-6">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {product.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-center gap-2 text-gray-600">
+                    <span className="text-green-500">✓</span> {feature}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-          <div className="pt-6">
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {product.features.map((feature, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-gray-600">
-                  <span className="text-green-500">✓</span> {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        )}
 
         {/* Specifications */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Specifications</h2>
-          <div className="bg-white rounded-xl p-6 overflow-x-auto">
-            <table className="w-full">
-              <tbody>
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <tr key={key} className="border-b border-gray-300 last:border-0">
-                    <td className="py-3 font-semibold text-gray-800 w-1/3">{key}</td>
-                    <td className="py-3 text-gray-600">{value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {product.specifications && Object.keys(product.specifications).length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">Specifications</h2>
+            <div className="bg-white rounded-xl p-6 overflow-x-auto">
+              <table className="w-full">
+                <tbody>
+                  {Object.entries(product.specifications).map(([key, value]) => (
+                    <tr key={key} className="border-b border-gray-300 last:border-0">
+                      <td className="py-3 font-semibold text-gray-800 w-1/3">{key}</td>
+                      <td className="py-3 text-gray-600">{value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Care Instructions */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Care Instructions</h2>
-          <div className="bg-white rounded-xl p-6">
-            <ul className="space-y-2">
-              {product.careInstructions.map((instruction, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-gray-600">
-                  <span className="text-[#9b83a3] text-lg">•</span> {instruction}
-                </li>
-              ))}
-            </ul>
+        {product.careInstructions && product.careInstructions.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">Care Instructions</h2>
+            <div className="bg-white rounded-xl p-6">
+              <ul className="space-y-2">
+                {product.careInstructions.map((instruction, idx) => (
+                  <li key={idx} className="flex items-center gap-2 text-gray-600">
+                    <span className="text-[#9b83a3] text-lg">•</span> {instruction}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
@@ -581,10 +417,10 @@ const ProductDetails = () => {
             <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {relatedProducts.map(relatedProduct => (
-                <Link to={`/product/${relatedProduct.id}`} key={relatedProduct.id}>
+                <Link to={`/product/${relatedProduct.slug || relatedProduct._id}`} key={relatedProduct._id}>
                   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-                    <img 
-                      src={relatedProduct.images[0]} 
+                    <img
+                      src={relatedProduct.images?.[0] || relatedProduct.image || '/placeholder.jpg'}
                       alt={relatedProduct.name}
                       className="w-full h-48 object-cover"
                     />
@@ -620,3 +456,4 @@ const ProductDetails = () => {
 }
 
 export default ProductDetails
+      

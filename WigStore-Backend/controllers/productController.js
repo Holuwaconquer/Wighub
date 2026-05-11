@@ -1,5 +1,43 @@
 const Product = require('../models/Product');
 
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const createUniqueSlug = async (name, excludeId = null) => {
+  const baseSlug = name
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  // Check if base slug already exists
+  let query = { slug: baseSlug };
+  if (excludeId) {
+    query._id = { $ne: excludeId };
+  }
+
+  const existingProduct = await Product.findOne(query);
+  if (!existingProduct) {
+    return baseSlug;
+  }
+
+  // If base slug exists, find all variants with numeric suffixes
+  const slugPattern = new RegExp(`^${escapeRegExp(baseSlug)}(?:-(\\d+))?$`, 'i');
+  const allMatches = await Product.find({ slug: slugPattern }).select('slug');
+  
+  const suffixes = allMatches
+    .map((product) => {
+      const match = product.slug.toLowerCase().match(new RegExp(`^${escapeRegExp(baseSlug)}(?:-(\\d+))?$`));
+      if (match && match[1]) {
+        return parseInt(match[1], 10);
+      }
+      return 0; // base slug without number
+    });
+
+  const nextSuffix = Math.max(...suffixes) + 1;
+  return `${baseSlug}-${nextSuffix}`;
+};
+
 // @desc    Get all products
 // @route   GET /api/products
 // @access  Public
@@ -158,23 +196,38 @@ const getRelatedProducts = async (req, res) => {
 // Admin only controllers
 const createProduct = async (req, res) => {
   try {
-    // Generate slug from name
-    const slug = req.body.name
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-    
+    console.log('Creating product with data:', req.body);
+    const slug = await createUniqueSlug(req.body.name);
+    console.log('Generated slug:', slug);
+
+    const productData = { ...req.body };
+    if (productData.sku === '') {
+      delete productData.sku;
+    }
+
     const product = new Product({
-      ...req.body,
-      slug: slug
+      ...productData,
+      slug
     });
-    
+
+    console.log('Product object before save:', product.toObject());
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
     console.error('Create product error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    if (error.errors) {
+      console.error('Validation errors:', Object.keys(error.errors).map(key => `${key}: ${error.errors[key].message}`));
+    }
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message,
+      details: error.errors ? Object.keys(error.errors).reduce((acc, key) => {
+        acc[key] = error.errors[key].message;
+        return acc;
+      }, {}) : null
+    });
   }
 };
 
@@ -188,14 +241,15 @@ const updateProduct = async (req, res) => {
     
     // If name is being updated, update slug too
     if (req.body.name && req.body.name !== product.name) {
-      req.body.slug = req.body.name
-        .toLowerCase()
-        .replace(/[^a-zA-Z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
+      req.body.slug = await createUniqueSlug(req.body.name, product._id);
     }
-    
-    Object.assign(product, req.body);
+
+    const updatedData = { ...req.body };
+    if (updatedData.sku === '') {
+      delete updatedData.sku;
+    }
+
+    Object.assign(product, updatedData);
     const updatedProduct = await product.save();
     res.json(updatedProduct);
   } catch (error) {

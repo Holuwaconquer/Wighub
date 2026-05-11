@@ -27,12 +27,16 @@ const orderSchema = new mongoose.Schema({
     address: { type: String, required: true },
     city: { type: String, required: true },
     state: { type: String, required: true },
-    zipCode: { type: String, required: true }
+    zipCode: { type: String }
+  },
+  shippingLocation: {
+    name: { type: String },
+    fee: { type: Number, default: 0 }
   },
   paymentMethod: {
     type: String,
     required: true,
-    enum: ['card', 'bank', 'cod']
+    enum: ['card', 'bank', 'cod', 'cash']
   },
   paymentResult: {
     id: String,
@@ -41,11 +45,6 @@ const orderSchema = new mongoose.Schema({
     emailAddress: String
   },
   itemsPrice: {
-    type: Number,
-    required: true,
-    default: 0.0
-  },
-  taxPrice: {
     type: Number,
     required: true,
     default: 0.0

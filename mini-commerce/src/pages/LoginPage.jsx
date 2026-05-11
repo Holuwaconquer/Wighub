@@ -1,17 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { login, clearError } from '../store/slices/authSlice'
 
 const LoginPage = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { loading, error, isAuthenticated, user } = useSelector(state => state.auth)
+
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false
   })
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/user/dashboard')
+      }
+    }
+  }, [isAuthenticated, user, navigate])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -19,58 +33,44 @@ const LoginPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
-    setError('')
+    if (error) {
+      dispatch(clearError())
+    }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
-    
-    // Simulate API call
-    setTimeout(() => {
-      // Demo credentials: demo@minka.com / password123
-      if (formData.email === 'demo@minka.com' && formData.password === 'password123') {
-        const userData = {
-          email: formData.email,
-          name: 'Demo User',
-          isAuthenticated: true
-        }
-        localStorage.setItem('user', JSON.stringify(userData))
-        if (formData.rememberMe) {
-          localStorage.setItem('rememberMe', 'true')
-        }
-        navigate('/')
-      } else {
-        setError('Invalid email or password')
-      }
-      setLoading(false)
-    }, 1000)
+
+    try {
+      const result = await dispatch(login({
+        email: formData.email,
+        password: formData.password
+      })).unwrap()
+
+      // Navigation will be handled by the useEffect above
+    } catch (err) {
+      // Error is handled by Redux
+    }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center py-20 px-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold" style={{ color: '#9b83a3' }}>MINKA LUXURY HAIR</h1>
             <p className="text-gray-600 mt-2">Welcome back! Please login to your account</p>
           </div>
           
-          {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
           
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -86,9 +86,7 @@ const LoginPage = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -136,22 +134,12 @@ const LoginPage = () => {
             </button>
           </form>
           
-          {/* Sign Up Link */}
           <p className="text-center text-gray-600 mt-6">
             Don't have an account?{' '}
             <Link to="/register" className="text-[#8c6020] font-semibold hover:underline">
               Sign up
             </Link>
           </p>
-          
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500 text-center">
-              Demo Credentials:<br />
-              Email: demo@minka.com<br />
-              Password: password123
-            </p>
-          </div>
         </div>
       </div>
     </div>

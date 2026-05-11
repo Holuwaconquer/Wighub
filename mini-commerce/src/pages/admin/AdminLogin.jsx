@@ -1,7 +1,7 @@
- 
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaStore } from 'react-icons/fa'
+import { login } from '../../services/api'
 
 const AdminLogin = () => {
   const navigate = useNavigate()
@@ -24,29 +24,25 @@ const AdminLogin = () => {
     setLoading(true)
     setError('')
 
-    // Demo admin credentials
-    // In production, replace with actual API call
-    setTimeout(() => {
-      if (formData.email === 'admin@minka.com' && formData.password === 'admin123') {
-        const adminData = {
-          email: formData.email,
-          role: 'admin',
-          isAuthenticated: true
-        }
-        localStorage.setItem('adminAuth', JSON.stringify(adminData))
+    try {
+      const userData = await login(formData.email, formData.password)
+      
+      if (userData.role === 'admin') {
         navigate('/admin/dashboard')
       } else {
-        setError('Invalid email or password')
+        setError('Access denied. Admin privileges required.')
       }
+    } catch (err) {
+      setError(err.message || 'Invalid email or password')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center py-20 px-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Logo */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-[#9b83a3] rounded-full flex items-center justify-center mx-auto mb-4">
               <FaStore className="text-white text-2xl" />
@@ -55,19 +51,15 @@ const AdminLogin = () => {
             <p className="text-gray-600 mt-2">Minka Luxury Hair</p>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Admin Email
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Admin Email</label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -83,9 +75,7 @@ const AdminLogin = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -115,14 +105,6 @@ const AdminLogin = () => {
               {loading ? 'Logging in...' : 'Login to Admin'}
             </button>
           </form>
-
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500 text-center">
-              Demo Credentials:<br />
-              Email: admin@minka.com<br />
-              Password: admin123
-            </p>
-          </div>
         </div>
       </div>
     </div>

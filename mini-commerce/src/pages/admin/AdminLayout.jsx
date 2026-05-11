@@ -1,27 +1,30 @@
 
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { logoutUser } from '../../store/slices/authSlice'
+import DashboardTopBar from '../../components/DashboardTopBar'
 import { 
   FaTachometerAlt, FaBox, FaShoppingCart, FaUsers, 
   FaStar, FaTags, FaCog, FaSignOutAlt, FaBars, 
-  FaTimes, FaChartLine, FaUserShield
+  FaTimes, FaChartLine, FaMapMarkerAlt
 } from 'react-icons/fa'
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { isAuthenticated, user } = useSelector(state => state.auth)
 
   useEffect(() => {
-    // Check if admin is authenticated
-    const adminAuth = localStorage.getItem('adminAuth')
-    if (!adminAuth) {
+    if (!isAuthenticated || user?.role !== 'admin') {
       navigate('/admin/login')
     }
-  }, [navigate])
+  }, [isAuthenticated, user, navigate])
 
   const handleLogout = () => {
-    localStorage.removeItem('adminAuth')
+    dispatch(logoutUser())
     navigate('/admin/login')
   }
 
@@ -32,9 +35,24 @@ const AdminLayout = ({ children }) => {
     { path: '/admin/customers', name: 'Customers', icon: <FaUsers /> },
     { path: '/admin/reviews', name: 'Reviews', icon: <FaStar /> },
     { path: '/admin/coupons', name: 'Coupons', icon: <FaTags /> },
+    { path: '/admin/shipping-locations', name: 'Shipping Locations', icon: <FaMapMarkerAlt /> },
     { path: '/admin/analytics', name: 'Analytics', icon: <FaChartLine /> },
     { path: '/admin/settings', name: 'Settings', icon: <FaCog /> },
   ]
+
+  const pageTitles = {
+    '/admin/dashboard': 'Overview',
+    '/admin/products': 'Products',
+    '/admin/orders': 'Orders',
+    '/admin/customers': 'Customers',
+    '/admin/reviews': 'Reviews',
+    '/admin/coupons': 'Coupons',
+    '/admin/shipping-locations': 'Shipping Locations',
+    '/admin/analytics': 'Analytics',
+    '/admin/settings': 'Settings'
+  }
+
+  const pageTitle = pageTitles[location.pathname] || 'Dashboard'
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -106,6 +124,12 @@ const AdminLayout = ({ children }) => {
       {/* Main Content */}
       <div className="lg:ml-64 p-6">
         <div className="max-w-7xl mx-auto">
+          <DashboardTopBar
+            title={pageTitle}
+            subtitle="Admin Panel"
+            userName={user?.name || 'Administrator'}
+            userRole={user?.role || 'admin'}
+          />
           {children}
         </div>
       </div>

@@ -1,16 +1,16 @@
- 
 import React, { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
 import { 
   FaBox, FaShoppingCart, FaUsers, FaStar, 
-  FaDollarSign, FaEye, FaChartLine, FaArrowUp, 
+  FaDollarSign, FaChartLine, FaArrowUp, 
   FaArrowDown, FaRegClock, FaTags
 } from 'react-icons/fa'
-import { Line, Bar } from 'react-chartjs-2'
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js'
+import { Line } from 'react-chartjs-2'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import { useNavigate } from 'react-router-dom'
+import { getDashboardStats, getAllOrders, getProducts } from '../../services/api'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -21,26 +21,36 @@ const AdminDashboard = () => {
     pendingOrders: 0,
     averageRating: 0
   })
-
+  const [recentOrders, setRecentOrders] = useState([])
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Load data from localStorage
-    const products = JSON.parse(localStorage.getItem('adminProducts') || '[]')
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-    const customers = JSON.parse(localStorage.getItem('users') || '[]')
-    
-    setStats({
-      totalProducts: products.length,
-      totalOrders: orders.length,
-      totalCustomers: customers.length,
-      totalRevenue: orders.reduce((sum, order) => sum + order.total, 0),
-      pendingOrders: orders.filter(order => order.status === 'pending').length,
-      averageRating: 4.8
-    })
+    loadDashboardData()
   }, [])
 
-  const recentOrders = JSON.parse(localStorage.getItem('orders') || '[]').slice(0, 5)
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true)
+      const dashboardStats = await getDashboardStats()
+      const ordersRes = await getAllOrders('all', 1)
+      const productsRes = await getProducts({ limit: 1 })
+      
+      setStats({
+        totalProducts: dashboardStats.stats.totalProducts,
+        totalOrders: dashboardStats.stats.totalOrders,
+        totalCustomers: dashboardStats.stats.totalUsers,
+        totalRevenue: dashboardStats.stats.totalRevenue,
+        pendingOrders: dashboardStats.stats.pendingOrders,
+        averageRating: 4.8
+      })
+      setRecentOrders(ordersRes.orders?.slice(0, 5) || [])
+    } catch (error) {
+      console.error('Failed to load dashboard:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -85,6 +95,17 @@ const AdminDashboard = () => {
     { title: 'Avg Rating', value: `${stats.averageRating}/5`, icon: <FaStar />, color: '#f1c40f', change: '+0.2', trend: 'up' },
   ]
 
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3] mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading dashboard...</p>
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout>
       <div className="mb-8">
@@ -122,13 +143,13 @@ const AdminDashboard = () => {
             {recentOrders.map((order, idx) => (
               <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-semibold">Order #{order.id}</p>
-                  <p className="text-sm text-gray-500">{new Date(order.date).toLocaleDateString()}</p>
+                  <p className="font-semibold">Order #{order._id?.slice(-8)}</p>
+                  <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-[#9b83a3]">{formatNaira(order.total)}</p>
+                  <p className="font-semibold text-[#9b83a3]">{formatNaira(order.totalPrice)}</p>
                   <p className={`text-xs px-2 py-1 rounded-full inline-block ${
-                    order.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
+                    order.status === 'delivered' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
                   }`}>
                     {order.status}
                   </p>
@@ -143,7 +164,7 @@ const AdminDashboard = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm">
         <h2 className="text-lg font-bold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button onClick={() => navigate('/admin/products')} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <button onClick={() => navigate('/admin/products/add')} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <FaBox className="text-2xl text-[#9b83a3] mx-auto mb-2" />
             <p className="text-sm font-medium">Add Product</p>
           </button>

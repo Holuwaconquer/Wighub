@@ -1,99 +1,231 @@
 import React, { useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
+import { validateToken, logoutUser } from './store/slices/authSlice'
+import { loadCart } from './store/slices/cartSlice'
+import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
+import ScrollToTop from './ScrollToTop'
+// Public Pages
 import HomePage from './pages/HomePage'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ShopPage from './pages/ShopPage'
-import ScrollToTop from './ScrollToTop'
-import AOS from 'aos' 
-import 'aos/dist/aos.css'
+import ProductDetails from './pages/ProductDetails'
+import CartPage from './pages/CartPage'
+import CheckoutPage from './pages/CheckoutPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
-import CheckoutPage from './pages/CheckoutPage'
-import CartPage from './pages/CartPage'
-import ProductDetails from './pages/ProductDetails'
 import OrderConfirmationPage from './pages/OrderConfirmationPage'
-import AdminLogin from './pages/admin/AdminLogin'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import Products from './pages/admin/Products'
-import AddProduct from './pages/admin/AddProduct'
-import Orders from './pages/admin/Orders'
-import OrderDetails from './pages/admin/OrderDetails'
-import Customers from './pages/admin/Customers'
-import Reviews from './pages/admin/Reviews'
-import Coupons from './pages/admin/Coupons'
-import Analytics from './pages/admin/Analytics'
-import Settings from './pages/admin/Settings'
-import EditProduct from './pages/admin/EditProduct'
+
+// User Dashboard Pages
 import Dashboard from './pages/user/Dashboard'
 import Profile from './pages/user/Profile'
 import UserOrders from './pages/user/Orders'
-import UserOrderDetails from './pages/user/OrderDetails'
+import OrderDetails from './pages/user/OrderDetails'
 import Wishlist from './pages/user/Wishlist'
 import Addresses from './pages/user/Addresses'
 import ChangePassword from './pages/user/ChangePassword'
 import UserSettings from './pages/user/Settings'
 
+// Admin Pages
+import AdminLogin from './pages/admin/AdminLogin'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import Products from './pages/admin/Products'
+import AddProduct from './pages/admin/AddProduct'
+import EditProduct from './pages/admin/EditProduct'
+import Orders from './pages/admin/Orders'
+import OrderDetailsAdmin from './pages/admin/OrderDetails'
+import Customers from './pages/admin/Customers'
+import Reviews from './pages/admin/Reviews'
+import Coupons from './pages/admin/Coupons'
+import Analytics from './pages/admin/Analytics'
+import Settings from './pages/admin/Settings'
+import ShippingLocations from './pages/admin/ShippingLocations'
+
 const App = () => {
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector(state => state.auth);
+
   useEffect(() => {
     AOS.init({
-      duration: 1000,      
-      easing: 'ease-in-out', 
-      once: true,          
-      mirror: false,       
-      offset: 120,         
+      duration: 1000,
+      once: true,
+      offset: 120,
     });
-  }, []);
+
+    // Load cart from localStorage
+    dispatch(loadCart());
+
+    // Validate token on app load
+    const token = localStorage.getItem('token');
+    if (token && !isAuthenticated) {
+      dispatch(validateToken());
+    }
+
+    // Listen for auth errors from API interceptor
+    const handleAuthError = () => {
+      dispatch(logoutUser());
+    };
+
+    window.addEventListener('auth-error', handleAuthError);
+
+    return () => {
+      window.removeEventListener('auth-error', handleAuthError);
+    };
+  }, [dispatch, isAuthenticated]);
 
   return (
     <>
-    <ScrollToTop />
+      <ScrollToTop />
       <Routes>
-        {/* routes for landing page */}
-        <Route path='/' element={<HomePage />}>
+        {/* Public Routes - Accessible to everyone */}
+        <Route path="/" element={<HomePage />}>
           <Route index element={<LandingPage />} />
-          <Route path='/shop' element={<ShopPage />} />
-          {/* other routes */}
-          <Route path='/login' element={<LoginPage />} />
-          <Route path='/register' element={<RegisterPage />} />
-
-          <Route path='/product/:id' element={<ProductDetails />} />
-          <Route path='/cart' element={<CartPage />} />
-          <Route path='/checkout' element={<CheckoutPage />} />
-          <Route path='/order-confirmation/:id' element={<OrderConfirmationPage />} />
+          <Route path="shop" element={<ShopPage />} />
+          <Route path="product/:slug" element={<ProductDetails />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="checkout" element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          } />
+          <Route path="order-confirmation/:orderId" element={
+            <ProtectedRoute>
+              <OrderConfirmationPage />
+            </ProtectedRoute>
+          } />
         </Route>
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/register' element={<RegisterPage />} />
-        <Route path='/forgot-password' element={<ForgotPasswordPage />} />
-        <Route path='/reset-password/:token' element={<ResetPasswordPage />} />
 
-        {/* admin routes */}
-        <Route path='/admin/login' element={<AdminLogin />} />
-        <Route path='/admin/dashboard' element={<AdminDashboard />} />
-        <Route path='/admin/products' element={<Products />} />
-        <Route path='/admin/products/add' element={<AddProduct />} />
-        <Route path='/admin/products/edit/:id' element={<EditProduct />} />
-        <Route path='/admin/orders' element={<Orders />} />
-        <Route path='/admin/orders/:id' element={<OrderDetails />} />
-        <Route path='/admin/customers' element={<Customers />} />
-        <Route path='/admin/reviews' element={<Reviews />} />
-        <Route path='/admin/coupons' element={<Coupons />} />
-        <Route path='/admin/analytics' element={<Analytics />} />
-        <Route path='/admin/settings' element={<Settings />} />
-        
-        <Route path='/user/dashboard' element={<Dashboard />} />
-        <Route path='/user/profile' element={<Profile />} />
-        <Route path='/user/orders' element={<UserOrders />} />
-        <Route path='/user/orders/:id' element={<UserOrderDetails />} />
-        <Route path='/user/wishlist' element={<Wishlist />} />
-        <Route path='/user/addresses' element={<Addresses />} />
-        <Route path='/user/change-password' element={<ChangePassword />} />
-        <Route path='/user/settings' element={<UserSettings />} />
+        {/* Auth Routes - Redirect to dashboard if already logged in */}
+        <Route path="/login" element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        } />
+        <Route path="/register" element={
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
+        } />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+        {/* User Dashboard Routes - Protected for regular users */}
+        <Route path="/user/dashboard" element={
+          <ProtectedRoute requiredRole="user">
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/profile" element={
+          <ProtectedRoute requiredRole="user">
+            <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/orders" element={
+          <ProtectedRoute requiredRole="user">
+            <UserOrders />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/orders/:id" element={
+          <ProtectedRoute requiredRole="user">
+            <OrderDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/wishlist" element={
+          <ProtectedRoute requiredRole="user">
+            <Wishlist />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/addresses" element={
+          <ProtectedRoute requiredRole="user">
+            <Addresses />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/change-password" element={
+          <ProtectedRoute requiredRole="user">
+            <ChangePassword />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/settings" element={
+          <ProtectedRoute requiredRole="user">
+            <UserSettings />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin Routes - Protected for admin users */}
+        <Route path="/admin/login" element={
+          <PublicRoute>
+            <AdminLogin />
+          </PublicRoute>
+        } />
+        <Route path="/admin/dashboard" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/products" element={
+          <ProtectedRoute requiredRole="admin">
+            <Products />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/products/add" element={
+          <ProtectedRoute requiredRole="admin">
+            <AddProduct />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/products/edit/:slug" element={
+          <ProtectedRoute requiredRole="admin">
+            <EditProduct />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/orders" element={
+          <ProtectedRoute requiredRole="admin">
+            <Orders />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/orders/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <OrderDetailsAdmin />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/customers" element={
+          <ProtectedRoute requiredRole="admin">
+            <Customers />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/reviews" element={
+          <ProtectedRoute requiredRole="admin">
+            <Reviews />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/coupons" element={
+          <ProtectedRoute requiredRole="admin">
+            <Coupons />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/shipping-locations" element={
+          <ProtectedRoute requiredRole="admin">
+            <ShippingLocations />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/analytics" element={
+          <ProtectedRoute requiredRole="admin">
+            <Analytics />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/settings" element={
+          <ProtectedRoute requiredRole="admin">
+            <Settings />
+          </ProtectedRoute>
+        } />
+
+        {/* Catch all - 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-
-      {/* user routes */}
-
       <a
         href='https://wa.me/message/DSAULOSKOI4XG1'
         target="_blank"

@@ -1,60 +1,30 @@
- 
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AdminLayout from './AdminLayout'
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch } from 'react-icons/fa'
+import { getProducts, deleteProduct } from '../../services/api'
 
 const Products = () => {
   const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
 
   useEffect(() => {
-    // Load products from localStorage
-    const storedProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]')
-    if (storedProducts.length === 0) {
-      // Add sample products
-      const sampleProducts = [
-        {
-          id: 1,
-          name: '5x5 Closure Wig - Brazilian Straight',
-          price: 888000,
-          originalPrice: 890000,
-          stock: 15,
-          category: 'Wigs',
-          image: 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=200&h=200&fit=crop',
-          status: 'active',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          name: '28 inches Bone Straight 300grams',
-          price: 850000,
-          originalPrice: 950000,
-          stock: 8,
-          category: 'Wigs',
-          image: 'https://images.unsplash.com/photo-1584653266089-7d2fb40de72d?w=200&h=200&fit=crop',
-          status: 'active',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 3,
-          name: '22" 20" 18" inches 300grams Bundle',
-          price: 519000,
-          originalPrice: 600000,
-          stock: 0,
-          category: 'Bundles',
-          image: 'https://images.unsplash.com/photo-1605983658190-9d5462cacb9f?w=200&h=200&fit=crop',
-          status: 'inactive',
-          createdAt: new Date().toISOString()
-        }
-      ]
-      localStorage.setItem('adminProducts', JSON.stringify(sampleProducts))
-      setProducts(sampleProducts)
-    } else {
-      setProducts(storedProducts)
-    }
+    loadProducts()
   }, [])
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true)
+      const response = await getProducts({ limit: 100 })
+      setProducts(response.products || [])
+    } catch (error) {
+      console.error('Failed to load products:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -64,21 +34,36 @@ const Products = () => {
     }).format(amount)
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      const updatedProducts = products.filter(p => p.id !== id)
-      setProducts(updatedProducts)
-      localStorage.setItem('adminProducts', JSON.stringify(updatedProducts))
+      try {
+        await deleteProduct(id)
+        await loadProducts()
+      } catch (error) {
+        console.error('Failed to delete product:', error)
+        alert('Failed to delete product')
+      }
     }
   }
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
   const categories = ['all', ...new Set(products.map(p => p.category))]
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3] mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading products...</p>
+        </div>
+      </AdminLayout>
+    )
+  }
 
   return (
     <AdminLayout>
@@ -105,13 +90,13 @@ const Products = () => {
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
             />
           </div>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
           >
             {categories.map(cat => (
               <option key={cat} value={cat}>
@@ -138,13 +123,17 @@ const Products = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
+                <tr key={product._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover" />
+                      <img 
+                        src={product.images?.[0] || 'https://via.placeholder.com/40'} 
+                        alt={product.name} 
+                        className="w-10 h-10 rounded-lg object-cover" 
+                      />
                       <div>
-                        <p className="font-medium text-gray-800">{product.name.substring(0, 40)}</p>
-                        <p className="text-xs text-gray-500">ID: #{product.id}</p>
+                        <p className="font-medium text-gray-800">{product.name?.substring(0, 40)}</p>
+                        <p className="text-xs text-gray-500">ID: {product._id?.slice(-6)}</p>
                       </div>
                     </div>
                   </td>
@@ -167,13 +156,13 @@ const Products = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-                      <Link to={`/admin/products/edit/${product.id}`}>
+                      <Link to={`/admin/products/edit/${product.slug || product._id}`}>
                         <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                           <FaEdit />
                         </button>
                       </Link>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(product._id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <FaTrash />

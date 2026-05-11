@@ -1,54 +1,30 @@
- 
 import React, { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
 import { FaSearch, FaEnvelope, FaPhone, FaCalendar } from 'react-icons/fa'
+import { getAllUsers } from '../../services/api'
 
 const Customers = () => {
   const [customers, setCustomers] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const sampleUsers = [
-      {
-        id: 1,
-        name: 'Sarah Johnson',
-        email: 'sarah@example.com',
-        phone: '+234 801 234 5678',
-        joinDate: '2024-01-15',
-        ordersCount: 5,
-        totalSpent: 2450000,
-        status: 'active'
-      },
-      {
-        id: 2,
-        name: 'Michael Adebayo',
-        email: 'michael@example.com',
-        phone: '+234 802 345 6789',
-        joinDate: '2024-02-20',
-        ordersCount: 3,
-        totalSpent: 1890000,
-        status: 'active'
-      },
-      {
-        id: 3,
-        name: 'Chioma Okonkwo',
-        email: 'chioma@example.com',
-        phone: '+234 803 456 7890',
-        joinDate: '2024-03-10',
-        ordersCount: 8,
-        totalSpent: 4120000,
-        status: 'active'
-      }
-    ]
-    
-    if (users.length === 0) {
-      localStorage.setItem('users', JSON.stringify(sampleUsers))
-      setCustomers(sampleUsers)
-    } else {
-      setCustomers(users)
-    }
+    loadCustomers()
   }, [])
+
+  const loadCustomers = async () => {
+    try {
+      setLoading(true)
+      const users = await getAllUsers()
+      // Filter to only regular users (not admins)
+      const regularUsers = users.filter(user => user.role !== 'admin')
+      setCustomers(regularUsers)
+    } catch (error) {
+      console.error('Failed to load customers:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -59,9 +35,20 @@ const Customers = () => {
   }
 
   const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3] mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading customers...</p>
+        </div>
+      </AdminLayout>
+    )
+  }
 
   return (
     <AdminLayout>
@@ -92,15 +79,13 @@ const Customers = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orders</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Spent</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredCustomers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50">
+                <tr key={customer._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div>
                       <p className="font-semibold text-gray-800">{customer.name}</p>
@@ -112,27 +97,25 @@ const Customers = () => {
                         <FaEnvelope className="text-xs" /> {customer.email}
                       </p>
                       <p className="flex items-center gap-2 text-sm text-gray-500">
-                        <FaPhone className="text-xs" /> {customer.phone}
+                        <FaPhone className="text-xs" /> {customer.phone || 'Not provided'}
                       </p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{customer.ordersCount} orders</td>
-                  <td className="px-6 py-4 font-semibold text-[#9b83a3]">{formatNaira(customer.totalSpent)}</td>
                   <td className="px-6 py-4 text-gray-600">
                     <div className="flex items-center gap-2">
                       <FaCalendar className="text-xs" />
-                      {new Date(customer.joinDate).toLocaleDateString()}
+                      {new Date(customer.createdAt).toLocaleDateString()}
                     </div>
-                   </td>
+                  </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs font-medium">
-                      {customer.status}
+                      Active
                     </span>
-                   </td>
+                  </td>
                 </tr>
               ))}
             </tbody>
-           </table>
+          </table>
         </div>
       </div>
     </AdminLayout>

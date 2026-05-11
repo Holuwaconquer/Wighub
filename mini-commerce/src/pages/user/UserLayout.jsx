@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { logoutUser } from '../../store/slices/authSlice'
+import DashboardTopBar from '../../components/DashboardTopBar'
 import { 
   FaTachometerAlt, FaUser, FaShoppingBag, FaHeart, 
   FaMapMarkerAlt, FaKey, FaCog, FaSignOutAlt, FaBars, 
@@ -11,19 +14,19 @@ const UserLayout = ({ children }) => {
   const [user, setUser] = useState(null)
   const location = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { isAuthenticated, user: authUser } = useSelector(state => state.auth)
 
   useEffect(() => {
-    // Check if user is authenticated
-    const userData = JSON.parse(localStorage.getItem('user') || 'null')
-    if (!userData) {
+    if (!isAuthenticated) {
       navigate('/login')
-    } else {
-      setUser(userData)
+      return
     }
-  }, [navigate])
+    setUser(authUser)
+  }, [isAuthenticated, authUser, navigate])
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
+    dispatch(logoutUser())
     navigate('/login')
   }
 
@@ -44,6 +47,18 @@ const UserLayout = ({ children }) => {
       </div>
     )
   }
+
+  const pageTitles = {
+    '/user/dashboard': 'My Dashboard',
+    '/user/profile': 'Profile',
+    '/user/orders': 'My Orders',
+    '/user/wishlist': 'Wishlist',
+    '/user/addresses': 'Addresses',
+    '/user/change-password': 'Change Password',
+    '/user/settings': 'Settings'
+  }
+
+  const pageTitle = pageTitles[location.pathname] || 'Dashboard'
 
   return (
     <div className="min-h-screen bg-gray-100 pt-5">
@@ -114,6 +129,12 @@ const UserLayout = ({ children }) => {
       {/* Main Content */}
       <div className="lg:ml-64 p-6">
         <div className="max-w-7xl mx-auto">
+          <DashboardTopBar
+            title={pageTitle}
+            subtitle="User Dashboard"
+            userName={user?.name || 'Customer'}
+            userRole={user?.role || 'customer'}
+          />
           {children}
         </div>
       </div>

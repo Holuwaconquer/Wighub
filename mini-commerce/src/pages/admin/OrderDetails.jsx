@@ -1,19 +1,32 @@
- 
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import AdminLayout from './AdminLayout'
 import { FaArrowLeft } from 'react-icons/fa'
+import { getOrderById, updateOrderStatus } from '../../services/api'
 
 const OrderDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [order, setOrder] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-    const foundOrder = orders.find(o => o.id === parseInt(id))
-    setOrder(foundOrder)
+    loadOrder()
   }, [id])
+
+  const loadOrder = async () => {
+    try {
+      setLoading(true)
+      const data = await getOrderById(id)
+      setOrder(data)
+    } catch (error) {
+      console.error('Failed to load order:', error)
+      navigate('/admin/orders')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -23,13 +36,28 @@ const OrderDetails = () => {
     }).format(amount)
   }
 
-  const updateOrderStatus = (newStatus) => {
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-    const updatedOrders = orders.map(o => 
-      o.id === parseInt(id) ? { ...o, status: newStatus } : o
+  const updateOrderStatusHandler = async (newStatus) => {
+    try {
+      setUpdating(true)
+      await updateOrderStatus(id, newStatus)
+      await loadOrder()
+    } catch (error) {
+      console.error('Failed to update order status:', error)
+      alert('Failed to update order status')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3] mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading order...</p>
+        </div>
+      </AdminLayout>
     )
-    localStorage.setItem('orders', JSON.stringify(updatedOrders))
-    setOrder({ ...order, status: newStatus })
   }
 
   if (!order) {
@@ -51,7 +79,7 @@ const OrderDetails = () => {
         >
           <FaArrowLeft /> Back to Orders
         </button>
-        <h1 className="text-3xl font-bold text-gray-800">Order #{order.id}</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Order #{order._id?.slice(-8)}</h1>
         <p className="text-gray-500 mt-1">Order details and management</p>
       </div>
 
@@ -61,8 +89,8 @@ const OrderDetails = () => {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-bold mb-4">Order Items</h2>
             <div className="space-y-3">
-              {order.items.map((item, idx) => (
-                <div key={idx} className="flex gap-4 py-3 border-b border-gray-300 last:border-0">
+              {order.orderItems?.map((item, idx) => (
+                <div key={idx} className="flex gap-4 py-3 border-b last:border-0">
                   <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-semibold">{item.name}</p>
@@ -83,7 +111,7 @@ const OrderDetails = () => {
                 </div>
                 <div>
                   <p className="font-semibold">Order Placed</p>
-                  <p className="text-sm text-gray-500">{new Date(order.date).toLocaleString()}</p>
+                  <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleString()}</p>
                 </div>
               </div>
               {order.status === 'processing' && (
@@ -130,19 +158,21 @@ const OrderDetails = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span>{formatNaira(order.subtotal)}</span>
+                <span>{formatNaira(order.itemsPrice)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
-                <span>{order.shipping === 0 ? 'Free' : formatNaira(order.shipping)}</span>
+                <span>{order.shippingPrice === 0 ? 'Free' : formatNaira(order.shippingPrice)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
-                <span>{formatNaira(order.tax)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-300">
+              {order.coupon && (
+                <div className="flex justify-between text-green-600">
+                  <span>Coupon Discount</span>
+                  <span>-{formatNaira(order.coupon.discount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-lg font-bold pt-2 border-t">
                 <span>Total</span>
-                <span className="text-[#9b83a3]">{formatNaira(order.total)}</span>
+                <span className="text-[#9b83a3]">{formatNaira(order.totalPrice)}</span>
               </div>
             </div>
           </div>
@@ -150,12 +180,17 @@ const OrderDetails = () => {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-bold mb-4">Customer Information</h2>
             <div className="space-y-2">
-              <p><strong>Name:</strong> {order.customer?.firstName} {order.customer?.lastName}</p>
-              <p><strong>Email:</strong> {order.customer?.email}</p>
-              <p><strong>Phone:</strong> {order.customer?.phone}</p>
-              <p><strong>Address:</strong> {order.customer?.address}</p>
-              <p><strong>City:</strong> {order.customer?.city}, {order.customer?.state}</p>
-              <p><strong>ZIP:</strong> {order.customer?.zipCode}</p>
+              <p><strong>Name:</strong> {order.shippingAddress?.fullName}</p>
+              <p><strong>Email:</strong> {order.user?.email || order.customer?.email}</p>
+              <p><strong>Phone:</strong> {order.shippingAddress?.phone}</p>
+              <p><strong>Address:</strong> {order.shippingAddress?.address}</p>
+              <p><strong>City:</strong> {order.shippingAddress?.city}, {order.shippingAddress?.state}</p>
+              <p><strong>ZIP:</strong> {order.shippingAddress?.zipCode || 'N/A'}</p>
+              {order.shippingLocation?.name && (
+                <p><strong>Shipping Method:</strong> {order.shippingLocation.name}</p>
+              )}
+              <p><strong>Shipping Fee:</strong> {order.shippingPrice === 0 ? 'Free' : formatNaira(order.shippingPrice)}</p>
+              <p><strong>Payment:</strong> {order.paymentMethod}</p>
             </div>
           </div>
 
@@ -163,8 +198,9 @@ const OrderDetails = () => {
             <h2 className="text-lg font-bold mb-4">Update Status</h2>
             <select
               value={order.status}
-              onChange={(e) => updateOrderStatus(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] mb-3"
+              onChange={(e) => updateOrderStatusHandler(e.target.value)}
+              disabled={updating}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] mb-3"
             >
               <option value="pending">Pending</option>
               <option value="processing">Processing</option>
@@ -172,6 +208,7 @@ const OrderDetails = () => {
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
+            {updating && <p className="text-sm text-gray-500">Updating status...</p>}
           </div>
         </div>
       </div>

@@ -11,9 +11,9 @@ const createOrder = async (req, res) => {
     const {
       orderItems,
       shippingAddress,
+      shippingLocation,
       paymentMethod,
       itemsPrice,
-      taxPrice,
       shippingPrice,
       totalPrice,
       couponCode
@@ -55,9 +55,9 @@ const createOrder = async (req, res) => {
       user: req.user._id,
       orderItems,
       shippingAddress,
+      shippingLocation: shippingLocation || { name: 'Standard', fee: shippingPrice || 0 },
       paymentMethod,
       itemsPrice,
-      taxPrice,
       shippingPrice,
       totalPrice: totalPrice - couponDiscount,
       coupon: couponCode ? { code: couponCode, discount: couponDiscount } : null

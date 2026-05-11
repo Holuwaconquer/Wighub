@@ -1,11 +1,19 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import ProductCard from './ProductCard'
 import { FaArrowLeft, FaArrowRight, FaFire } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
+import { fetchProducts } from '../store/slices/productSlice'
 
 const BestDeal = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const scrollContainerRef = useRef(null)
+  const { products = [] } = useSelector((state) => state.products)
+
+  useEffect(() => {
+    dispatch(fetchProducts({ limit: 100 }))
+  }, [dispatch])
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
@@ -14,72 +22,17 @@ const BestDeal = () => {
     }
   }
 
-  const bestDealProducts = [
-    {
-      id: 1,
-      name: 'Virgin Brazilian Hair',
-      price: 199,
-      originalPrice: 399,
-      rating: 4.9,
-      reviews: 1234,
-      image: '/image1.jpg',
-      discount: 50,
-      isLimited: true
-    },
-    {
-      id: 2,
-      name: 'Peruvian Straight Wig',
-      price: 249,
-      originalPrice: 499,
-      rating: 4.8,
-      reviews: 892,
-      image: '/image2.jpg',
-      discount: 50,
-      isBestSeller: true
-    },
-    {
-      id: 3,
-      name: 'Deep Wave Bundles',
-      price: 179,
-      originalPrice: 359,
-      rating: 4.7,
-      reviews: 567,
-      image: '/image3.jpg',
-      discount: 50
-    },
-    {
-      id: 4,
-      name: 'Lace Front Wig',
-      price: 299,
-      originalPrice: 599,
-      rating: 4.9,
-      reviews: 2100,
-      image: '/image4.jpg',
-      discount: 50,
-      isBestSeller: true
-    },
-    {
-      id: 5,
-      name: 'Kinky Curly Bundles',
-      price: 189,
-      originalPrice: 379,
-      rating: 4.8,
-      reviews: 445,
-      image: '/image2.jpg',
-      discount: 50
-    },
-    {
-      id: 6,
-      name: 'Body Wave Wig',
-      price: 269,
-      originalPrice: 539,
-      rating: 4.9,
-      reviews: 1567,
-      image: '/image1.jpg',
-      discount: 50,
-      isLimited: true
-    }
-  ]
+  const bestDealProducts = [...products]
+    .map((product) => ({
+      ...product,
+      discount: product.discountPercentage ?? (
+        product.originalPrice && product.price
+          ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+          : 0
+      )
+    }))
+    .sort((a, b) => (b.discount || 0) - (a.discount || 0))
+    .slice(0, 8)
 
   return (
     <div className='w-full py-[50px] px-[20px] md:px-[7%] bg-gradient-to-br from-orange-50 to-red-50'>

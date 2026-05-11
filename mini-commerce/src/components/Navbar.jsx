@@ -4,14 +4,20 @@ import { HiOutlineMenu } from "react-icons/hi";
 import { Link, useNavigate } from 'react-router-dom';
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { BsCart2 } from "react-icons/bs";
-import { FaRegUserCircle } from "react-icons/fa";
+import { FaRegUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../store/slices/authSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [searchInput, setSearchInput] = useState('')
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { isAuthenticated, user } = useSelector(state => state.auth);
+  const { totalItems } = useSelector(state => state.cart);
 
   // Handle scroll effect with smooth transition
   useEffect(() => {
@@ -40,6 +46,20 @@ const Navbar = () => {
       navigate(`/shop?search=${encodeURIComponent(searchInput)}`)
       setIsSearchOpen(false)
       setSearchInput('')
+    }
+  }
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setIsProfileMenuOpen(false);
+    navigate('/');
+  }
+
+  const handleProfileClick = () => {
+    if (isAuthenticated) {
+      setIsProfileMenuOpen(!isProfileMenuOpen);
+    } else {
+      navigate('/login');
     }
   }
 
@@ -126,19 +146,55 @@ const Navbar = () => {
                 <HiMiniMagnifyingGlass className='text-xl sm:text-2xl transition-transform duration-300' />
               </button>
 
-              <button className='relative p-2 hover:bg-white/20 rounded-lg transition-all duration-300 hover:scale-110 active:scale-95 group'>
+              <button
+                onClick={() => navigate('/cart')}
+                className='relative p-2 hover:bg-white/20 rounded-lg transition-all duration-300 hover:scale-110 active:scale-95 group'
+              >
                 <BsCart2 className='text-xl sm:text-2xl transition-transform duration-300' />
                 <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-red-600'>
-                  0
+                  {totalItems || 0}
                 </span>
               </button>
-              
-              <button 
-                onClick={() => navigate('/login')}
-                className='p-2 hover:bg-white/20 rounded-lg transition-all duration-300 hover:scale-110 active:scale-95'
-              >
-                <FaRegUserCircle className='text-xl sm:text-2xl transition-transform duration-300' />
-              </button>
+
+              <div className='relative'>
+                <button
+                  onClick={handleProfileClick}
+                  className='p-2 hover:bg-white/20 rounded-lg transition-all duration-300 hover:scale-110 active:scale-95'
+                >
+                  <FaRegUserCircle className='text-xl sm:text-2xl transition-transform duration-300' />
+                </button>
+
+                {/* Profile Dropdown */}
+                {isAuthenticated && isProfileMenuOpen && (
+                  <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50'>
+                    <div className='px-4 py-2 border-b border-gray-100'>
+                      <p className='text-sm font-medium text-gray-900'>{user?.name}</p>
+                      <p className='text-xs text-gray-500'>{user?.email}</p>
+                    </div>
+                    <Link
+                      to={user?.role === 'admin' ? '/admin/dashboard' : '/user/dashboard'}
+                      className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors'
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to={user?.role === 'admin' ? '/admin/profile' : '/user/profile'}
+                      className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors'
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className='w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2'
+                    >
+                      <FaSignOutAlt className='text-xs' />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -214,27 +270,73 @@ const Navbar = () => {
           {/* Menu Footer */}
           <div className='absolute bottom-0 left-0 right-0 p-5 border-t border-gray-100 bg-white'>
             <div className='flex justify-around'>
-              <button 
+              <button
                 onClick={() => {
-                  navigate('/login')
-                  setIsMenuOpen(false)
+                  if (isAuthenticated) {
+                    setIsProfileMenuOpen(!isProfileMenuOpen);
+                  } else {
+                    navigate('/login');
+                    setIsMenuOpen(false);
+                  }
                 }}
                 className='flex flex-col items-center gap-1 text-gray-600 transition-all duration-300 hover:text-[#9b83a3] hover:scale-110'
               >
                 <FaRegUserCircle className='text-2xl' />
-                <span className='text-xs'>Account</span>
+                <span className='text-xs'>{isAuthenticated ? 'Account' : 'Login'}</span>
               </button>
-              <button 
+              <button
                 onClick={() => {
                   navigate('/cart')
                   setIsMenuOpen(false)
                 }}
-                className='flex flex-col items-center gap-1 text-gray-600 transition-all duration-300 hover:text-[#9b83a3] hover:scale-110'
+                className='flex flex-col items-center gap-1 text-gray-600 transition-all duration-300 hover:text-[#9b83a3] hover:scale-110 relative'
               >
                 <BsCart2 className='text-2xl' />
                 <span className='text-xs'>Cart</span>
+                {totalItems > 0 && (
+                  <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>
+                    {totalItems}
+                  </span>
+                )}
               </button>
             </div>
+
+            {/* Mobile Profile Menu */}
+            {isAuthenticated && isProfileMenuOpen && (
+              <div className='mt-4 space-y-2'>
+                <div className='px-3 py-2 bg-gray-50 rounded-lg'>
+                  <p className='text-sm font-medium text-gray-900'>{user?.name}</p>
+                  <p className='text-xs text-gray-500'>{user?.email}</p>
+                </div>
+                <Link
+                  to={user?.role === 'admin' ? '/admin/dashboard' : '/user/dashboard'}
+                  className='block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors'
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsProfileMenuOpen(false);
+                  }}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to={user?.role === 'admin' ? '/admin/profile' : '/user/profile'}
+                  className='block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors'
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsProfileMenuOpen(false);
+                  }}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className='w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2'
+                >
+                  <FaSignOutAlt className='text-xs' />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

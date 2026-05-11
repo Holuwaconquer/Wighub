@@ -1,10 +1,11 @@
- 
 import React, { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
 import { FaPlus, FaEdit, FaTrash, FaCopy } from 'react-icons/fa'
+import { getCoupons, createCoupon, updateCoupon, deleteCoupon } from '../../services/api'
 
 const Coupons = () => {
   const [coupons, setCoupons] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingCoupon, setEditingCoupon] = useState(null)
   const [formData, setFormData] = useState({
@@ -14,86 +15,62 @@ const Coupons = () => {
     minPurchase: '',
     maxDiscount: '',
     expiryDate: '',
-    usageLimit: '',
-    usedCount: 0
+    usageLimit: ''
   })
 
   useEffect(() => {
-    const storedCoupons = JSON.parse(localStorage.getItem('coupons') || '[]')
-    if (storedCoupons.length === 0) {
-      const sampleCoupons = [
-        {
-          id: 1,
-          code: 'MINKA20',
-          type: 'percentage',
-          value: 20,
-          minPurchase: 200000,
-          maxDiscount: 100000,
-          expiryDate: '2024-12-31',
-          usageLimit: 100,
-          usedCount: 45,
-          status: 'active'
-        },
-        {
-          id: 2,
-          code: 'FREESHIP',
-          type: 'fixed',
-          value: 15000,
-          minPurchase: 500000,
-          maxDiscount: null,
-          expiryDate: '2024-12-31',
-          usageLimit: 50,
-          usedCount: 23,
-          status: 'active'
-        }
-      ]
-      localStorage.setItem('coupons', JSON.stringify(sampleCoupons))
-      setCoupons(sampleCoupons)
-    } else {
-      setCoupons(storedCoupons)
-    }
+    loadCoupons()
   }, [])
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    
-    if (editingCoupon) {
-      const updatedCoupons = coupons.map(c => 
-        c.id === editingCoupon.id ? { ...formData, id: c.id } : c
-      )
-      setCoupons(updatedCoupons)
-      localStorage.setItem('coupons', JSON.stringify(updatedCoupons))
-    } else {
-      const newCoupon = {
-        id: Date.now(),
-        ...formData,
-        usedCount: 0,
-        status: 'active'
-      }
-      const updatedCoupons = [...coupons, newCoupon]
-      setCoupons(updatedCoupons)
-      localStorage.setItem('coupons', JSON.stringify(updatedCoupons))
+  const loadCoupons = async () => {
+    try {
+      setLoading(true)
+      const data = await getCoupons()
+      setCoupons(data)
+    } catch (error) {
+      console.error('Failed to load coupons:', error)
+    } finally {
+      setLoading(false)
     }
-    
-    setShowModal(false)
-    setEditingCoupon(null)
-    setFormData({
-      code: '',
-      type: 'percentage',
-      value: '',
-      minPurchase: '',
-      maxDiscount: '',
-      expiryDate: '',
-      usageLimit: '',
-      usedCount: 0
-    })
   }
 
-  const handleDelete = (id) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    try {
+      const couponData = {
+        ...formData,
+        value: parseFloat(formData.value),
+        minPurchase: formData.minPurchase ? parseFloat(formData.minPurchase) : 0,
+        maxDiscount: formData.maxDiscount ? parseFloat(formData.maxDiscount) : null,
+        usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : 1
+      }
+
+      if (editingCoupon) {
+        await updateCoupon(editingCoupon._id, couponData)
+      } else {
+        await createCoupon(couponData)
+      }
+      
+      await loadCoupons()
+      setShowModal(false)
+      setEditingCoupon(null)
+      resetForm()
+    } catch (error) {
+      console.error('Failed to save coupon:', error)
+      alert('Failed to save coupon')
+    }
+  }
+
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this coupon?')) {
-      const updatedCoupons = coupons.filter(c => c.id !== id)
-      setCoupons(updatedCoupons)
-      localStorage.setItem('coupons', JSON.stringify(updatedCoupons))
+      try {
+        await deleteCoupon(id)
+        await loadCoupons()
+      } catch (error) {
+        console.error('Failed to delete coupon:', error)
+        alert('Failed to delete coupon')
+      }
     }
   }
 
@@ -103,13 +80,24 @@ const Coupons = () => {
       code: coupon.code,
       type: coupon.type,
       value: coupon.value,
-      minPurchase: coupon.minPurchase,
-      maxDiscount: coupon.maxDiscount,
-      expiryDate: coupon.expiryDate,
-      usageLimit: coupon.usageLimit,
-      usedCount: coupon.usedCount
+      minPurchase: coupon.minPurchase || '',
+      maxDiscount: coupon.maxDiscount || '',
+      expiryDate: coupon.expiryDate?.split('T')[0] || '',
+      usageLimit: coupon.usageLimit || ''
     })
     setShowModal(true)
+  }
+
+  const resetForm = () => {
+    setFormData({
+      code: '',
+      type: 'percentage',
+      value: '',
+      minPurchase: '',
+      maxDiscount: '',
+      expiryDate: '',
+      usageLimit: ''
+    })
   }
 
   const copyCode = (code) => {
@@ -125,6 +113,17 @@ const Coupons = () => {
     }).format(amount)
   }
 
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3] mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading coupons...</p>
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout>
       <div className="mb-8 flex flex-col md:flex-row justify-between md:items-center">
@@ -135,16 +134,7 @@ const Coupons = () => {
         <button
           onClick={() => {
             setEditingCoupon(null)
-            setFormData({
-              code: '',
-              type: 'percentage',
-              value: '',
-              minPurchase: '',
-              maxDiscount: '',
-              expiryDate: '',
-              usageLimit: '',
-              usedCount: 0
-            })
+            resetForm()
             setShowModal(true)
           }}
           className="flex items-center gap-2 px-4 py-2 bg-[#9b83a3] text-white rounded-lg hover:bg-[#8c6020] transition-colors"
@@ -156,7 +146,7 @@ const Coupons = () => {
       {/* Coupons Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {coupons.map((coupon) => (
-          <div key={coupon.id} className="bg-white rounded-xl p-6 shadow-sm border-2 border-[#9b83a3]/20">
+          <div key={coupon._id} className="bg-white rounded-xl p-6 shadow-sm border-2 border-[#9b83a3]/20">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
@@ -180,7 +170,7 @@ const Coupons = () => {
                   <FaEdit />
                 </button>
                 <button
-                  onClick={() => handleDelete(coupon.id)}
+                  onClick={() => handleDelete(coupon._id)}
                   className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                 >
                   <FaTrash />
@@ -189,7 +179,7 @@ const Coupons = () => {
             </div>
 
             <div className="space-y-2 text-sm">
-              {coupon.minPurchase && (
+              {coupon.minPurchase > 0 && (
                 <p className="text-gray-600">Min Purchase: {formatNaira(coupon.minPurchase)}</p>
               )}
               {coupon.maxDiscount && (
@@ -199,14 +189,13 @@ const Coupons = () => {
               <p className="text-gray-600">Used: {coupon.usedCount} / {coupon.usageLimit}</p>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-300">
+            <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                   coupon.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'
                 }`}>
                   {coupon.status === 'active' ? 'Active' : 'Inactive'}
                 </span>
-                <button className="text-[#9b83a3] text-sm">View Statistics</button>
               </div>
             </div>
           </div>

@@ -2,7 +2,10 @@
 import React, { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Title } from 'chart.js'
 import { FaCalendar, FaDownload } from 'react-icons/fa'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Title)
 
 const Analytics = () => {
   const [dateRange, setDateRange] = useState('month')

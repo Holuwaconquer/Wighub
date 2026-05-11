@@ -1,18 +1,30 @@
- 
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AdminLayout from './AdminLayout'
-import { FaEye, FaSearch, FaFilter } from 'react-icons/fa'
+import { FaEye, FaSearch } from 'react-icons/fa'
+import { getAllOrders } from '../../services/api'
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
   useEffect(() => {
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
-    setOrders(storedOrders)
+    loadOrders()
   }, [])
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true)
+      const response = await getAllOrders(statusFilter, 1)
+      setOrders(response.orders || [])
+    } catch (error) {
+      console.error('Failed to load orders:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -34,11 +46,22 @@ const Orders = () => {
   }
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toString().includes(searchTerm) ||
+    const matchesSearch = order._id?.toString().includes(searchTerm) ||
       order.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3] mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading orders...</p>
+        </div>
+      </AdminLayout>
+    )
+  }
 
   return (
     <AdminLayout>
@@ -57,13 +80,13 @@ const Orders = () => {
               placeholder="Search by order ID or customer name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -91,19 +114,19 @@ const Orders = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-mono text-sm">#{order.id}</td>
+                <tr key={order._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 font-mono text-sm">#{order._id?.slice(-8)}</td>
                   <td className="px-6 py-4">
                     <div>
-                      <p className="font-medium">{order.customer?.firstName} {order.customer?.lastName}</p>
+                      <p className="font-medium">{order.shippingAddress?.fullName}</p>
                       <p className="text-xs text-gray-500">{order.customer?.email}</p>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-600">
-                    {new Date(order.date).toLocaleDateString()}
+                    {new Date(order.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 font-semibold text-[#9b83a3]">
-                    {formatNaira(order.total)}
+                    {formatNaira(order.totalPrice)}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
@@ -111,7 +134,7 @@ const Orders = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <Link to={`/admin/orders/${order.id}`}>
+                    <Link to={`/admin/orders/${order._id}`}>
                       <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                         <FaEye />
                       </button>
