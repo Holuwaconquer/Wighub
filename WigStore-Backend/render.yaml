@@ -40,23 +40,13 @@ services:
       - key: ADMIN_PASSWORD
         value: admin123
 
-  # Frontend Static Site
-  - type: web
-    name: wigstore-frontend
-    runtime: static
-    rootDir: mini-commerce
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    routes:
-      - type: rewrite
-        source: "/(.*)"
-        destination: "/index.html"
-    headers:
-      - source: "/estarr.jpeg"
-        headers:
-          - key: Cache-Control
-            value: "public, max-age=31536000, immutable"
-      - source: "/assets/(.*)"
-        headers:
-          - key: Cache-Control
-            value: "public, max-age=31536000, immutable"
+  # Backend keep-alive cron job
+  - type: cron
+    name: wigstore-backend-keepalive
+    env: node
+    rootDir: WigStore-Backend
+    schedule: "*/10 * * * *"
+    command: node scripts/keepAlive.js
+    envVars:
+      - key: BACKEND_URL
+        value: https://wighub.onrender.com/api/health
