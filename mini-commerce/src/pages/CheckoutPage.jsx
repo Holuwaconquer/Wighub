@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { getShippingLocations, validateCoupon, createOrder, getAddresses } from '../services/api'
 import { clearCart } from '../store/slices/cartSlice'
-import { FaLock, FaArrowLeft, FaCreditCard, FaUniversity, FaMoneyBillWave, FaTag, FaTrash, FaShieldAlt, FaTruck, FaBox } from 'react-icons/fa'
+import { FaLock, FaArrowLeft, FaCreditCard, FaUniversity, FaMoneyBillWave, FaTag, FaTrash, FaShieldAlt, FaTruck, FaBox, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa'
 import { BsShieldCheck, BsCreditCard2Front } from 'react-icons/bs'
 
 const CheckoutPage = () => {
@@ -197,7 +197,7 @@ const CheckoutPage = () => {
     setIsProcessing(false)
   }
 
-  const isFormValid = formData.email && formData.firstName && formData.address && formData.city && formData.phone
+  const isFormValid = formData.email && formData.firstName && formData.address && formData.city && formData.phone && selectedLocationId
 
   if (cartItems.length === 0) {
     return null
@@ -222,41 +222,39 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Contact Information */}
+            {/* Shipping Details Section - Customer Info */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Contact Information</h2>
-                <p className="text-sm text-gray-500 mt-1">We'll send order updates here</p>
-              </div>
-              <div className="p-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition-all"
-                    placeholder="you@example.com"
-                  />
+              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">Shipping Details</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">Who are we delivering to?</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Shipping Information */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Shipping Address</h2>
-                <p className="text-sm text-gray-500 mt-1">Where should we deliver your order?</p>
               </div>
               <div className="p-6">
                 <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <FaEnvelope className="inline mr-2 text-gray-400" />
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition-all"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaUser className="inline mr-2 text-gray-400" />
                         First Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -286,6 +284,7 @@ const CheckoutPage = () => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <FaMapMarkerAlt className="inline mr-2 text-gray-400" />
                       Street Address <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -360,6 +359,7 @@ const CheckoutPage = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaPhone className="inline mr-2 text-gray-400" />
                         Phone Number <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -374,7 +374,7 @@ const CheckoutPage = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 pt-2">
                     <input
                       type="checkbox"
                       name="saveInfo"
@@ -390,11 +390,89 @@ const CheckoutPage = () => {
               </div>
             </div>
 
+            {/* Shipping Method Section - Delivery Options */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">Shipping Method</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">Choose your preferred delivery option</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="space-y-3">
+                  {shippingLocations.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <FaTruck className="text-4xl mx-auto mb-3 text-gray-300" />
+                      <p>No shipping methods available</p>
+                    </div>
+                  ) : (
+                    shippingLocations.map((location) => (
+                      <label
+                        key={location._id}
+                        className={`flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                          selectedLocationId === location._id
+                            ? 'border-amber-400 bg-amber-50'
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <input
+                            type="radio"
+                            name="shippingMethod"
+                            value={location._id}
+                            checked={selectedLocationId === location._id}
+                            onChange={() => setSelectedLocationId(location._id)}
+                            className="w-4 h-4 text-amber-500 focus:ring-amber-400"
+                          />
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                              selectedLocationId === location._id ? 'bg-amber-100' : 'bg-gray-100'
+                            }`}>
+                              <FaTruck className={`text-lg ${
+                                selectedLocationId === location._id ? 'text-amber-600' : 'text-gray-500'
+                              }`} />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">{location.name}</p>
+                              {location.estimatedDays && (
+                                <p className="text-xs text-gray-500">🚚 Estimated {location.estimatedDays} days</p>
+                              )}
+                              {location.description && (
+                                <p className="text-xs text-gray-400 mt-0.5">{location.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-bold ${
+                            location.fee === 0 ? 'text-green-600' : 'text-gray-900'
+                          }`}>
+                            {location.fee === 0 ? 'Free' : formatNaira(location.fee)}
+                          </p>
+                          {location.fee > 0 && (
+                            <p className="text-xs text-gray-400">delivery fee</p>
+                          )}
+                        </div>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Order Notes */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="px-6 py-5 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Order Notes (Optional)</h2>
-                <p className="text-sm text-gray-500 mt-1">Special instructions for delivery</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">Order Notes (Optional)</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">Special instructions for delivery</p>
+                  </div>
+                </div>
               </div>
               <div className="p-6">
                 <textarea
@@ -410,9 +488,14 @@ const CheckoutPage = () => {
 
             {/* Payment Method */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
-                <p className="text-sm text-gray-500 mt-1">Choose how you'd like to pay</p>
+              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-bold">4</div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">Choose how you'd like to pay</p>
+                  </div>
+                </div>
               </div>
               <div className="p-6">
                 <div className="space-y-3">
@@ -510,39 +593,30 @@ const CheckoutPage = () => {
                   ))}
                 </div>
                 
-                {/* Shipping Selection */}
-                <div className="p-6 border-t border-gray-100">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Shipping Method
-                  </label>
-                  <select
-                    value={selectedLocationId}
-                    onChange={(e) => setSelectedLocationId(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition-all"
-                  >
-                    {shippingLocations.map((location) => (
-                      <option key={location._id} value={location._id}>
-                        {location.name} — {location.fee === 0 ? 'Free' : formatNaira(location.fee)}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedLocation?.estimatedDays && (
-                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                      <FaTruck className="text-xs" />
-                      Estimated delivery: {selectedLocation.estimatedDays} days
-                    </p>
-                  )}
-                </div>
+                {/* Selected Shipping Method Display */}
+                {selectedLocation && (
+                  <div className="p-4 bg-amber-50 border-b border-amber-100">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <FaTruck className="text-amber-600" />
+                        <span className="text-sm font-medium text-gray-700">Shipping:</span>
+                        <span className="text-sm text-gray-600">{selectedLocation.name}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-amber-600">
+                        {selectedLocation.fee === 0 ? 'Free' : formatNaira(selectedLocation.fee)}
+                      </span>
+                    </div>
+                    {selectedLocation.estimatedDays && (
+                      <p className="text-xs text-gray-500 mt-1 ml-7">Est. delivery: {selectedLocation.estimatedDays} days</p>
+                    )}
+                  </div>
+                )}
                 
                 {/* Price Breakdown */}
-                <div className="p-6 border-t border-gray-100 space-y-3">
+                <div className="p-6 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium text-gray-900">{formatNaira(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium text-gray-900">{shipping === 0 ? 'Free' : formatNaira(shipping)}</span>
                   </div>
                   {coupon && (
                     <div className="flex justify-between text-sm text-green-600">
@@ -562,7 +636,7 @@ const CheckoutPage = () => {
                     <div className="text-right">
                       <span className="text-2xl font-bold text-gray-900">{formatNaira(finalTotal)}</span>
                       {coupon && (
-                        <p className="text-xs text-green-600 mt-1">Including ₦{Math.round(couponDiscount).toLocaleString()} saved</p>
+                        <p className="text-xs text-green-600 mt-1">Saved {formatNaira(couponDiscount)}</p>
                       )}
                     </div>
                   </div>
@@ -620,11 +694,11 @@ const CheckoutPage = () => {
                 {/* Place Order Button */}
                 <div className="p-6 border-t border-gray-100">
                   {orderError && (
-                  <div className="mb-4 rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-                    {orderError}
-                  </div>
-                )}
-                <button
+                    <div className="mb-4 rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                      {orderError}
+                    </div>
+                  )}
+                  <button
                     onClick={handleSubmitOrder}
                     disabled={!isFormValid || isProcessing}
                     className="w-full py-4 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"

@@ -62,6 +62,9 @@ const ShopPage = () => {
     }).format(amount)
   }
 
+  const getProductRating = (product) => product?.ratings ?? product?.rating ?? 0
+  const getProductReviewCount = (product) => product?.numReviews ?? product?.reviews ?? 0
+
   const filteredProducts = products.filter(product => {
     if (selectedCategory !== 'all' && product.category !== selectedCategory) return false
     if (selectedHairType !== 'all' && product.hairType !== selectedHairType) return false
@@ -78,7 +81,7 @@ const ShopPage = () => {
       case 'price-high':
         return b.price - a.price
       case 'rating':
-        return b.rating - a.rating
+        return getProductRating(b) - getProductRating(a)
       case 'newest':
         return b.isNew ? 1 : -1
       default:
@@ -153,6 +156,8 @@ const ShopPage = () => {
   const ProductCard = ({ product }) => {
     const isInCart = cartItems.some(item => item.productId === product._id)
     const isInWishlist = wishlist.includes(product._id)
+    const ratingValue = getProductRating(product)
+    const reviewCount = getProductReviewCount(product)
     
     return (
       <div className={`group ${viewMode === 'list' ? 'flex gap-8' : ''} animate-fadeIn`}>
@@ -220,12 +225,12 @@ const ShopPage = () => {
               {product.name}
             </h3>
             
-            {product.rating && (
+            {ratingValue > 0 && (
               <div className="flex items-center gap-2">
                 <div className="flex gap-1">
-                  {renderStars(product.rating)}
+                  {renderStars(ratingValue)}
                 </div>
-                <span className="text-sm text-gray-500">({product.reviews || 0})</span>
+                <span className="text-sm text-gray-500">({reviewCount})</span>
               </div>
             )}
             

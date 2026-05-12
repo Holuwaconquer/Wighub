@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { FaStar, FaStarHalfAlt, FaRegStar, FaTruck, FaShieldAlt, FaUndo, FaHeart, FaRegHeart, FaFacebook, FaTwitter, FaInstagram, FaWhatsapp, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { HiMinus, HiPlus } from 'react-icons/hi'
-import { useDispatch } from 'react-redux'
-import { addToCart } from '../store/slices/cartSlice'
-import api, { getProductReviews, getUserReviews } from '../services/api'
+import { useDispatch, useSelector } from 'react-redux'
+import { addToCart, updateCartItem, removeFromCart } from '../store/slices/cartSlice'
+import api, { getProductReviews, getUserReviews, getWishlist, addToWishlist, removeFromWishlist } from '../services/api'
 
 const ProductDetails = () => {
   const { slug } = useParams()
@@ -23,6 +23,8 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState([])
   const [reviewsLoading, setReviewsLoading] = useState(false)
   const [userReview, setUserReview] = useState(null)
+  const cartItems = useSelector(state => state.cart.items)
+  const { isAuthenticated } = useSelector(state => state.auth)
 
   // Fetch product data
   useEffect(() => {
@@ -56,8 +58,101 @@ const ProductDetails = () => {
       
       // Load reviews for this product
       loadReviews(product._id)
+      loadWishlistStatus(product._id)
     }
   }, [product])
+
+  const loadWishlistStatus = async (productId) => {
+    try {
+      const wishlistItems = await getWishlist()
+      const wishlistIds = Array.isArray(wishlistItems)
+        ? wishlistItems.map(item => String(item.product?._id || item.product))
+        : []
+      setIsWishlisted(wishlistIds.includes(String(productId)))
+    } catch (err) {
+      setIsWishlisted(false)
+    }
+  }
+
+  const toggleWishlist = async () => {
+    if (!product) return
+
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist(product._id)
+        setIsWishlisted(false)
+      } else {
+        await addToWishlist(product._id)
+        setIsWishlisted(true)
+      }
+    } catch (err) {
+      console.error('Wishlist error:', err)
+      const message = err?.response?.data?.message || err.message || 'Please login to add to wishlist'
+      toast.error(message)
+    }
+  }
+
+  const cartItem = product ? cartItems.find(item => item.productId === product._id) : null
+  const isInCart = Boolean(cartItem)
+
+  useEffect(() => {
+    if (cartItem) {
+      setQuantity(cartItem.quantity)
+    }
+  }, [cartItem])
+
+  const handleQuantityChange = (newQuantity) => {
+    if (newQuantity < 1) {
+      if (isInCart && product) {
+        dispatch(removeFromCart({ productId: product._id }))
+      }
+      setQuantity(1)
+      return
+    }
+
+    setQuantity(newQuantity)
+    if (isInCart && product) {
+      dispatch(updateCartItem({ productId: product._id, quantity: newQuantity }))
+    }
+  }
+
+  const handleAddToCart = () => {
+    if (!product) return
+
+    if (isInCart) {
+      dispatch(removeFromCart({ productId: product._id }))
+      setQuantity(1)
+      return
+    }
+
+    dispatch(addToCart({
+      productId: product._id,
+      quantity,
+      price: product.price,
+      name: product.name,
+      size: selectedSize,
+      color: selectedColor,
+      image: product.images?.[0] || product.image
+    }))
+
+    setShowSuccessMessage(true)
+    setTimeout(() => setShowSuccessMessage(false), 3000)
+  }
+
+  const buyNow = () => {
+    if (!isInCart) {
+      dispatch(addToCart({
+        productId: product._id,
+        quantity,
+        price: product.price,
+        name: product.name,
+        size: selectedSize,
+        color: selectedColor,
+        image: product.images?.[0] || product.image
+      }))
+    }
+    setTimeout(() => navigate('/checkout'), 500)
+  }
 
   // Load reviews for the product and optionally include the current user's review
   const loadReviews = async (productId) => {
@@ -123,27 +218,8 @@ const ProductDetails = () => {
     return stars
   }
 
-  const handleAddToCart = () => {
-    if (!product) return
-
-    dispatch(addToCart({
-      productId: product._id,
-      quantity: quantity,
-      price: product.price,
-      name: product.name,
-      size: selectedSize,
-      color: selectedColor,
-      image: product.images?.[0] || product.image
-    }))
-
-    setShowSuccessMessage(true)
-    setTimeout(() => setShowSuccessMessage(false), 3000)
-  }
-
-  const buyNow = () => {
-    handleAddToCart()
-    setTimeout(() => navigate('/checkout'), 500)
-  }
+  const getProductRating = (product) => product?.ratings ?? product?.rating ?? 0
+  const getProductReviewCount = (product) => product?.numReviews ?? product?.reviews ?? 0
 
   if (loading) {
     return (
@@ -255,8 +331,8 @@ const ProductDetails = () => {
 
             {/* Rating */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex gap-1">{renderStars(product.rating || 0)}</div>
-              <span className="text-gray-500">({product.reviews || 0} reviews)</span>
+              <div className="flex gap-1">{renderStars(getProductRating(product))}</div>
+              <span className="text-gray-500">({getProductReviewCount(product)} reviews)</span>
               <span className="text-green-600 text-sm">✓ In Stock</span>
             </div>
 
@@ -322,14 +398,14 @@ const ProductDetails = () => {
               <h3 className="font-semibold mb-3">Quantity:</h3>
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+                  onClick={() => handleQuantityChange(quantity - 1)}
                   className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
                 >
                   <HiMinus />
                 </button>
                 <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => handleQuantityChange(quantity + 1)}
                   className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
                 >
                   <HiPlus />
@@ -341,9 +417,9 @@ const ProductDetails = () => {
             <div className="flex gap-4 mb-6">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 py-3 rounded-full border-2 border-[#9b83a3] text-[#9b83a3] font-semibold hover:bg-[#9b83a3] hover:text-white transition-all duration-300"
+                className={`flex-1 py-3 rounded-full border-2 ${isInCart ? 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white' : 'border-[#9b83a3] text-[#9b83a3] hover:bg-[#9b83a3] hover:text-white'} font-semibold transition-all duration-300`}
               >
-                Add to Cart
+                {isInCart ? 'Remove from Cart' : 'Add to Cart'}
               </button>
               <button
                 onClick={buyNow}
@@ -352,7 +428,7 @@ const ProductDetails = () => {
                 Buy Now
               </button>
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={toggleWishlist}
                 className="w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:border-red-500 transition-all duration-300"
               >
                 {isWishlisted ? <FaHeart className="text-red-500 text-xl" /> : <FaRegHeart className="text-gray-400 text-xl" />}

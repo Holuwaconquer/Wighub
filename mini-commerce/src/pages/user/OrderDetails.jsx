@@ -31,7 +31,7 @@ const UserOrderDetails = () => {
         try {
           const userReviews = await getUserReviews()
           const reviewedProductIds = Array.isArray(userReviews)
-            ? userReviews.map((review) => String(review.product?._id || review.product))
+            ? userReviews.map((review) => getProductId(review.product))
             : []
           setReviewedProducts(reviewedProductIds)
         } catch (innerError) {
@@ -49,6 +49,8 @@ const UserOrderDetails = () => {
     fetchOrder()
   }, [id, navigate])
 
+  const getProductId = (product) => String(product?._id || product)
+
   const handleSubmitReview = async () => {
     if (!selectedProduct || !reviewData.title.trim() || !reviewData.comment.trim()) {
       toast.error('Please fill in all fields')
@@ -57,7 +59,7 @@ const UserOrderDetails = () => {
 
     try {
       setReviewLoading(true)
-      const productId = selectedProduct.product || selectedProduct._id
+      const productId = getProductId(selectedProduct.product || selectedProduct._id || selectedProduct)
       await createReview({
         product: productId,
         rating: reviewData.rating,
@@ -65,7 +67,7 @@ const UserOrderDetails = () => {
         comment: reviewData.comment
       })
       
-      setReviewedProducts((prev) => [...new Set([...prev, String(productId)])])
+      setReviewedProducts((prev) => [...new Set([...prev, productId])])
       setShowReviewModal(false)
       setReviewData({ rating: 5, title: '', comment: '' })
       setSelectedProduct(null)
@@ -184,7 +186,7 @@ const UserOrderDetails = () => {
                         <p className="text-amber-600 font-bold text-lg mt-3">{formatNaira(item.price * item.quantity)}</p>
                         
                         {/* Review Button - Only show if order is delivered */}
-                        {order.status === 'delivered' && !reviewedProducts.includes(String(item.product)) && (
+                        {order.status === 'delivered' && !reviewedProducts.includes(getProductId(item.product)) && (
                           <button
                             onClick={() => {
                               setSelectedProduct(item)
@@ -195,7 +197,7 @@ const UserOrderDetails = () => {
                             Write a Review
                           </button>
                         )}
-                        {reviewedProducts.includes(String(item.product)) && order.status === 'delivered' && (
+                        {reviewedProducts.includes(getProductId(item.product)) && order.status === 'delivered' && (
                           <div className="mt-4 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
                             ✓ Review submitted
                           </div>

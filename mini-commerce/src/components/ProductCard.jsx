@@ -76,6 +76,8 @@ const ProductCard = ({ product }) => {
   }
 
   const data = product || defaultProduct
+  const productRating = data.ratings ?? data.rating ?? 0
+  const productReviewCount = data.numReviews ?? data.reviews ?? 0
 
   return (
     <div 
@@ -145,16 +147,16 @@ const ProductCard = ({ product }) => {
           {data.name}
         </h2>
 
-        {/* <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-2'>
           <div className='flex items-center'>
             {[...Array(5)].map((_, i) => (
-              <span key={i} className={`text-sm ${i < Math.floor(data.rating) ? 'text-yellow-400' : 'text-gray-300'}`}>
+              <span key={i} className={`text-sm ${i < Math.floor(productRating) ? 'text-yellow-400' : 'text-gray-300'}`}>
                 ★
               </span>
             ))}
           </div>
-          <span className='text-gray-500 text-sm'>({data.reviews})</span>
-        </div> */}
+          <span className='text-gray-500 text-sm'>({productReviewCount})</span>
+        </div>
         
         {/* Price */}
         <div className='flex items-center gap-2'>
