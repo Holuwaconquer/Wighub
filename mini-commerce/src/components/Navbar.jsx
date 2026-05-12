@@ -6,7 +6,7 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { BsCart2 } from "react-icons/bs";
 import { FaRegUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
+import { logoutUser } from '../store/slices/authSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -50,9 +50,9 @@ const Navbar = () => {
   }
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     setIsProfileMenuOpen(false);
-    navigate('/');
+    window.location.href = '/';
   }
 
   const handleProfileClick = () => {

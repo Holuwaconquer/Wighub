@@ -1,159 +1,315 @@
- 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
-import { FaStar, FaTrash, FaCheck, FaTimes, FaSearch } from 'react-icons/fa'
+import { FaStar, FaCheck, FaTimes, FaTrash, FaSpinner } from 'react-icons/fa'
+import Swal from 'sweetalert2'
+import { toast } from 'react-toastify'
+import { getAllReviews, approveReview, deleteReview } from '../../services/api'
 
 const Reviews = () => {
-  const [reviews, setReviews] = useState([
-    {
-      id: 1,
-      customer: 'Sarah Johnson',
-      product: '5x5 Closure Wig - Brazilian Straight',
-      rating: 5,
-      comment: 'Absolutely love this wig! The quality is amazing and it looks so natural.',
-      date: '2024-03-15',
-      status: 'approved'
-    },
-    {
-      id: 2,
-      customer: 'Michael Adebayo',
-      product: '28 inches Bone Straight 300grams',
-      rating: 4,
-      comment: 'Great quality hair, but shipping took a bit longer than expected.',
-      date: '2024-03-10',
-      status: 'pending'
-    },
-    {
-      id: 3,
-      customer: 'Chioma Okonkwo',
-      product: '22" 20" 18" inches 300grams Bundle',
-      rating: 5,
-      comment: 'Best hair I\'ve ever purchased! Will definitely order again.',
-      date: '2024-03-05',
-      status: 'approved'
-    }
-  ])
-
+  const [reviews, setReviews] = useState([])
+  const [filteredReviews, setFilteredReviews] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState({})
+  const [filter, setFilter] = useState('all') // all, pending, approved, rejected
   const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState('all')
 
-  const formatNaira = (amount) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0
-    }).format(amount)
-  }
+  useEffect(() => {
+    loadReviews()
+  }, [])
 
-  const handleApprove = (id) => {
-    setReviews(reviews.map(review =>
-      review.id === id ? { ...review, status: 'approved' } : review
-    ))
-  }
+  useEffect(() => {
+    filterReviews()
+  }, [reviews, filter, searchTerm])
 
-  const handleReject = (id) => {
-    setReviews(reviews.filter(review => review.id !== id))
-  }
-
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this review?')) {
-      setReviews(reviews.filter(review => review.id !== id))
+  const loadReviews = async () => {
+    try {
+      setLoading(true)
+      const data = await getAllReviews()
+      setReviews(Array.isArray(data) ? data : data.reviews || [])
+    } catch (error) {
+      console.error('Failed to load reviews:', error)
+      toast.error(error?.message || 'Failed to load reviews')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const filteredReviews = reviews.filter(review => {
-    const matchesSearch = review.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      review.product.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesFilter = filter === 'all' || review.status === filter
-    return matchesSearch && matchesFilter
-  })
+  const filterReviews = () => {
+    let filtered = reviews
+
+    // Apply status filter
+    if (filter !== 'all') {
+      filtered = filtered.filter(review => review.status === filter)
+    }
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase()
+      filtered = filtered.filter(review =>
+        review.product?.name?.toLowerCase().includes(term) ||
+        review.user?.name?.toLowerCase().includes(term) ||
+        review.title?.toLowerCase().includes(term) ||
+        review.comment?.toLowerCase().includes(term)
+      )
+    }
+
+    setFilteredReviews(filtered)
+  }
+
+  const handleApproveReview = async (reviewId) => {
+    const result = await Swal.fire({
+      title: 'Approve review? ',
+      text: 'This will publish the review on the product page.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, approve it',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'swal2-confirm bg-emerald-600',
+        cancelButton: 'swal2-cancel bg-gray-200 text-gray-800'
+      }
+    })
+
+    if (!result.isConfirmed) {
+      return
+    }
+
+    try {
+      setActionLoading({ ...actionLoading, [reviewId]: true })
+      await approveReview(reviewId)
+      
+      setReviews(reviews.map(review =>
+        review._id === reviewId ? { ...review, status: 'approved' } : review
+      ))
+      toast.success('Review approved successfully!')
+    } catch (error) {
+      console.error('Failed to approve review:', error)
+      toast.error(error?.message || 'Failed to approve review')
+    } finally {
+      setActionLoading({ ...actionLoading, [reviewId]: false })
+    }
+  }
+
+  const handleDeleteReview = async (reviewId) => {
+    const result = await Swal.fire({
+      title: 'Delete review? ',
+      text: 'This action cannot be undone. The review will be removed permanently.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'swal2-confirm bg-red-600',
+        cancelButton: 'swal2-cancel bg-gray-200 text-gray-800'
+      }
+    })
+
+    if (!result.isConfirmed) {
+      return
+    }
+
+    try {
+      setActionLoading({ ...actionLoading, [reviewId]: true })
+      await deleteReview(reviewId)
+      
+      setReviews(reviews.filter(review => review._id !== reviewId))
+      toast.success('Review deleted successfully!')
+    } catch (error) {
+      console.error('Failed to delete review:', error)
+      toast.error(error?.message || 'Failed to delete review')
+    } finally {
+      setActionLoading({ ...actionLoading, [reviewId]: false })
+    }
+  }
 
   const renderStars = (rating) => {
-    return [...Array(5)].map((_, i) => (
+    return Array.from({ length: 5 }, (_, i) => (
       <FaStar key={i} className={i < rating ? 'text-yellow-400' : 'text-gray-300'} />
     ))
   }
 
+  const getStatusBadge = (status) => {
+    const statusColors = {
+      pending: 'bg-yellow-100 text-yellow-800',
+      approved: 'bg-green-100 text-green-800',
+      rejected: 'bg-red-100 text-red-800'
+    }
+    return statusColors[status] || statusColors.pending
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <FaSpinner className="text-4xl text-[#9b83a3] animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Loading reviews...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Product Reviews</h1>
-        <p className="text-gray-500 mt-1">Manage customer reviews and ratings</p>
-      </div>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Customer Reviews</h1>
+            <p className="text-gray-600 mt-1">Manage and approve customer reviews</p>
+          </div>
+          <button
+            onClick={loadReviews}
+            className="px-4 py-2 bg-[#9b83a3] text-white rounded-lg hover:bg-opacity-90 transition-all"
+          >
+            Refresh
+          </button>
+        </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Search */}
             <input
               type="text"
-              placeholder="Search by customer or product..."
+              placeholder="Search reviews by product, customer, or content..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
             />
-          </div>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
-          >
-            <option value="all">All Reviews</option>
-            <option value="approved">Approved</option>
-            <option value="pending">Pending</option>
-          </select>
-        </div>
-      </div>
 
-      {/* Reviews List */}
-      <div className="space-y-4">
-        {filteredReviews.map((review) => (
-          <div key={review.id} className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex gap-1">{renderStars(review.rating)}</div>
-                  <span className="text-gray-500 text-sm">({review.rating}/5)</span>
-                </div>
-                <h3 className="font-semibold text-gray-800">{review.product}</h3>
-                <p className="text-sm text-gray-500">By {review.customer} • {new Date(review.date).toLocaleDateString()}</p>
-              </div>
-              <div className="flex gap-2">
-                {review.status === 'pending' && (
-                  <>
-                    <button
-                      onClick={() => handleApprove(review.id)}
-                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                    >
-                      <FaCheck />
-                    </button>
-                    <button
-                      onClick={() => handleReject(review.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <FaTimes />
-                    </button>
-                  </>
-                )}
+            {/* Status Filter */}
+            <div className="flex gap-2">
+              {['all', 'pending', 'approved', 'rejected'].map(status => (
                 <button
-                  onClick={() => handleDelete(review.id)}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  key={status}
+                  onClick={() => setFilter(status)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    filter === status
+                      ? 'bg-[#9b83a3] text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
-                  <FaTrash />
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status === 'all' && ` (${reviews.length})`}
+                  {status === 'pending' && ` (${reviews.filter(r => r.status === 'pending').length})`}
+                  {status === 'approved' && ` (${reviews.filter(r => r.status === 'approved').length})`}
+                  {status === 'rejected' && ` (${reviews.filter(r => r.status === 'rejected').length})`}
                 </button>
-              </div>
-            </div>
-            <p className="text-gray-600">{review.comment}</p>
-            <div className="mt-3">
-              {review.status === 'approved' ? (
-                <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Published</span>
-              ) : (
-                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending Review</span>
-              )}
+              ))}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Reviews List */}
+        <div className="space-y-4">
+          {filteredReviews.length > 0 ? (
+            filteredReviews.map(review => (
+              <div key={review._id} className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-[#9b83a3]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Product Info */}
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Product</h3>
+                    <p className="text-gray-700">{review.product?.name || 'Unknown Product'}</p>
+                  </div>
+
+                  {/* Customer Info */}
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Customer</h3>
+                    <p className="text-gray-700">{review.user?.name || 'Anonymous'}</p>
+                    <p className="text-sm text-gray-500">{review.user?.email}</p>
+                  </div>
+                </div>
+
+                {/* Review Content */}
+                <div className="mb-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex gap-1">
+                      {renderStars(review.rating)}
+                    </div>
+                    <span className="font-semibold">{review.title}</span>
+                    {review.isVerified && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        ✓ Verified Purchase
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-700">{review.comment}</p>
+                </div>
+
+                {/* Status and Date */}
+                <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Status:</span>
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getStatusBadge(review.status)}`}>
+                      {review.status.charAt(0).toUpperCase() + review.status.slice(1)}
+                    </span>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {review.createdAt && new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                {review.status === 'pending' && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleApproveReview(review._id)}
+                      disabled={actionLoading[review._id]}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 transition-all"
+                    >
+                      {actionLoading[review._id] ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <>
+                          <FaCheck /> Approve
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteReview(review._id)}
+                      disabled={actionLoading[review._id]}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 transition-all"
+                    >
+                      {actionLoading[review._id] ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <>
+                          <FaTimes /> Reject
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {review.status === 'approved' && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleDeleteReview(review._id)}
+                      disabled={actionLoading[review._id]}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 transition-all"
+                    >
+                      {actionLoading[review._id] ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <>
+                          <FaTrash /> Delete
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+              <p className="text-gray-500 text-lg">No reviews found matching your criteria</p>
+            </div>
+          )}
+        </div>
       </div>
     </AdminLayout>
   )

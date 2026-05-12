@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { FaStar, FaStarHalfAlt, FaRegStar, FaTruck, FaShieldAlt, FaUndo, FaHeart, FaRegHeart, FaFacebook, FaTwitter, FaInstagram, FaWhatsapp, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { HiMinus, HiPlus } from 'react-icons/hi'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { addToCart } from '../store/slices/cartSlice'
-import api from '../services/api'
+import api, { getProductReviews, getUserReviews } from '../services/api'
 
 const ProductDetails = () => {
   const { slug } = useParams()
@@ -20,6 +20,9 @@ const ProductDetails = () => {
   const [activeImage, setActiveImage] = useState(0)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [relatedProducts, setRelatedProducts] = useState([])
+  const [reviews, setReviews] = useState([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [userReview, setUserReview] = useState(null)
 
   // Fetch product data
   useEffect(() => {
@@ -50,8 +53,52 @@ const ProductDetails = () => {
       // Get related products (same category, limit 4)
       const related = product.relatedProducts || []
       setRelatedProducts(related.slice(0, 4))
+      
+      // Load reviews for this product
+      loadReviews(product._id)
     }
   }, [product])
+
+  // Load reviews for the product and optionally include the current user's review
+  const loadReviews = async (productId) => {
+    try {
+      setReviewsLoading(true)
+      const reviewsData = await getProductReviews(productId)
+      const approvedReviews = Array.isArray(reviewsData) ? reviewsData : reviewsData.reviews || []
+
+      let currentUserReview = null
+      try {
+        const userReviews = await getUserReviews()
+        if (Array.isArray(userReviews)) {
+          currentUserReview = userReviews.find(
+            (review) => String(review.product?._id || review.product) === String(productId)
+          )
+        }
+      } catch (err) {
+        currentUserReview = null
+      }
+
+      if (currentUserReview) {
+        if (!currentUserReview.user?.name) {
+          currentUserReview.user = { name: 'You' }
+        }
+        setUserReview(currentUserReview)
+        if (!approvedReviews.some((review) => review._id === currentUserReview._id)) {
+          setReviews([currentUserReview, ...approvedReviews])
+          return
+        }
+      }
+
+      setUserReview(currentUserReview)
+      setReviews(approvedReviews)
+    } catch (err) {
+      console.error('Failed to load reviews:', err)
+      setReviews([])
+      setUserReview(null)
+    } finally {
+      setReviewsLoading(false)
+    }
+  }
 
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -434,6 +481,58 @@ const ProductDetails = () => {
             </div>
           </div>
         )}
+
+        {/* Customer Reviews */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+          {reviewsLoading ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Loading reviews...</p>
+            </div>
+          ) : reviews.length > 0 ? (
+            <div className="space-y-6">
+              {reviews.map(review => (
+                <div key={review._id} className="bg-white rounded-xl p-6 border border-gray-200">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold text-lg">{review.title}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex gap-1">
+                          {renderStars(review.rating)}
+                        </div>
+                        <span className="text-sm text-gray-600">({review.rating}/5)</span>
+                      </div>
+                    </div>
+                    {review.status && (
+                      <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${review.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-700'}`}>
+                        <span>{review.status === 'pending' ? '⌛' : '✓'}</span>
+                        <span>{review.status === 'pending' ? 'Pending Approval' : 'Verified Purchase'}</span>
+                      </div>
+                    )}
+                    {!review.status && review.isVerified && (
+                      <div className="flex items-center gap-1 bg-green-100 px-3 py-1 rounded-full text-sm text-green-700">
+                        <span>✓</span>
+                        <span>Verified Purchase</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-gray-700 mb-3">{review.comment}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">by {review.user?.name || 'Anonymous'}</span>
+                    <span className="text-xs text-gray-400">
+                      {review.createdAt && new Date(review.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-xl p-8 text-center">
+              <p className="text-gray-500 mb-2">No reviews yet</p>
+              <p className="text-sm text-gray-400">Be the first to review this product after your purchase!</p>
+            </div>
+          )}
+        </div>
       </div>
 
       <style jsx>{`

@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer } from 'react-toastify'
 import { validateToken, logoutUser } from './store/slices/authSlice'
 import { loadCart } from './store/slices/cartSlice'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -226,6 +228,18 @@ const App = () => {
         {/* Catch all - 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <a
         href='https://wa.me/message/DSAULOSKOI4XG1'
         target="_blank"

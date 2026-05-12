@@ -321,6 +321,15 @@ export const getProductReviews = async (productId) => {
     }
 };
 
+export const getUserReviews = async () => {
+    try {
+        const response = await api.get('/reviews/user');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
 export const markReviewHelpful = async (reviewId) => {
     try {
         const response = await api.put(`/reviews/${reviewId}/helpful`);

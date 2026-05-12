@@ -6,6 +6,7 @@ import { FaTimes, FaArrowRight, FaStar, FaStarHalfAlt } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../store/slices/productSlice'
 import { addToCart, removeFromCart } from '../store/slices/cartSlice'
+import { getWishlist, addToWishlist, removeFromWishlist } from '../services/api'
 
 const ShopPage = () => {
   const dispatch = useDispatch()
@@ -25,6 +26,20 @@ const ShopPage = () => {
   useEffect(() => {
     dispatch(fetchProducts())
   }, [dispatch])
+
+  useEffect(() => {
+    const loadWishlist = async () => {
+      try {
+        const wishlistItems = await getWishlist()
+        const ids = wishlistItems.map(item => item.product?._id || item.product)
+        setWishlist(ids)
+      } catch (error) {
+        console.error('Failed to load wishlist:', error)
+      }
+    }
+
+    loadWishlist()
+  }, [])
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -97,13 +112,23 @@ const ShopPage = () => {
     }
   }
 
-  const toggleWishlist = (productId) => {
-    if (wishlist.includes(productId)) {
-      setWishlist(wishlist.filter(id => id !== productId))
-      showToast('Removed from wishlist', 'info')
-    } else {
-      setWishlist([...wishlist, productId])
-      showToast('Added to wishlist', 'success')
+  const toggleWishlist = async (productId, event) => {
+    event?.preventDefault()
+    event?.stopPropagation()
+
+    try {
+      if (wishlist.includes(productId)) {
+        await removeFromWishlist(productId)
+        setWishlist(prev => prev.filter(id => id !== productId))
+        showToast('Removed from wishlist', 'info')
+      } else {
+        await addToWishlist(productId)
+        setWishlist(prev => [...prev, productId])
+        showToast('Added to wishlist', 'success')
+      }
+    } catch (error) {
+      console.error('Wishlist error:', error)
+      showToast(error?.response?.data?.message || 'Please login to add to wishlist', 'error')
     }
   }
 
@@ -160,10 +185,7 @@ const ShopPage = () => {
               
               {/* Wishlist Button */}
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  toggleWishlist(product._id)
-                }}
+                onClick={(e) => toggleWishlist(product._id, e)}
                 className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
               >
                 {isInWishlist ? (

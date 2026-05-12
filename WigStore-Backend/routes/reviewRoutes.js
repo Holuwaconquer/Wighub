@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   createReview,
   getProductReviews,
+  getUserReviews,
   markHelpful,
   getAllReviews,
   approveReview,
@@ -12,6 +13,9 @@ const { protect, admin } = require('../middleware/authMiddleware');
 
 // Public routes
 router.get('/product/:productId', getProductReviews);
+
+// User routes
+router.get('/user', protect, getUserReviews);
 
 // Protected routes
 router.post('/', protect, createReview);

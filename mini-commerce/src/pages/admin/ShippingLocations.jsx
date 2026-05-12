@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import AdminLayout from './AdminLayout'
+import Swal from 'sweetalert2'
+import { toast } from 'react-toastify'
 import { createShippingLocation, deleteShippingLocation, getShippingLocations, updateShippingLocation } from '../../services/api'
 
 const ShippingLocations = () => {
@@ -67,13 +69,28 @@ const ShippingLocations = () => {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this shipping location?')) return
+    const result = await Swal.fire({
+      title: 'Delete this shipping location? ',
+      text: 'This location will be removed and cannot be recovered.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'swal2-confirm bg-red-600',
+        cancelButton: 'swal2-cancel bg-gray-200 text-gray-800'
+      }
+    })
+
+    if (!result.isConfirmed) return
+
     try {
       await deleteShippingLocation(id)
-      setMessage('Shipping location removed.')
+      toast.success('Shipping location removed.')
       loadLocations()
     } catch (error) {
-      setMessage(error?.message || 'Unable to delete location')
+      toast.error(error?.message || 'Unable to delete location')
     }
   }
 

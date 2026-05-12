@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addToCart, removeFromCart } from '../store/slices/cartSlice'
 import { FaShoppingCart, FaHeart, FaRegHeart } from 'react-icons/fa'
 import { BsLightningCharge } from 'react-icons/bs'
+import { addToWishlist, removeFromWishlist } from '../services/api'
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch()
@@ -10,6 +11,7 @@ const ProductCard = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const isInCart = product && cartItems.some(item => item.productId === product._id)
 
@@ -35,6 +37,29 @@ const ProductCard = ({ product }) => {
         image: product.images?.[0] || product.image
       }))
       setToastMessage('Added to cart')
+    }
+  }
+
+  const toggleWishlist = async (e) => {
+    e.stopPropagation()
+    if (!product || loading) return
+
+    try {
+      setLoading(true)
+      if (isWishlisted) {
+        await removeFromWishlist(product._id)
+        setIsWishlisted(false)
+        setToastMessage('Removed from wishlist')
+      } else {
+        await addToWishlist(product._id)
+        setIsWishlisted(true)
+        setToastMessage('Added to wishlist')
+      }
+    } catch (error) {
+      console.error('Wishlist error:', error)
+      setToastMessage('Please login to add to wishlist')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -80,8 +105,9 @@ const ProductCard = ({ product }) => {
 
       {/* Wishlist Button */}
       <button 
-        onClick={() => setIsWishlisted(!isWishlisted)}
-        className='absolute top-3 right-3 z-10 bg-white rounded-full p-2 shadow-md hover:scale-110 transition-transform duration-300'
+        onClick={toggleWishlist}
+        disabled={loading}
+        className='absolute top-3 right-3 z-10 bg-white rounded-full p-2 shadow-md hover:scale-110 transition-transform duration-300 disabled:opacity-50'
       >
         {isWishlisted ? (
           <FaHeart className='text-red-500 text-lg' />

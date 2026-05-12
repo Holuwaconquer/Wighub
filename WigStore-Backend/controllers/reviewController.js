@@ -7,18 +7,23 @@ const Order = require('../models/Order');
 // @access  Private
 const createReview = async (req, res) => {
   try {
-    const { productId, rating, title, comment, images } = req.body;
+    const { product, productId, rating, title, comment, images } = req.body;
+    const pid = product || productId;
+
+    if (!pid) {
+      return res.status(400).json({ message: 'Product ID is required' });
+    }
 
     // Check if product exists
-    const product = await Product.findById(productId);
-    if (!product) {
+    const productData = await Product.findById(pid);
+    if (!productData) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
     // Check if user has purchased the product
     const hasPurchased = await Order.findOne({
       user: req.user._id,
-      'orderItems.product': productId,
+      'orderItems.product': pid,
       status: 'delivered'
     });
 
@@ -30,7 +35,7 @@ const createReview = async (req, res) => {
 
     // Check if user already reviewed this product
     const alreadyReviewed = await Review.findOne({
-      product: productId,
+      product: pid,
       user: req.user._id
     });
 
@@ -39,7 +44,7 @@ const createReview = async (req, res) => {
     }
 
     const review = await Review.create({
-      product: productId,
+      product: pid,
       user: req.user._id,
       rating,
       title,
@@ -51,18 +56,18 @@ const createReview = async (req, res) => {
 
     // Update product ratings (only count approved reviews)
     const approvedReviews = await Review.find({ 
-      product: productId, 
+      product: pid, 
       status: 'approved' 
     });
     
-    product.numReviews = approvedReviews.length;
+    productData.numReviews = approvedReviews.length;
     if (approvedReviews.length > 0) {
-      product.ratings = approvedReviews.reduce((acc, item) => item.rating + acc, 0) / approvedReviews.length;
+      productData.ratings = approvedReviews.reduce((acc, item) => item.rating + acc, 0) / approvedReviews.length;
     } else {
-      product.ratings = 0;
+      productData.ratings = 0;
     }
     
-    await product.save();
+    await productData.save();
 
     res.status(201).json(review);
   } catch (error) {
@@ -121,6 +126,18 @@ const getAllReviews = async (req, res) => {
   }
 };
 
+const getUserReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({ user: req.user._id })
+      .populate('product', 'name')
+      .sort({ createdAt: -1 });
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 const approveReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
@@ -132,13 +149,18 @@ const approveReview = async (req, res) => {
     review.status = 'approved';
     await review.save();
 
-    // Update product rating
+    // Update product rating if the product still exists
     const product = await Product.findById(review.product);
-    const reviews = await Review.find({ product: review.product, status: 'approved' });
-    
-    product.numReviews = reviews.length;
-    product.ratings = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
-    await product.save();
+    if (product) {
+      const reviews = await Review.find({ product: review.product, status: 'approved' });
+      product.numReviews = reviews.length;
+      product.ratings = reviews.length > 0
+        ? reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length
+        : 0;
+      await product.save();
+    } else {
+      console.warn(`Approved review ${review._id} but product ${review.product} was not found.`);
+    }
 
     res.json(review);
   } catch (error) {
@@ -154,20 +176,24 @@ const deleteReview = async (req, res) => {
       return res.status(404).json({ message: 'Review not found' });
     }
 
-    await review.remove();
+    await Review.findByIdAndDelete(req.params.id);
     
-    // Update product rating
+    // Update product rating if the product still exists
     const product = await Product.findById(review.product);
-    const reviews = await Review.find({ product: review.product, status: 'approved' });
-    
-    product.numReviews = reviews.length;
-    product.ratings = reviews.length > 0 
-      ? reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length 
-      : 0;
-    await product.save();
+    if (product) {
+      const reviews = await Review.find({ product: review.product, status: 'approved' });
+      product.numReviews = reviews.length;
+      product.ratings = reviews.length > 0 
+        ? reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length 
+        : 0;
+      await product.save();
+    } else {
+      console.warn(`Deleted review ${review._id} but product ${review.product} was not found.`);
+    }
 
     res.json({ message: 'Review deleted' });
   } catch (error) {
+    console.error('Delete review error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -175,6 +201,7 @@ const deleteReview = async (req, res) => {
 module.exports = {
   createReview,
   getProductReviews,
+  getUserReviews,
   markHelpful,
   getAllReviews,
   approveReview,

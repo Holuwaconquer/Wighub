@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import { getShippingLocations, validateCoupon, createOrder } from '../services/api'
+import { getShippingLocations, validateCoupon, createOrder, getAddresses } from '../services/api'
 import { clearCart } from '../store/slices/cartSlice'
 import { FaLock, FaArrowLeft, FaCreditCard, FaUniversity, FaMoneyBillWave, FaTag, FaTrash, FaShieldAlt, FaTruck, FaBox } from 'react-icons/fa'
 import { BsShieldCheck, BsCreditCard2Front } from 'react-icons/bs'
@@ -61,7 +61,42 @@ const CheckoutPage = () => {
       }
     }
 
+    const fetchSavedAddress = async () => {
+      try {
+        const addresses = await getAddresses()
+        if (addresses.length > 0) {
+          const defaultAddress = addresses.find((addr) => addr.isDefault) || addresses[0]
+          const nameParts = defaultAddress.fullName.split(' ')
+          setFormData((prev) => ({
+            ...prev,
+            email: JSON.parse(localStorage.getItem('user') || 'null')?.email || prev.email,
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || prev.lastName,
+            address: defaultAddress.address,
+            city: defaultAddress.city,
+            state: defaultAddress.state,
+            zipCode: defaultAddress.zipCode,
+            phone: defaultAddress.phone
+          }))
+        } else {
+          const userData = JSON.parse(localStorage.getItem('user') || 'null')
+          if (userData) {
+            const nameParts = userData.name?.split(' ') || []
+            setFormData((prev) => ({
+              ...prev,
+              email: userData.email || prev.email,
+              firstName: nameParts[0] || prev.firstName,
+              lastName: nameParts.slice(1).join(' ') || prev.lastName
+            }))
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load saved address:', error)
+      }
+    }
+
     fetchShippingLocations()
+    fetchSavedAddress()
   }, [])
 
   const formatNaira = (amount) => {
@@ -146,7 +181,7 @@ const CheckoutPage = () => {
       paymentMethod: formData.paymentMethod === 'cash' ? 'cod' : formData.paymentMethod,
       itemsPrice: subtotal,
       shippingPrice: shipping,
-      totalPrice: totalBeforeCoupon,
+      totalPrice: finalTotal,
       couponCode: coupon?.code || null
     }
 

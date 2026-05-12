@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import AdminLayout from './AdminLayout'
 import { FaArrowLeft } from 'react-icons/fa'
+import { toast } from 'react-toastify'
 import { getOrderById, updateOrderStatus } from '../../services/api'
 
 const OrderDetails = () => {
@@ -43,7 +44,7 @@ const OrderDetails = () => {
       await loadOrder()
     } catch (error) {
       console.error('Failed to update order status:', error)
-      alert('Failed to update order status')
+      toast.error('Failed to update order status')
     } finally {
       setUpdating(false)
     }

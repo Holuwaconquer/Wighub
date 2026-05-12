@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AdminLayout from './AdminLayout'
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch } from 'react-icons/fa'
+import Swal from 'sweetalert2'
+import { toast } from 'react-toastify'
 import { getProducts, deleteProduct } from '../../services/api'
 
 const Products = () => {
@@ -35,14 +37,29 @@ const Products = () => {
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await deleteProduct(id)
-        await loadProducts()
-      } catch (error) {
-        console.error('Failed to delete product:', error)
-        alert('Failed to delete product')
+    const result = await Swal.fire({
+      title: 'Delete product? ',
+      text: 'This action will permanently remove the product from the store.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'swal2-confirm bg-red-600',
+        cancelButton: 'swal2-cancel bg-gray-200 text-gray-800'
       }
+    })
+
+    if (!result.isConfirmed) return
+
+    try {
+      await deleteProduct(id)
+      await loadProducts()
+      toast.success('Product deleted successfully')
+    } catch (error) {
+      console.error('Failed to delete product:', error)
+      toast.error('Failed to delete product')
     }
   }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { getOrderById } from '../services/api'
 import { FaCheckCircle, FaTruck, FaBox, FaClock, FaEnvelope, FaPhone, FaMapMarkerAlt, FaUser, FaReceipt, FaPrint, FaShare, FaArrowLeft } from 'react-icons/fa'
 import { BsShieldCheck, BsGift } from 'react-icons/bs'
@@ -50,7 +51,7 @@ const OrderConfirmationPage = () => {
   const shippingAddress = order?.shippingAddress || order?.customer || {}
   const customerEmail = order?.user?.email || shippingAddress.email || order?.customer?.email || ''
   const orderDate = order?.createdAt || order?.date || new Date().toISOString()
-  const orderIdDisplay = order?._id || order?.id
+  const orderIdDisplay = order?.orderId || order?._id || order?.id
   const orderSubtotal = order?.itemsPrice ?? order?.subtotal ?? 0
   const orderShipping = order?.shippingPrice ?? order?.shipping ?? 0
   const orderTotal = order?.totalPrice ?? order?.total ?? 0
@@ -68,7 +69,7 @@ const OrderConfirmationPage = () => {
 
   const handleShare = () => {
     // Implement share functionality
-    alert('Share functionality coming soon!')
+    toast.info('Share functionality coming soon!')
   }
 
   if (loading) {
@@ -220,7 +221,7 @@ const OrderConfirmationPage = () => {
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium text-gray-900">{orderShipping === 0 ? 'Free' : formatNaira(orderShipping)}</span>
                   </div>
-                  {order.coupon && (
+                  {order.coupon?.discount > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount ({order.coupon.code})</span>
                       <span>-{formatNaira(order.coupon.discount)}</span>
@@ -355,7 +356,7 @@ const OrderConfirmationPage = () => {
               Continue Shopping
             </button>
           </Link>
-          <Link to={`/track-order/${orderIdDisplay}`}>
+          <Link to="/user/orders">
             <button className="px-8 py-3 bg-white text-gray-800 rounded-full hover:bg-gray-50 transition-all duration-300 border border-gray-300 font-medium">
               Track Order
             </button>

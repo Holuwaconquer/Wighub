@@ -2,6 +2,14 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const Coupon = require('../models/Coupon');
+const User = require('../models/user');
+const sendEmail = require('../utils/sendEmail');
+const generateOrderId = require('../utils/generateOrderId');
+const {
+  getUserOrderConfirmationEmail,
+  getAdminOrderNotificationEmail,
+  getOrderStatusUpdateEmail
+} = require('../utils/emailTemplates');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -35,6 +43,7 @@ const createOrder = async (req, res) => {
 
     // Apply coupon if provided
     let couponDiscount = 0;
+    let couponData = null;
     if (couponCode) {
       const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
       if (coupon && coupon.isValid()) {
@@ -48,10 +57,12 @@ const createOrder = async (req, res) => {
         }
         coupon.usedCount += 1;
         await coupon.save();
+        couponData = { code: coupon.code, discount: couponDiscount };
       }
     }
 
     const order = new Order({
+      orderId: generateOrderId(),
       user: req.user._id,
       orderItems,
       shippingAddress,
@@ -60,7 +71,7 @@ const createOrder = async (req, res) => {
       itemsPrice,
       shippingPrice,
       totalPrice: totalPrice - couponDiscount,
-      coupon: couponCode ? { code: couponCode, discount: couponDiscount } : null
+      coupon: couponData
     });
 
     const createdOrder = await order.save();
@@ -74,6 +85,36 @@ const createOrder = async (req, res) => {
 
     // Clear user's cart after order
     await Cart.findOneAndDelete({ user: req.user._id });
+
+    // Populate user and product details before sending email
+    await createdOrder.populate('user', 'name email');
+    await createdOrder.populate('orderItems.product');
+
+    // Send confirmation email to user
+    try {
+      const userEmailHtml = getUserOrderConfirmationEmail(createdOrder, req.user);
+      await sendEmail({
+        email: req.user.email,
+        subject: `Order Confirmation - Order #${createdOrder.orderId}`,
+        html: userEmailHtml
+      });
+    } catch (emailError) {
+      console.error('Failed to send user confirmation email:', emailError);
+      // Don't fail the order creation if email fails
+    }
+
+    // Send notification email to admin
+    try {
+      const adminEmailHtml = getAdminOrderNotificationEmail(createdOrder, req.user);
+      await sendEmail({
+        email: process.env.ADMIN_EMAIL,
+        subject: `New Order Received - Order #${createdOrder.orderId}`,
+        html: adminEmailHtml
+      });
+    } catch (emailError) {
+      console.error('Failed to send admin notification email:', emailError);
+      // Don't fail the order creation if email fails
+    }
 
     res.status(201).json(createdOrder);
   } catch (error) {
@@ -125,12 +166,14 @@ const getOrderById = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { status, trackingNumber } = req.body;
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id)
+      .populate('user', 'name email');
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    const previousStatus = order.status;
     order.status = status;
     if (trackingNumber) {
       order.trackingNumber = trackingNumber;
@@ -142,6 +185,20 @@ const updateOrderStatus = async (req, res) => {
     }
 
     const updatedOrder = await order.save();
+
+    // Send status update email to user
+    try {
+      const statusEmailHtml = getOrderStatusUpdateEmail(updatedOrder, order.user, status);
+      await sendEmail({
+        email: order.user.email,
+        subject: `Order Status Updated - Order #${updatedOrder.orderId}`,
+        html: statusEmailHtml
+      });
+    } catch (emailError) {
+      console.error('Failed to send order status update email:', emailError);
+      // Don't fail the status update if email fails
+    }
+
     res.json(updatedOrder);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

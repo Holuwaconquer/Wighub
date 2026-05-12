@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
 import { FaPlus, FaEdit, FaTrash, FaCopy } from 'react-icons/fa'
+import Swal from 'sweetalert2'
+import { toast } from 'react-toastify'
 import { getCoupons, createCoupon, updateCoupon, deleteCoupon } from '../../services/api'
 
 const Coupons = () => {
@@ -58,19 +60,34 @@ const Coupons = () => {
       resetForm()
     } catch (error) {
       console.error('Failed to save coupon:', error)
-      alert('Failed to save coupon')
+      toast.error('Failed to save coupon')
     }
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this coupon?')) {
-      try {
-        await deleteCoupon(id)
-        await loadCoupons()
-      } catch (error) {
-        console.error('Failed to delete coupon:', error)
-        alert('Failed to delete coupon')
+    const result = await Swal.fire({
+      title: 'Delete coupon? ',
+      text: 'This coupon will be removed from the platform permanently.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'swal2-confirm bg-red-600',
+        cancelButton: 'swal2-cancel bg-gray-200 text-gray-800'
       }
+    })
+
+    if (!result.isConfirmed) return
+
+    try {
+      await deleteCoupon(id)
+      await loadCoupons()
+      toast.success('Coupon deleted successfully')
+    } catch (error) {
+      console.error('Failed to delete coupon:', error)
+      toast.error('Failed to delete coupon')
     }
   }
 
@@ -102,7 +119,7 @@ const Coupons = () => {
 
   const copyCode = (code) => {
     navigator.clipboard.writeText(code)
-    alert('Coupon code copied!')
+    toast.success('Coupon code copied!')
   }
 
   const formatNaira = (amount) => {
