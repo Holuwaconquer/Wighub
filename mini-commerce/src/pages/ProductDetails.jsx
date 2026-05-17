@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import SEO from '../components/SEO'
+import { getOgImage } from '../utils/og'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { FaStar, FaStarHalfAlt, FaRegStar, FaTruck, FaShieldAlt, FaUndo, FaHeart, FaRegHeart, FaFacebook, FaTwitter, FaInstagram, FaWhatsapp, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { HiMinus, HiPlus } from 'react-icons/hi'
@@ -247,6 +249,32 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 md:pt-20">
+      <SEO
+        title={`${product.name} | Minka Luxury Hair`}
+        description={product.description?.substring(0, 160) || `Premium ${product.name} from Minka Luxury Hair`}
+        image={getOgImage(product.images?.[0] || product.image || '/placeholder.jpg', product.name)}
+        url={`https://minkaluxury.com/product/${product.slug || product._id}`}
+        canonical={`https://minkaluxury.com/product/${product.slug || product._id}`}
+        structuredData={{
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          name: product.name,
+          image: product.images && product.images.length ? product.images : [product.image || '/placeholder.jpg'],
+          description: product.description,
+          sku: product.sku || product._id,
+          brand: {
+            "@type": "Brand",
+            name: "Minka Luxury Hair"
+          },
+          offers: {
+            "@type": "Offer",
+            url: `https://minkaluxury.com/product/${product.slug || product._id}`,
+            priceCurrency: product.currency || 'NGN',
+            price: product.price,
+            availability: product.inStock || product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+          }
+        }}
+      />
       {/* Success Message */}
       {showSuccessMessage && (
         <div className="fixed top-20 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-slideIn">

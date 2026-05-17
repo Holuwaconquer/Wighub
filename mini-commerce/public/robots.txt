@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: https://minkaluxury.com/sitemap.xml
+Host: https://minkaluxury.com
+# Crawl-delay can be adjusted if needed
+# Crawl-delay: 10

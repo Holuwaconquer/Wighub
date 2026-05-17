@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import SEO from '../components/SEO'
 import { Link, useLocation } from 'react-router-dom'
 import { BsFilter, BsGrid3X3, BsListUl, BsHeart, BsHeartFill } from 'react-icons/bs'
 import { HiMiniMagnifyingGlass } from 'react-icons/hi2'
@@ -277,6 +278,11 @@ const ShopPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title={`Shop | Minka Luxury Hair`}
+        description={`Shop premium wigs, closures, frontals and extensions. ${products.length} items available.`}
+        url={`https://minkaluxury.com/shop`}
+      />
       {/* Hero Section */}
       <div className="relative bg-gradient-to-r from-gray-50 via-white to-gray-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
