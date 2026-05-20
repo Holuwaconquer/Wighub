@@ -25,7 +25,8 @@ const app = express();
 // Middleware
 const CLIENT_URL = process.env.CLIENT_URL;
 const allowedOrigins = [
-  'http://localhost:5173',
+  // 'http://localhost:5173',
+  'https://www.minkaluxury.com/',
   'https://minkaluxury.com',
   CLIENT_URL
 ];
