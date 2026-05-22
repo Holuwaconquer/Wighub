@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const sendEmail = require('../utils/sendEmail');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -137,7 +138,7 @@ const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Generate reset token
+    // Generate reset token (non-hashed) and save hashed version
     const resetToken = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = crypto
       .createHash('sha256')
@@ -147,13 +148,44 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    // Create reset url
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`;
+    // Create reset url to send to user
+    const resetUrl = `${req.protocol}://${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    res.json({ 
-      message: 'Password reset email sent', 
-      resetUrl // In production, don't send this back
-    });
+    // Email content
+    const message = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Password Reset Request</h2>
+        <p>You requested a password reset. Click the link below to reset your password. This link will expire in 10 minutes.</p>
+        <p><a href="${resetUrl}" style="display:inline-block;padding:10px 16px;background:#9b83a3;color:#fff;border-radius:6px;text-decoration:none;">Reset Password</a></p>
+        <p>If the button doesn't work, copy and paste the following URL into your browser:</p>
+        <p style="word-break:break-all">${resetUrl}</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      </div>
+    `;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Password Reset Request',
+        html: message
+      });
+
+      res.json({ message: 'Password reset email sent' });
+    } catch (err) {
+      // If email sending fails, clear the token fields and save
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+
+      console.error('Error sending reset email:', err);
+
+      // In development return the resetUrl for easier testing
+      if (process.env.NODE_ENV !== 'production') {
+        return res.json({ message: 'Password reset email could not be sent, use resetUrl for testing', resetUrl });
+      }
+
+      res.status(500).json({ message: 'Could not send reset email, please try again later' });
+    }
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

@@ -100,7 +100,7 @@ const getUserOrderConfirmationEmail = (order, user) => {
       </div>
       
       <div style="background-color: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #666;">
-        <p>Minka Luxury Hair | www.minkaluxury.com</p>
+        <p>Minka Luxury Hair | https://minkaluxury.com</p>
       </div>
     </div>
   `;
@@ -273,7 +273,7 @@ const getOrderStatusUpdateEmail = (order, user, newStatus) => {
       </div>
       
       <div style="background-color: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #666;">
-        <p>Minka Luxury Hair | www.minkaluxury.com</p>
+        <p>Minka Luxury Hair | https://minkaluxury.com</p>
       </div>
     </div>
   `;

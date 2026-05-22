@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FaLock, FaEye, FaEyeSlash, FaCheckCircle } from 'react-icons/fa'
+import { resetPassword } from '../services/api'
 
 const ResetPasswordPage = () => {
   const { token } = useParams()
@@ -17,13 +18,8 @@ const ResetPasswordPage = () => {
   const [resetSuccess, setResetSuccess] = useState(false)
 
   useEffect(() => {
-    // Validate token
-    const resetRequests = JSON.parse(localStorage.getItem('passwordResetRequests') || '[]')
-    const request = resetRequests.find(req => req.token === token)
-    
-    if (!request || Date.now() - request.timestamp > 3600000) { // 1 hour expiry
-      setIsValidToken(false)
-    }
+    // No client-side validation — server will validate token on submit.
+    setIsValidToken(true)
   }, [token])
 
   const handleChange = (e) => {
@@ -46,16 +42,20 @@ const ResetPasswordPage = () => {
     }
     
     setLoading(true)
-    
-    // Simulate password reset
-    setTimeout(() => {
-      // In real app, this would update the user's password in the database
+    try {
+      await resetPassword(token, formData.password)
       setResetSuccess(true)
-      setTimeout(() => {
-        navigate('/login')
-      }, 2000)
+      setTimeout(() => navigate('/login'), 2000)
+    } catch (err) {
+      const msg = err?.message || err?.response?.data?.message || 'Failed to reset password'
+      if (typeof msg === 'string' && msg.toLowerCase().includes('invalid')) {
+        setIsValidToken(false)
+      } else {
+        setError(msg)
+      }
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   if (!isValidToken) {

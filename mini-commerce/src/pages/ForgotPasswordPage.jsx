@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaEnvelope, FaArrowLeft } from 'react-icons/fa'
+import { forgotPassword } from '../services/api'
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('')
@@ -13,24 +14,25 @@ const ForgotPasswordPage = () => {
     setLoading(true)
     setError('')
     
-    // Simulate sending reset link
-    setTimeout(() => {
-      if (email && email.includes('@')) {
-        // Store reset request in localStorage (in real app, this would be an API call)
-        const resetRequests = JSON.parse(localStorage.getItem('passwordResetRequests') || '[]')
-        resetRequests.push({
-          email,
-          timestamp: Date.now(),
-          token: Math.random().toString(36).substring(7)
-        })
-        localStorage.setItem('passwordResetRequests', JSON.stringify(resetRequests))
+    try {
+      const res = await forgotPassword(email)
+      // If backend returns resetUrl in dev, you can show it for testing
+      if (res?.resetUrl) {
+        // Optionally show link in UI for local testing (not recommended in prod)
+        setError('')
         setSubmitted(true)
+        // store for display if needed
+        localStorage.setItem('lastResetUrl', res.resetUrl)
       } else {
-        setError('Please enter a valid email address')
+        setSubmitted(true)
       }
+    } catch (err) {
+      setError(err.message || err?.message || 'Failed to send reset email')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
+  const lastResetUrl = typeof window !== 'undefined' ? localStorage.getItem('lastResetUrl') : null
 
   if (submitted) {
     return (
@@ -50,6 +52,9 @@ const ForgotPasswordPage = () => {
             <p className="text-sm text-gray-500 mb-6">
               Click the link in the email to reset your password. The link will expire in 1 hour.
             </p>
+            {/* {lastResetUrl && (
+              <p className="text-xs text-gray-400 break-words">Test link: <a href={lastResetUrl} className="text-[#9b83a3] underline">Open reset link</a></p>
+            )} */}
             
             <Link to="/login">
               <button className="text-[#9b83a3] font-semibold hover:underline">
