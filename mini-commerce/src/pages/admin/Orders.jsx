@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout";
@@ -115,6 +116,78 @@ const Orders = () => {
     delivered: orders.filter((o) => o.status === "delivered").length,
     cancelled: orders.filter((o) => o.status === "cancelled").length,
   };
+=======
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import AdminLayout from './AdminLayout'
+import { FaEye, FaSearch, FaFilter, FaCalendarAlt, FaTruck, FaCheckCircle, FaClock } from 'react-icons/fa'
+import { getAllOrders } from '../../services/api'
+
+const Orders = () => {
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [showFilters, setShowFilters] = useState(false)
+
+  useEffect(() => {
+    loadOrders()
+  }, [statusFilter])
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true)
+      const response = await getAllOrders(statusFilter, 1)
+      setOrders(response.orders || [])
+    } catch (error) {
+      console.error('Failed to load orders:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatNaira = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0
+    }).format(amount)
+  }
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'delivered': return 'bg-emerald-100 text-emerald-700'
+      case 'shipped': return 'bg-blue-100 text-blue-700'
+      case 'processing': return 'bg-amber-100 text-amber-700'
+      case 'cancelled': return 'bg-red-100 text-red-700'
+      default: return 'bg-gray-100 text-gray-700'
+    }
+  }
+
+  const getStatusIcon = (status) => {
+    switch(status) {
+      case 'delivered': return <FaCheckCircle />
+      case 'shipped': return <FaTruck />
+      case 'processing': return <FaClock />
+      default: return <FaClock />
+    }
+  }
+
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = order._id?.toString().includes(searchTerm) ||
+      order.shippingAddress?.fullName?.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesSearch
+  })
+
+  const stats = {
+    total: orders.length,
+    pending: orders.filter(o => o.status === 'pending').length,
+    processing: orders.filter(o => o.status === 'processing').length,
+    shipped: orders.filter(o => o.status === 'shipped').length,
+    delivered: orders.filter(o => o.status === 'delivered').length,
+    cancelled: orders.filter(o => o.status === 'cancelled').length
+  }
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
 
   if (loading) {
     return (
@@ -126,7 +199,11 @@ const Orders = () => {
           </div>
         </div>
       </AdminLayout>
+<<<<<<< HEAD
     );
+=======
+    )
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
   }
 
   return (
@@ -134,12 +211,17 @@ const Orders = () => {
       <div className="space-y-8">
         {/* Header */}
         <div>
+<<<<<<< HEAD
           <h1 className="text-4xl font-light tracking-tight text-gray-900">
             Orders
           </h1>
           <p className="text-gray-500 mt-1 font-light">
             Manage and track customer orders
           </p>
+=======
+          <h1 className="text-4xl font-light tracking-tight text-gray-900">Orders</h1>
+          <p className="text-gray-500 mt-1 font-light">Manage and track customer orders</p>
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
         </div>
 
         {/* Stats Cards */}
@@ -153,6 +235,7 @@ const Orders = () => {
             <p className="text-xs text-amber-600">Pending</p>
           </div>
           <div className="bg-blue-50 rounded-xl p-3 text-center border border-blue-100">
+<<<<<<< HEAD
             <p className="text-2xl font-bold text-blue-700">
               {stats.processing}
             </p>
@@ -168,6 +251,17 @@ const Orders = () => {
             <p className="text-2xl font-bold text-emerald-700">
               {stats.delivered}
             </p>
+=======
+            <p className="text-2xl font-bold text-blue-700">{stats.processing}</p>
+            <p className="text-xs text-blue-600">Processing</p>
+          </div>
+          <div className="bg-purple-50 rounded-xl p-3 text-center border border-purple-100">
+            <p className="text-2xl font-bold text-purple-700">{stats.shipped}</p>
+            <p className="text-xs text-purple-600">Shipped</p>
+          </div>
+          <div className="bg-emerald-50 rounded-xl p-3 text-center border border-emerald-100">
+            <p className="text-2xl font-bold text-emerald-700">{stats.delivered}</p>
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
             <p className="text-xs text-emerald-600">Delivered</p>
           </div>
           <div className="bg-red-50 rounded-xl p-3 text-center border border-red-100">
@@ -187,10 +281,15 @@ const Orders = () => {
               <span className="font-medium">Filter Orders</span>
             </button>
           </div>
+<<<<<<< HEAD
 
           <div
             className={`p-5 bg-gray-50 border-b border-gray-100 transition-all ${showFilters ? "block" : "hidden"}`}
           >
+=======
+          
+          <div className={`p-5 bg-gray-50 border-b border-gray-100 transition-all ${showFilters ? 'block' : 'hidden'}`}>
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
                 <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -224,6 +323,7 @@ const Orders = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
+<<<<<<< HEAD
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Order ID
                   </th>
@@ -245,10 +345,19 @@ const Orders = () => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
+=======
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order ID</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredOrders.map((order) => (
+<<<<<<< HEAD
                   <tr
                     key={order._id}
                     className="hover:bg-gray-50 transition-colors"
@@ -264,6 +373,14 @@ const Orders = () => {
                         <p className="text-xs text-gray-500">
                           {order.customer?.email}
                         </p>
+=======
+                  <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 font-mono text-sm font-semibold text-amber-600">#{order._id?.slice(-8)}</td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-medium text-gray-800">{order.shippingAddress?.fullName}</p>
+                        <p className="text-xs text-gray-500">{order.customer?.email}</p>
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600">
@@ -272,6 +389,7 @@ const Orders = () => {
                         {new Date(order.createdAt).toLocaleDateString()}
                       </div>
                     </td>
+<<<<<<< HEAD
                     <td className="px-6 py-4 font-bold text-gray-800">
                       {formatNaira(order.totalPrice)}
                     </td>
@@ -281,6 +399,13 @@ const Orders = () => {
                         <span
                           className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
                         >
+=======
+                    <td className="px-6 py-4 font-bold text-gray-800">{formatNaira(order.totalPrice)}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(order.status)}
+                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
                           {order.status}
                         </span>
                       </div>
@@ -305,17 +430,29 @@ const Orders = () => {
             <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <FaShoppingCart className="text-4xl text-gray-400" />
             </div>
+<<<<<<< HEAD
             <h3 className="text-xl font-light text-gray-800 mb-2">
               No orders found
             </h3>
             <p className="text-gray-500">
               Try adjusting your search or filter criteria
             </p>
+=======
+            <h3 className="text-xl font-light text-gray-800 mb-2">No orders found</h3>
+            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230
           </div>
         )}
       </div>
     </AdminLayout>
+<<<<<<< HEAD
   );
 };
 
 export default Orders;
+=======
+  )
+}
+
+export default Orders
+>>>>>>> 0896d2a31570b6b192b80c5ff933cd36f3fe7230

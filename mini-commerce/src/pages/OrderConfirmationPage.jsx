@@ -327,7 +327,6 @@ const OrderConfirmationPage = () => {
                   </div>
                 ))}
               </div>
-
               <div className="p-6 bg-gray-50 border-t border-gray-100">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">

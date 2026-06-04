@@ -331,7 +331,6 @@ const CheckoutPage = () => {
                       placeholder="you@example.com"
                     />
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -362,7 +361,6 @@ const CheckoutPage = () => {
                       />
                     </div>
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaMapMarkerAlt className="inline mr-2 text-gray-400" />
@@ -378,7 +376,6 @@ const CheckoutPage = () => {
                       placeholder="House number and street name"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Apartment, suite, etc. (optional)
@@ -392,7 +389,6 @@ const CheckoutPage = () => {
                       placeholder="Apt, Suite, Unit, etc."
                     />
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -423,7 +419,6 @@ const CheckoutPage = () => {
                       />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -454,7 +449,6 @@ const CheckoutPage = () => {
                       />
                     </div>
                   </div>
-
                   <div className="flex items-center gap-3 pt-2">
                     <input
                       type="checkbox"
@@ -696,7 +690,6 @@ const CheckoutPage = () => {
               <span>256-bit SSL encryption</span>
             </div>
           </div>
-
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
@@ -783,7 +776,6 @@ const CheckoutPage = () => {
                     </div>
                   )}
                 </div>
-
                 {/* Total */}
                 <div className="p-6 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
                   <div className="flex justify-between items-center">
@@ -800,7 +792,6 @@ const CheckoutPage = () => {
                     </div>
                   </div>
                 </div>
-
                 {/* Coupon Code */}
                 <div className="p-6 border-t border-gray-100">
                   {!coupon ? (
@@ -855,7 +846,6 @@ const CheckoutPage = () => {
                     </div>
                   )}
                 </div>
-
                 {/* Place Order Button */}
                 <div className="p-6 border-t border-gray-100">
                   {orderError && (
@@ -877,7 +867,6 @@ const CheckoutPage = () => {
                       `Place Order • ${formatNaira(finalTotal)}`
                     )}
                   </button>
-
                   {/* Trust Badges */}
                   <div className="mt-4 flex justify-center gap-4 text-xs text-gray-400">
                     <span className="flex items-center gap-1">
