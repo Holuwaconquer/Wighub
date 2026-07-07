@@ -212,14 +212,16 @@ const verifyPayment = async (req, res) => {
       });
     }
 
-    // Call Kora verify endpoint - get charge details by reference
-    const koraResponse = await axios.get(`${KORA_API_URL}/charges`, {
-      params: { reference: chargeId },
-      headers: {
-        Authorization: `Bearer ${KORA_SECRET_KEY}`,
-        "Content-Type": "application/json",
+    // Call Kora verify endpoint - get charge details by reference (as path parameter)
+    const koraResponse = await axios.get(
+      `${KORA_API_URL}/charges/${chargeId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${KORA_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
 
     console.log(
       "Kora Verify Response:",
@@ -241,10 +243,20 @@ const verifyPayment = async (req, res) => {
 
     // Update order based on payment status
     if (paymentData.status === "success") {
+      // Determine payment method from response data - map to valid enum values
+      let paymentMethod = "kora_card"; // default
+      if (paymentData.card) {
+        paymentMethod = "kora_card";
+      } else if (paymentData.bank) {
+        paymentMethod = "kora_bank";
+      } else if (paymentData.mobile_money) {
+        paymentMethod = "kora_mobile_money";
+      }
+
       order.paymentStatus = "completed";
       order.isPaid = true;
       order.paidAt = new Date();
-      order.paymentMethod = "kora_" + paymentData.payment_method;
+      order.paymentMethod = paymentMethod;
       await order.save();
 
       return res.status(200).json({
@@ -253,7 +265,7 @@ const verifyPayment = async (req, res) => {
         data: {
           orderId,
           paymentStatus: "completed",
-          paymentMethod: paymentData.payment_method,
+          paymentMethod: paymentMethod,
           amount: paymentData.amount,
         },
       });
@@ -319,10 +331,20 @@ const handleWebhook = async (req, res) => {
       // Find order by payment reference
       const order = await Order.findById(metadata.orderId);
       if (order) {
+        // Determine payment method from webhook data - map to valid enum values
+        let paymentMethod = "kora_card"; // default
+        if (data.card) {
+          paymentMethod = "kora_card";
+        } else if (data.bank) {
+          paymentMethod = "kora_bank";
+        } else if (data.mobile_money) {
+          paymentMethod = "kora_mobile_money";
+        }
+
         order.paymentStatus = "completed";
         order.isPaid = true;
         order.paidAt = new Date();
-        order.paymentMethod = "kora_" + data.payment_method;
+        order.paymentMethod = paymentMethod;
         await order.save();
 
         console.log(`Payment confirmed for order ${order.orderId}`);
