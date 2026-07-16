@@ -1,128 +1,159 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import AdminLayout from './AdminLayout'
-import { uploadImages } from '../../store/slices/productSlice'
-import { getProductBySlug, updateProduct } from '../../services/api'
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import AdminLayout from "./AdminLayout";
+import { uploadImages } from "../../store/slices/productSlice";
+import { getProductBySlug, updateProduct } from "../../services/api";
 
 const EditProduct = () => {
-  const { slug } = useParams()
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const fileInputRef = useRef(null)
-  const [productId, setProductId] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [uploadingImages, setUploadingImages] = useState(false)
-  const [uploadError, setUploadError] = useState(null)
-  const [error, setError] = useState('')
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const fileInputRef = useRef(null);
+  const [productId, setProductId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [error, setError] = useState("");
+  const [previewImages, setPreviewImages] = useState([]);
+  const previewUrlsRef = useRef([]);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    originalPrice: '',
-    category: 'Wigs',
-    hairType: '',
-    texture: '',
-    length: '',
-    weight: '',
-    stock: '',
-    sku: '',
+    name: "",
+    description: "",
+    price: "",
+    originalPrice: "",
+    category: "Wigs",
+    hairType: "",
+    texture: "",
+    length: "",
+    weight: "",
+    stock: "",
+    sku: "",
     images: [],
-    features: [''],
-    status: 'active'
-  })
+    features: [""],
+    status: "active",
+  });
 
   useEffect(() => {
-    loadProduct()
-  }, [slug])
+    loadProduct();
+  }, [slug]);
+
+  useEffect(() => {
+    return () => {
+      previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      previewUrlsRef.current = [];
+    };
+  }, []);
 
   const loadProduct = async () => {
     try {
-      setLoading(true)
-      const product = await getProductBySlug(slug)
-      setProductId(product._id)
-      
+      setLoading(true);
+      const product = await getProductBySlug(slug);
+      setProductId(product._id);
+
       setFormData({
-        name: product.name || '',
-        description: product.description || '',
-        price: product.price || '',
-        originalPrice: product.originalPrice || '',
-        category: product.category || 'Wigs',
-        hairType: product.hairType || '',
-        texture: product.texture || '',
-        length: product.length || '',
-        weight: product.weight || '',
-        stock: product.stock || '',
-        sku: product.sku || '',
+        name: product.name || "",
+        description: product.description || "",
+        price: product.price || "",
+        originalPrice: product.originalPrice || "",
+        category: product.category || "Wigs",
+        hairType: product.hairType || "",
+        texture: product.texture || "",
+        length: product.length || "",
+        weight: product.weight || "",
+        stock: product.stock || "",
+        sku: product.sku || "",
         images: product.images?.length ? product.images : [],
-        features: product.features?.length ? product.features : [''],
-        status: product.status || 'active'
-      })
+        features: product.features?.length ? product.features : [""],
+        status: product.status || "active",
+      });
     } catch (error) {
-      console.error('Failed to load product:', error)
-      navigate('/admin/products')
+      console.error("Failed to load product:", error);
+      navigate("/admin/products");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    setError('')
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
 
   const handleFileSelect = async (e) => {
-    const files = Array.from(e.target.files)
-    if (files.length === 0) return
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
 
-    setUploadError(null)
-    setUploadingImages(true)
+    const previews = files.map((file) => {
+      const url = URL.createObjectURL(file);
+      previewUrlsRef.current.push(url);
+      return { file, url };
+    });
+    setPreviewImages((prev) => [...prev, ...previews]);
+
+    setUploadError(null);
+    setUploadingImages(true);
 
     try {
-      const result = await dispatch(uploadImages(files)).unwrap()
-      const newImages = result.map(img => img.url)
-      setFormData(prev => ({
+      const result = await dispatch(uploadImages(files)).unwrap();
+      const newImages = result.map((img) => img.url);
+      setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, ...newImages]
-      }))
+        images: [...prev.images, ...newImages],
+      }));
+      previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      previewUrlsRef.current = [];
+      setPreviewImages([]);
     } catch (error) {
-      const message = error?.message || error || 'Upload failed. Please try again.'
-      setUploadError(message)
-      console.error('Upload failed:', message)
+      const message =
+        error?.message || error || "Upload failed. Please try again.";
+      setUploadError(message);
+      console.error("Upload failed:", message);
     } finally {
-      setUploadingImages(false)
+      setUploadingImages(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = "";
       }
     }
-  }
+  };
+
+  const removePreviewImage = (index) => {
+    const removedPreview = previewImages[index];
+    if (removedPreview) {
+      URL.revokeObjectURL(removedPreview.url);
+      previewUrlsRef.current = previewUrlsRef.current.filter(
+        (url) => url !== removedPreview.url,
+      );
+    }
+    setPreviewImages(previewImages.filter((_, i) => i !== index));
+  };
 
   const removeImage = (index) => {
-    const newImages = formData.images.filter((_, i) => i !== index)
-    setFormData(prev => ({ ...prev, images: newImages }))
-  }
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, images: newImages }));
+  };
 
   const handleFeatureChange = (index, value) => {
-    const newFeatures = [...formData.features]
-    newFeatures[index] = value
-    setFormData(prev => ({ ...prev, features: newFeatures }))
-  }
+    const newFeatures = [...formData.features];
+    newFeatures[index] = value;
+    setFormData((prev) => ({ ...prev, features: newFeatures }));
+  };
 
   const addFeature = () => {
-    setFormData(prev => ({ ...prev, features: [...prev.features, ''] }))
-  }
+    setFormData((prev) => ({ ...prev, features: [...prev.features, ""] }));
+  };
 
   const removeFeature = (index) => {
-    const newFeatures = formData.features.filter((_, i) => i !== index)
-    setFormData(prev => ({ ...prev, features: newFeatures }))
-  }
+    const newFeatures = formData.features.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, features: newFeatures }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSaving(true)
-    setError('')
+    e.preventDefault();
+    setSaving(true);
+    setError("");
 
     try {
       const productData = {
@@ -130,18 +161,18 @@ const EditProduct = () => {
         price: parseFloat(formData.price),
         originalPrice: parseFloat(formData.originalPrice) || null,
         stock: parseInt(formData.stock),
-        images: formData.images.filter(img => img.trim() !== ''),
-        features: formData.features.filter(f => f.trim() !== '')
-      }
+        images: formData.images.filter((img) => img.trim() !== ""),
+        features: formData.features.filter((f) => f.trim() !== ""),
+      };
 
-      await updateProduct(productId, productData)
-      navigate('/admin/products')
+      await updateProduct(productId, productData);
+      navigate("/admin/products");
     } catch (err) {
-      setError(err.message || 'Failed to update product')
+      setError(err.message || "Failed to update product");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -151,7 +182,7 @@ const EditProduct = () => {
           <p className="text-gray-500 mt-4">Loading product...</p>
         </div>
       </AdminLayout>
-    )
+    );
   }
 
   return (
@@ -167,12 +198,17 @@ const EditProduct = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-xl p-6 shadow-sm"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Same as AddProduct */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Product Name *
+              </label>
               <input
                 type="text"
                 name="name"
@@ -184,7 +220,9 @@ const EditProduct = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -196,7 +234,9 @@ const EditProduct = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category *
+                </label>
                 <select
                   name="category"
                   value={formData.category}
@@ -211,7 +251,9 @@ const EditProduct = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hair Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Hair Type
+                </label>
                 <input
                   type="text"
                   name="hairType"
@@ -226,7 +268,9 @@ const EditProduct = () => {
             {/* Continue with remaining fields similar to AddProduct */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price (₦) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price (₦) *
+                </label>
                 <input
                   type="number"
                   name="price"
@@ -237,7 +281,9 @@ const EditProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Original Price (₦)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Original Price (₦)
+                </label>
                 <input
                   type="number"
                   name="originalPrice"
@@ -250,7 +296,9 @@ const EditProduct = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Stock Quantity *
+                </label>
                 <input
                   type="number"
                   name="stock"
@@ -261,7 +309,9 @@ const EditProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  SKU
+                </label>
                 <input
                   type="text"
                   name="sku"
@@ -273,7 +323,9 @@ const EditProduct = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
               <select
                 name="status"
                 value={formData.status}
@@ -289,7 +341,9 @@ const EditProduct = () => {
           {/* Right Column */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Product Images
+              </label>
               <div className="mb-4">
                 <input
                   ref={fileInputRef}
@@ -307,19 +361,26 @@ const EditProduct = () => {
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <span className="text-2xl text-gray-500">+</span>
                     <p className="mb-2 text-sm text-gray-500">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
+                      <span className="font-semibold">Click to upload</span> or
+                      drag and drop
                     </p>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+                    <p className="text-xs text-gray-500">
+                      PNG, JPG, GIF up to 10MB each
+                    </p>
                   </div>
                 </label>
                 {uploadingImages && (
                   <div className="mt-2 flex items-center gap-2 text-sm text-blue-600">
                     <span className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    Uploading images… please wait until upload is finished before saving.
+                    Uploading images… please wait until upload is finished
+                    before saving.
                   </div>
                 )}
                 {!uploadingImages && formData.images.length > 0 && (
-                  <div className="mt-2 text-sm text-gray-600">Upload complete. You can add more images or remove any image below.</div>
+                  <div className="mt-2 text-sm text-gray-600">
+                    Upload complete. You can add more images or remove any image
+                    below.
+                  </div>
                 )}
                 {uploadError && (
                   <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -327,6 +388,30 @@ const EditProduct = () => {
                   </div>
                 )}
               </div>
+
+              {previewImages.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                  {previewImages.map((preview, index) => (
+                    <div key={`preview-${index}`} className="relative group">
+                      <img
+                        src={preview.url}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border"
+                        onError={(e) => {
+                          e.target.src = "/placeholder-image.png";
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePreviewImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <span className="text-xs">×</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {formData.images.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
@@ -337,7 +422,7 @@ const EditProduct = () => {
                         alt={`Product ${index + 1}`}
                         className="w-full h-24 object-cover rounded-lg border"
                         onError={(e) => {
-                          e.target.src = '/placeholder-image.png'
+                          e.target.src = "/placeholder-image.png";
                         }}
                       />
                       <button
@@ -363,7 +448,9 @@ const EditProduct = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Features
+              </label>
               {formData.features.map((feature, index) => (
                 <div key={index} className="flex gap-2 mb-2">
                   <input
@@ -401,11 +488,15 @@ const EditProduct = () => {
             disabled={saving || uploadingImages}
             className="px-6 py-2 bg-[#9b83a3] text-white rounded-lg hover:bg-[#8c6020] transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : uploadingImages ? 'Uploading images...' : 'Update Product'}
+            {saving
+              ? "Saving..."
+              : uploadingImages
+                ? "Uploading images..."
+                : "Update Product"}
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin/products')}
+            onClick={() => navigate("/admin/products")}
             className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel
@@ -413,7 +504,7 @@ const EditProduct = () => {
         </div>
       </form>
     </AdminLayout>
-  )
-}
+  );
+};
 
-export default EditProduct
+export default EditProduct;
