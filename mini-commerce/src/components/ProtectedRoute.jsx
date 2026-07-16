@@ -1,24 +1,26 @@
-import React from 'react'
-import { Navigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
-  const { isAuthenticated, user } = useSelector(state => state.auth);
+  const location = useLocation();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    const nextPath = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?next=${nextPath}`} replace />;
   }
 
   if (requiredRole && user?.role !== requiredRole) {
     // Redirect to appropriate dashboard based on role
-    if (user?.role === 'admin') {
-      return <Navigate to="/admin/dashboard" replace />
+    if (user?.role === "admin") {
+      return <Navigate to="/admin/dashboard" replace />;
     } else {
-      return <Navigate to="/user/dashboard" replace />
+      return <Navigate to="/user/dashboard" replace />;
     }
   }
 
-  return children
-}
+  return children;
+};
 
-export default ProtectedRoute
+export default ProtectedRoute;

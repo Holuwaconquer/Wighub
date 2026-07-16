@@ -1,76 +1,89 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
-import { login, clearError } from '../store/slices/authSlice'
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { login, clearError } from "../store/slices/authSlice";
 
 const LoginPage = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { loading, error, isAuthenticated, user } = useSelector(state => state.auth)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { loading, error, isAuthenticated, user } = useSelector(
+    (state) => state.auth,
+  );
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false
-  })
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === 'admin') {
-        navigate('/admin/dashboard')
-      } else {
-        navigate('/user/dashboard')
-      }
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next");
+      const from =
+        next ||
+        location.state?.from ||
+        (user.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+      navigate(from, { replace: true });
     }
-  }, [isAuthenticated, user, navigate])
+  }, [isAuthenticated, user, navigate, location.search, location.state]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setFormData(prev => ({
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
+      [name]: type === "checkbox" ? checked : value,
+    }));
     if (error) {
-      dispatch(clearError())
+      dispatch(clearError());
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const result = await dispatch(login({
-        email: formData.email,
-        password: formData.password
-      })).unwrap()
+      const result = await dispatch(
+        login({
+          email: formData.email,
+          password: formData.password,
+        }),
+      ).unwrap();
 
       // Navigation will be handled by the useEffect above
     } catch (err) {
       // Error is handled by Redux
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center py-20 px-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#9b83a3' }}>MINKA LUXURY HAIR</h1>
-            <p className="text-gray-600 mt-2">Welcome back! Please login to your account</p>
+            <h1 className="text-3xl font-bold" style={{ color: "#9b83a3" }}>
+              MINKA LUXURY HAIR
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Welcome back! Please login to your account
+            </p>
           </div>
-          
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -84,13 +97,15 @@ const LoginPage = () => {
                 />
               </div>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -107,7 +122,7 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2">
                 <input
@@ -119,31 +134,37 @@ const LoginPage = () => {
                 />
                 <span className="text-sm text-gray-600">Remember me</span>
               </label>
-              
-              <Link to="/forgot-password" className="text-sm text-[#8c6020] hover:underline">
+
+              <Link
+                to="/forgot-password"
+                className="text-sm text-[#8c6020] hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
-            
+
             <button
               type="submit"
               disabled={loading}
               className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
             >
-              {loading ? 'Logging in...' : 'Sign In'}
+              {loading ? "Logging in..." : "Sign In"}
             </button>
           </form>
-          
+
           <p className="text-center text-gray-600 mt-6">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-[#8c6020] font-semibold hover:underline">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-[#8c6020] font-semibold hover:underline"
+            >
               Sign up
             </Link>
           </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

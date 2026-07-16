@@ -1,20 +1,27 @@
-import React from 'react'
-import { Navigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, user } = useSelector(state => state.auth);
+  const location = useLocation();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   if (isAuthenticated) {
-    // Redirect based on role
-    if (user?.role === 'admin') {
-      return <Navigate to="/admin/dashboard" replace />
-    } else {
-      return <Navigate to="/user/dashboard" replace />
+    const params = new URLSearchParams(location.search);
+    const next = params.get("next");
+
+    if (next) {
+      return <Navigate to={next} replace />;
     }
+
+    const redirectTo =
+      location.state?.from?.pathname ||
+      (user?.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+
+    return <Navigate to={redirectTo} replace />;
   }
 
-  return children
-}
+  return children;
+};
 
-export default PublicRoute
+export default PublicRoute;

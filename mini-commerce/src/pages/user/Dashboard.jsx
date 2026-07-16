@@ -344,7 +344,7 @@ const Dashboard = () => {
           </div>
 
           {/* Membership Benefits */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100">
+          {/* <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <FaStar className="text-amber-500" />
               Member Benefits
@@ -375,7 +375,7 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </UserLayout>
