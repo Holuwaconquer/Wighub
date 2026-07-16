@@ -102,7 +102,7 @@ export const uploadImages = createAsyncThunk(
         formData.append('images', file);
       });
 
-      const response = await api.post('/upload/images', formData);
+      const response = await api.post('/upload/images', formData, {timeout: 0});
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to upload images');
