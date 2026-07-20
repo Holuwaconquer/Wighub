@@ -135,13 +135,13 @@ const Loader = ({
           
           <div className="progress-info">
             <span className="progress-percentage">{progress}%</span>
-            <div className="progress-status">
+            {/* <div className="progress-status">
               {progress < 30 && '✨ Preparing'}
               {progress >= 30 && progress < 60 && '🌟 Curating'}
               {progress >= 60 && progress < 90 && '💫 Perfecting'}
               {progress >= 90 && progress < 100 && '✨ Almost there'}
               {progress === 100 && '🎉 Complete!'}
-            </div>
+            </div> */}
           </div>
         </div>
 
