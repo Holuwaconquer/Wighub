@@ -206,7 +206,7 @@ const BestDeal = () => {
       {/* View All Button */}
       <div className="w-full flex justify-center mt-8">
         <button
-          onClick={() => (window.location.href = "/shop")}
+          onClick={() => (window.location.href = "/shop?category=sale")}
           className="group relative px-8 py-3 border-2 rounded-full overflow-hidden hover:text-white! transition-all duration-300 hover:scale-105"
           style={{ borderColor: "#8c6020", color: "#8c6020" }}
         >

@@ -220,7 +220,7 @@ const Sales = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
             <FaTag className="text-purple-600 text-xl mb-2" />
             <p className="text-2xl font-bold text-gray-800">{sales.length}</p>

@@ -89,13 +89,8 @@ const ShopPage = () => {
         const visibleSales = (sales || []).filter((sale) => {
           const start = sale.startDate ? new Date(sale.startDate) : null;
           const end = sale.endDate ? new Date(sale.endDate) : null;
-          return (
-            sale.isActive !== false &&
-            start &&
-            end &&
-            start <= now &&
-            now <= end
-          );
+          // include active and upcoming sales (those that haven't ended yet)
+          return sale.isActive !== false && end && end >= now;
         });
         setActiveSales(visibleSales);
       } catch (error) {
@@ -106,6 +101,23 @@ const ShopPage = () => {
     loadActiveSales();
   }, [selectedCategory]);
 
+  useEffect(() => {
+    const loadSaleProducts = async () => {
+      if (selectedCategory !== "sale") {
+        setSaleProducts([]);
+        return;
+      }
+
+      try {
+        const products = await getSaleProducts();
+        setSaleProducts(products || []);
+      } catch (error) {
+        console.error("Failed to load sale products:", error);
+      }
+    };
+
+    loadSaleProducts();
+  }, [selectedCategory]);
   const categories = ["all", ...new Set(products.map((p) => p.category))];
   const hairTypes = ["all", ...new Set(products.map((p) => p.hairType))];
   const lengths = ["all", ...new Set(products.map((p) => p.length))];
@@ -124,8 +136,48 @@ const ShopPage = () => {
   const getProductReviewCount = (product) =>
     product?.numReviews ?? product?.reviews ?? 0;
 
+  const groupedSales = activeSales
+    .map((sale) => {
+      const filteredProducts = (sale.products || []).filter((product) => {
+        if (selectedCategory === "new" && !product.isNew) return false;
+        if (
+          selectedCategory !== "all" &&
+          selectedCategory !== "sale" &&
+          selectedCategory !== "new" &&
+          product.category !== selectedCategory
+        )
+          return false;
+        if (selectedHairType !== "all" && product.hairType !== selectedHairType)
+          return false;
+        if (selectedLength !== "all" && product.length !== selectedLength)
+          return false;
+
+        const effectivePrice =
+          product.salePrice ?? sale.salePrice ?? product.price;
+
+        if (effectivePrice < priceRange[0] || effectivePrice > priceRange[1])
+          return false;
+        if (
+          searchQuery &&
+          !product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+          return false;
+        return true;
+      });
+
+      return {
+        ...sale,
+        filteredProducts,
+      };
+    })
+    .filter((sale) => sale.filteredProducts.length > 0);
+
+  const totalSaleProducts = groupedSales.reduce(
+    (sum, sale) => sum + sale.filteredProducts.length,
+    0,
+  );
+
   const filteredProducts = products.filter((product) => {
-    if (selectedCategory === "sale" && !product.isOnSale) return false;
     if (selectedCategory === "new" && !product.isNew) return false;
     if (
       selectedCategory !== "all" &&
@@ -627,11 +679,15 @@ const ShopPage = () => {
                   <p className="text-gray-500 text-sm">
                     Showing{" "}
                     <span className="font-medium text-gray-900">
-                      {sortedProducts.length}
+                      {selectedCategory === "sale"
+                        ? totalSaleProducts
+                        : sortedProducts.length}
                     </span>{" "}
                     of{" "}
                     <span className="font-medium text-gray-900">
-                      {products.length}
+                      {selectedCategory === "sale"
+                        ? totalSaleProducts
+                        : products.length}
                     </span>{" "}
                     products
                   </p>
@@ -675,7 +731,77 @@ const ShopPage = () => {
                 </div>
 
                 {/* Products Display */}
-                {sortedProducts.length > 0 ? (
+                {selectedCategory === "sale" ? (
+                  groupedSales.length > 0 ? (
+                    groupedSales.map((sale) => (
+                      <div key={sale._id} className="mb-12">
+                        <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
+                                {sale.isActive
+                                  ? "Active Sale"
+                                  : "Upcoming Sale"}
+                              </p>
+                              <h3 className="text-2xl font-semibold text-gray-900">
+                                {sale.name}
+                              </h3>
+                              <p className="mt-2 text-gray-600">
+                                {sale.discountPercentage
+                                  ? `${sale.discountPercentage}% off`
+                                  : sale.salePrice
+                                    ? `${formatNaira(sale.salePrice)} fixed price`
+                                    : "Special pricing"}
+                              </p>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {new Date(sale.startDate).toLocaleDateString()} -{" "}
+                              {new Date(sale.endDate).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          className={
+                            viewMode === "grid"
+                              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
+                              : "space-y-8"
+                          }
+                        >
+                          {sale.filteredProducts.map((product) => (
+                            <ProductCard key={product._id} product={product} />
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-20 bg-gray-50 rounded-2xl">
+                      <div className="max-w-md mx-auto">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <BsFilter className="text-3xl text-gray-400" />
+                        </div>
+                        <h3 className="text-xl font-medium text-gray-800 mb-2">
+                          No sale products found
+                        </h3>
+                        <p className="text-gray-500 mb-6">
+                          Try adjusting filters or check back later.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setSelectedCategory("all");
+                            setSelectedHairType("all");
+                            setSelectedLength("all");
+                            setSearchQuery("");
+                            setPriceRange([0, 2000000]);
+                          }}
+                          className="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors"
+                        >
+                          Clear All Filters
+                        </button>
+                      </div>
+                    </div>
+                  )
+                ) : sortedProducts.length > 0 ? (
                   <div
                     className={
                       viewMode === "grid"

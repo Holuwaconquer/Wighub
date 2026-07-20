@@ -20,9 +20,7 @@ const getActiveSalesProducts = async (req, res) => {
       isOnSale: true,
       saleStartDate: { $lte: now },
       saleEndDate: { $gte: now },
-    })
-      .sort({ createdAt: -1 })
-      .limit(8);
+    }).sort({ createdAt: -1 });
 
     res.status(200).json(products);
   } catch (error) {
