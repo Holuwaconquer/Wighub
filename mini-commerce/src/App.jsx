@@ -1,56 +1,57 @@
-import React, { useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import AOS from 'aos'
-import 'aos/dist/aos.css'
-import 'react-toastify/dist/ReactToastify.css'
-import { ToastContainer } from 'react-toastify'
-import { validateToken, logoutUser } from './store/slices/authSlice'
-import { loadCart } from './store/slices/cartSlice'
-import ProtectedRoute from './components/ProtectedRoute'
-import PublicRoute from './components/PublicRoute'
-import ScrollToTop from './ScrollToTop'
+import React, { useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { validateToken, logoutUser } from "./store/slices/authSlice";
+import { loadCart } from "./store/slices/cartSlice";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import ScrollToTop from "./ScrollToTop";
 // Public Pages
-import HomePage from './pages/HomePage'
-import LandingPage from './pages/LandingPage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import ShopPage from './pages/ShopPage'
-import ProductDetails from './pages/ProductDetails'
-import CartPage from './pages/CartPage'
-import CheckoutPage from './pages/CheckoutPage'
-import ForgotPasswordPage from './pages/ForgotPasswordPage'
-import ResetPasswordPage from './pages/ResetPasswordPage'
-import OrderConfirmationPage from './pages/OrderConfirmationPage'
+import HomePage from "./pages/HomePage";
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ShopPage from "./pages/ShopPage";
+import ProductDetails from "./pages/ProductDetails";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 
 // User Dashboard Pages
-import Dashboard from './pages/user/Dashboard'
-import Profile from './pages/user/Profile'
-import UserOrders from './pages/user/Orders'
-import OrderDetails from './pages/user/OrderDetails'
-import Wishlist from './pages/user/Wishlist'
-import Addresses from './pages/user/Addresses'
-import ChangePassword from './pages/user/ChangePassword'
-import UserSettings from './pages/user/Settings'
+import Dashboard from "./pages/user/Dashboard";
+import Profile from "./pages/user/Profile";
+import UserOrders from "./pages/user/Orders";
+import OrderDetails from "./pages/user/OrderDetails";
+import Wishlist from "./pages/user/Wishlist";
+import Addresses from "./pages/user/Addresses";
+import ChangePassword from "./pages/user/ChangePassword";
+import UserSettings from "./pages/user/Settings";
 
 // Admin Pages
-import AdminLogin from './pages/admin/AdminLogin'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import Products from './pages/admin/Products'
-import AddProduct from './pages/admin/AddProduct'
-import EditProduct from './pages/admin/EditProduct'
-import Orders from './pages/admin/Orders'
-import OrderDetailsAdmin from './pages/admin/OrderDetails'
-import Customers from './pages/admin/Customers'
-import Reviews from './pages/admin/Reviews'
-import Coupons from './pages/admin/Coupons'
-import Analytics from './pages/admin/Analytics'
-import Settings from './pages/admin/Settings'
-import ShippingLocations from './pages/admin/ShippingLocations'
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import Products from "./pages/admin/Products";
+import AddProduct from "./pages/admin/AddProduct";
+import EditProduct from "./pages/admin/EditProduct";
+import Orders from "./pages/admin/Orders";
+import OrderDetailsAdmin from "./pages/admin/OrderDetails";
+import Customers from "./pages/admin/Customers";
+import Reviews from "./pages/admin/Reviews";
+import Coupons from "./pages/admin/Coupons";
+import Sales from "./pages/admin/Sales";
+import Analytics from "./pages/admin/Analytics";
+import Settings from "./pages/admin/Settings";
+import ShippingLocations from "./pages/admin/ShippingLocations";
 
 const App = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector(state => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
     AOS.init({
@@ -63,7 +64,7 @@ const App = () => {
     dispatch(loadCart());
 
     // Validate token on app load
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token && !isAuthenticated) {
       dispatch(validateToken());
     }
@@ -73,10 +74,10 @@ const App = () => {
       dispatch(logoutUser());
     };
 
-    window.addEventListener('auth-error', handleAuthError);
+    window.addEventListener("auth-error", handleAuthError);
 
     return () => {
-      window.removeEventListener('auth-error', handleAuthError);
+      window.removeEventListener("auth-error", handleAuthError);
     };
   }, [dispatch, isAuthenticated]);
 
@@ -90,140 +91,223 @@ const App = () => {
           <Route path="shop" element={<ShopPage />} />
           <Route path="product/:slug" element={<ProductDetails />} />
           <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
-          } />
-          <Route path="order-confirmation/:orderId" element={
-            <ProtectedRoute>
-              <OrderConfirmationPage />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="checkout"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="order-confirmation/:orderId"
+            element={
+              <ProtectedRoute>
+                <OrderConfirmationPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Auth Routes - Redirect to dashboard if already logged in */}
-        <Route path="/login" element={
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        } />
-        <Route path="/register" element={
-          <PublicRoute>
-            <RegisterPage />
-          </PublicRoute>
-        } />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          }
+        />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
         {/* User Dashboard Routes - Protected for regular users */}
-        <Route path="/user/dashboard" element={
-          <ProtectedRoute requiredRole="user">
-            <Dashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/user/profile" element={
-          <ProtectedRoute requiredRole="user">
-            <Profile />
-          </ProtectedRoute>
-        } />
-        <Route path="/user/orders" element={
-          <ProtectedRoute requiredRole="user">
-            <UserOrders />
-          </ProtectedRoute>
-        } />
-        <Route path="/user/orders/:id" element={
-          <ProtectedRoute requiredRole="user">
-            <OrderDetails />
-          </ProtectedRoute>
-        } />
-        <Route path="/user/wishlist" element={
-          <ProtectedRoute requiredRole="user">
-            <Wishlist />
-          </ProtectedRoute>
-        } />
-        <Route path="/user/addresses" element={
-          <ProtectedRoute requiredRole="user">
-            <Addresses />
-          </ProtectedRoute>
-        } />
-        <Route path="/user/change-password" element={
-          <ProtectedRoute requiredRole="user">
-            <ChangePassword />
-          </ProtectedRoute>
-        } />
-        <Route path="/user/settings" element={
-          <ProtectedRoute requiredRole="user">
-            <UserSettings />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/user/dashboard"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/profile"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/orders"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <UserOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/orders/:id"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <OrderDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/wishlist"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/addresses"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <Addresses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/change-password"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <ChangePassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/settings"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <UserSettings />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin Routes - Protected for admin users */}
-        <Route path="/admin/login" element={
-          <PublicRoute>
-            <AdminLogin />
-          </PublicRoute>
-        } />
-        <Route path="/admin/dashboard" element={
-          <ProtectedRoute requiredRole="admin">
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/products" element={
-          <ProtectedRoute requiredRole="admin">
-            <Products />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/products/add" element={
-          <ProtectedRoute requiredRole="admin">
-            <AddProduct />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/products/edit/:slug" element={
-          <ProtectedRoute requiredRole="admin">
-            <EditProduct />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/orders" element={
-          <ProtectedRoute requiredRole="admin">
-            <Orders />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/orders/:id" element={
-          <ProtectedRoute requiredRole="admin">
-            <OrderDetailsAdmin />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/customers" element={
-          <ProtectedRoute requiredRole="admin">
-            <Customers />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/reviews" element={
-          <ProtectedRoute requiredRole="admin">
-            <Reviews />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/coupons" element={
-          <ProtectedRoute requiredRole="admin">
-            <Coupons />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/shipping-locations" element={
-          <ProtectedRoute requiredRole="admin">
-            <ShippingLocations />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/analytics" element={
-          <ProtectedRoute requiredRole="admin">
-            <Analytics />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/settings" element={
-          <ProtectedRoute requiredRole="admin">
-            <Settings />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/admin/login"
+          element={
+            <PublicRoute>
+              <AdminLogin />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Products />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/products/add"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AddProduct />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/products/edit/:slug"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <EditProduct />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/orders"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/orders/:id"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <OrderDetailsAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/customers"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Customers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reviews"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Reviews />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/coupons"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Coupons />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/sales"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Sales />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/shipping-locations"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <ShippingLocations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Catch all - 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -242,7 +326,7 @@ const App = () => {
         theme="colored"
       />
       <a
-        href='https://wa.me/message/DSAULOSKOI4XG1'
+        href="https://wa.me/message/DSAULOSKOI4XG1"
         target="_blank"
         rel="noreferrer"
         className="fixed bottom-4 left-3 z-100 bg-[#25D366] hover:bg-[#1ebe5d] mr-2 text-white p-4 rounded-full shadow-lg transition-colors"
@@ -255,7 +339,7 @@ const App = () => {
         </svg>
       </a>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

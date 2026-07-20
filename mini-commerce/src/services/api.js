@@ -202,6 +202,15 @@ export const getBestSellers = async () => {
   }
 };
 
+export const getSaleProducts = async () => {
+  try {
+    const response = await api.get("/products/sale-products");
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
 export const getProductsByCategory = async (category) => {
   try {
     const response = await api.get(`/products/category/${category}`);
@@ -648,6 +657,43 @@ export const updateCoupon = async (couponId, couponData) => {
 export const deleteCoupon = async (couponId) => {
   try {
     const response = await api.delete(`/coupons/${couponId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Sale Management (Admin)
+export const getSales = async () => {
+  try {
+    const response = await api.get("/sales");
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const createSale = async (saleData) => {
+  try {
+    const response = await api.post("/sales", saleData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const updateSale = async (saleId, saleData) => {
+  try {
+    const response = await api.put(`/sales/${saleId}`, saleData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const deleteSale = async (saleId) => {
+  try {
+    const response = await api.delete(`/sales/${saleId}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

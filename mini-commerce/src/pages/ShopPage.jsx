@@ -1,180 +1,272 @@
-import React, { useState, useEffect } from 'react'
-import SEO from '../components/SEO'
-import { Link, useLocation } from 'react-router-dom'
-import { BsFilter, BsGrid3X3, BsListUl, BsHeart, BsHeartFill } from 'react-icons/bs'
-import { HiMiniMagnifyingGlass } from 'react-icons/hi2'
-import { FaTimes, FaArrowRight, FaStar, FaStarHalfAlt } from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchProducts } from '../store/slices/productSlice'
-import { addToCart, removeFromCart } from '../store/slices/cartSlice'
-import { getWishlist, addToWishlist, removeFromWishlist } from '../services/api'
+import React, { useState, useEffect } from "react";
+import SEO from "../components/SEO";
+import { Link, useLocation } from "react-router-dom";
+import {
+  BsFilter,
+  BsGrid3X3,
+  BsListUl,
+  BsHeart,
+  BsHeartFill,
+} from "react-icons/bs";
+import { HiMiniMagnifyingGlass } from "react-icons/hi2";
+import { FaTimes, FaArrowRight, FaStar, FaStarHalfAlt } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts } from "../store/slices/productSlice";
+import { addToCart, removeFromCart } from "../store/slices/cartSlice";
+import {
+  getSales,
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist,
+} from "../services/api";
 
 const ShopPage = () => {
-  const dispatch = useDispatch()
-  const location = useLocation()
-  const { products, loading } = useSelector(state => state.products)
-  const cartItems = useSelector(state => state.cart.items)
-  const [viewMode, setViewMode] = useState('grid')
-  const [sortBy, setSortBy] = useState('featured')
-  const [priceRange, setPriceRange] = useState([0, 2000000])
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [selectedHairType, setSelectedHairType] = useState('all')
-  const [selectedLength, setSelectedLength] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
-  const [wishlist, setWishlist] = useState([])
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { products, loading } = useSelector((state) => state.products);
+  const cartItems = useSelector((state) => state.cart.items);
+  const [viewMode, setViewMode] = useState("grid");
+  const [sortBy, setSortBy] = useState("featured");
+  const [priceRange, setPriceRange] = useState([0, 2000000]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedHairType, setSelectedHairType] = useState("all");
+  const [selectedLength, setSelectedLength] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [wishlist, setWishlist] = useState([]);
+  const [activeSales, setActiveSales] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchProducts())
-  }, [dispatch])
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   useEffect(() => {
     const loadWishlist = async () => {
       try {
-        const wishlistItems = await getWishlist()
-        const ids = wishlistItems.map(item => item.product?._id || item.product)
-        setWishlist(ids)
+        const wishlistItems = await getWishlist();
+        const ids = wishlistItems.map(
+          (item) => item.product?._id || item.product,
+        );
+        setWishlist(ids);
       } catch (error) {
-        console.error('Failed to load wishlist:', error)
+        console.error("Failed to load wishlist:", error);
       }
-    }
+    };
 
-    loadWishlist()
-  }, [])
+    loadWishlist();
+  }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const searchParam = params.get('search')
-    if (searchParam) {
-      setSearchQuery(searchParam)
-    }
-  }, [location.search])
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get("search");
+    const categoryParam = params.get("category")?.toLowerCase();
 
-  const categories = ['all', ...new Set(products.map(p => p.category))]
-  const hairTypes = ['all', ...new Set(products.map(p => p.hairType))]
-  const lengths = ['all', ...new Set(products.map(p => p.length))]
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+
+    if (categoryParam === "sale") {
+      setSelectedCategory("sale");
+    } else if (categoryParam === "new") {
+      setSelectedCategory("new");
+    } else if (categoryParam && categoryParam !== "all") {
+      setSelectedCategory(categoryParam);
+    } else {
+      setSelectedCategory("all");
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const loadActiveSales = async () => {
+      if (selectedCategory !== "sale") {
+        setActiveSales([]);
+        return;
+      }
+
+      try {
+        const sales = await getSales();
+        const now = new Date();
+        const visibleSales = (sales || []).filter((sale) => {
+          const start = sale.startDate ? new Date(sale.startDate) : null;
+          const end = sale.endDate ? new Date(sale.endDate) : null;
+          return (
+            sale.isActive !== false &&
+            start &&
+            end &&
+            start <= now &&
+            now <= end
+          );
+        });
+        setActiveSales(visibleSales);
+      } catch (error) {
+        console.error("Failed to load sales for shop page:", error);
+      }
+    };
+
+    loadActiveSales();
+  }, [selectedCategory]);
+
+  const categories = ["all", ...new Set(products.map((p) => p.category))];
+  const hairTypes = ["all", ...new Set(products.map((p) => p.hairType))];
+  const lengths = ["all", ...new Set(products.map((p) => p.length))];
 
   const formatNaira = (amount) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount)
-  }
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
-  const getProductRating = (product) => product?.ratings ?? product?.rating ?? 0
-  const getProductReviewCount = (product) => product?.numReviews ?? product?.reviews ?? 0
+  const getProductRating = (product) =>
+    product?.ratings ?? product?.rating ?? 0;
+  const getProductReviewCount = (product) =>
+    product?.numReviews ?? product?.reviews ?? 0;
 
-  const filteredProducts = products.filter(product => {
-    if (selectedCategory !== 'all' && product.category !== selectedCategory) return false
-    if (selectedHairType !== 'all' && product.hairType !== selectedHairType) return false
-    if (selectedLength !== 'all' && product.length !== selectedLength) return false
-    if (product.price < priceRange[0] || product.price > priceRange[1]) return false
-    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    return true
-  })
+  const filteredProducts = products.filter((product) => {
+    if (selectedCategory === "sale" && !product.isOnSale) return false;
+    if (selectedCategory === "new" && !product.isNew) return false;
+    if (
+      selectedCategory !== "all" &&
+      selectedCategory !== "sale" &&
+      selectedCategory !== "new" &&
+      product.category !== selectedCategory
+    )
+      return false;
+    if (selectedHairType !== "all" && product.hairType !== selectedHairType)
+      return false;
+    if (selectedLength !== "all" && product.length !== selectedLength)
+      return false;
+    if (product.price < priceRange[0] || product.price > priceRange[1])
+      return false;
+    if (
+      searchQuery &&
+      !product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+    return true;
+  });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch(sortBy) {
-      case 'price-low':
-        return a.price - b.price
-      case 'price-high':
-        return b.price - a.price
-      case 'rating':
-        return getProductRating(b) - getProductRating(a)
-      case 'newest':
-        return b.isNew ? 1 : -1
+    switch (sortBy) {
+      case "price-low":
+        return a.price - b.price;
+      case "price-high":
+        return b.price - a.price;
+      case "rating":
+        return getProductRating(b) - getProductRating(a);
+      case "newest":
+        return b.isNew ? 1 : -1;
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
-  const [toastMessage, setToastMessage] = useState('')
-  const [toastType, setToastType] = useState('success')
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
-  const showToast = (message, type = 'success') => {
-    setToastMessage(message)
-    setToastType(type)
-    setTimeout(() => setToastMessage(''), 2000)
-  }
+  const showToast = (message, type = "success") => {
+    setToastMessage(message);
+    setToastType(type);
+    setTimeout(() => setToastMessage(""), 2000);
+  };
 
   const handleAddToCart = (product) => {
-    const isInCart = cartItems.some(item => item.productId === product._id)
+    const isInCart = cartItems.some((item) => item.productId === product._id);
     if (isInCart) {
-      dispatch(removeFromCart({ productId: product._id }))
-      showToast('Removed from cart', 'info')
+      dispatch(removeFromCart({ productId: product._id }));
+      showToast("Removed from cart", "info");
     } else {
-      dispatch(addToCart({
-        productId: product._id,
-        quantity: 1,
-        price: product.price,
-        name: product.name,
-        image: product.images?.[0] || product.image || '/placeholder.jpg'
-      }))
-      showToast('Added to cart', 'success')
+      dispatch(
+        addToCart({
+          productId: product._id,
+          quantity: 1,
+          price: product.price,
+          name: product.name,
+          image: product.images?.[0] || product.image || "/placeholder.jpg",
+        }),
+      );
+      showToast("Added to cart", "success");
     }
-  }
+  };
 
   const toggleWishlist = async (productId, event) => {
-    event?.preventDefault()
-    event?.stopPropagation()
+    event?.preventDefault();
+    event?.stopPropagation();
 
     try {
       if (wishlist.includes(productId)) {
-        await removeFromWishlist(productId)
-        setWishlist(prev => prev.filter(id => id !== productId))
-        showToast('Removed from wishlist', 'info')
+        await removeFromWishlist(productId);
+        setWishlist((prev) => prev.filter((id) => id !== productId));
+        showToast("Removed from wishlist", "info");
       } else {
-        await addToWishlist(productId)
-        setWishlist(prev => [...prev, productId])
-        showToast('Added to wishlist', 'success')
+        await addToWishlist(productId);
+        setWishlist((prev) => [...prev, productId]);
+        showToast("Added to wishlist", "success");
       }
     } catch (error) {
-      console.error('Wishlist error:', error)
-      showToast(error?.response?.data?.message || 'Please login to add to wishlist', 'error')
+      console.error("Wishlist error:", error);
+      showToast(
+        error?.response?.data?.message || "Please login to add to wishlist",
+        "error",
+      );
     }
-  }
+  };
 
   const renderStars = (rating) => {
-    const stars = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 !== 0
-    
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<FaStar key={i} className="text-yellow-400 text-sm" />)
+      stars.push(<FaStar key={i} className="text-yellow-400 text-sm" />);
     }
     if (hasHalfStar) {
-      stars.push(<FaStarHalfAlt key="half" className="text-yellow-400 text-sm" />)
+      stars.push(
+        <FaStarHalfAlt key="half" className="text-yellow-400 text-sm" />,
+      );
     }
-    const emptyStars = 5 - stars.length
+    const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<FaStar key={`empty-${i}`} className="text-gray-300 text-sm" />)
+      stars.push(
+        <FaStar key={`empty-${i}`} className="text-gray-300 text-sm" />,
+      );
     }
-    return stars
-  }
+    return stars;
+  };
 
   const ProductCard = ({ product }) => {
-    const isInCart = cartItems.some(item => item.productId === product._id)
-    const isInWishlist = wishlist.includes(product._id)
-    const ratingValue = getProductRating(product)
-    const reviewCount = getProductReviewCount(product)
-    
+    const isInCart = cartItems.some((item) => item.productId === product._id);
+    const isInWishlist = wishlist.includes(product._id);
+    const ratingValue = getProductRating(product);
+    const reviewCount = getProductReviewCount(product);
+
     return (
-      <div className={`group ${viewMode === 'list' ? 'flex gap-8' : ''} animate-fadeIn`}>
-        <div className={`relative ${viewMode === 'list' ? 'w-44 flex-shrink-0' : ''}`}>
+      <div
+        className={`group ${viewMode === "list" ? "flex gap-8" : ""} animate-fadeIn`}
+      >
+        <div
+          className={`relative ${viewMode === "list" ? "w-44 flex-shrink-0" : ""}`}
+        >
           <Link to={`/product/${product.slug || product._id}`}>
-            <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 ${
-              viewMode === 'list' ? 'h-44' : 'h-80'
-            }`}>
+            <div
+              className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 ${
+                viewMode === "list" ? "h-44" : "h-80"
+              }`}
+            >
               <img
-                src={product?.images?.[0] || product.image || '/placeholder.jpg'}
+                src={
+                  product?.images?.[0] || product.image || "/placeholder.jpg"
+                }
                 alt={product.name}
-                onError={(e) => { e.currentTarget.src = '/placeholder.jpg' }}
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.jpg";
+                }}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
               />
               {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" /> */}
-              
+
               {/* Badges */}
               <div className="absolute top-4 left-4 flex gap-2">
                 {product.isNew && (
@@ -188,7 +280,7 @@ const ShopPage = () => {
                   </span>
                 )}
               </div>
-              
+
               {/* Wishlist Button */}
               <button
                 onClick={(e) => toggleWishlist(product._id, e)}
@@ -200,10 +292,12 @@ const ShopPage = () => {
                   <BsHeart className="text-gray-600 text-lg hover:text-red-500 transition-colors" />
                 )}
               </button>
-              
+
               {product.stock <= 0 && (
                 <div className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-white font-medium text-lg tracking-wide">Out of Stock</span>
+                  <span className="text-white font-medium text-lg tracking-wide">
+                    Out of Stock
+                  </span>
                 </div>
               )}
             </div>
@@ -213,7 +307,9 @@ const ShopPage = () => {
         <div className="mt-5 space-y-3">
           <Link to={`/product/${product.slug || product._id}`}>
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-              <span className="uppercase tracking-wide">{product.category || 'Hair'}</span>
+              <span className="uppercase tracking-wide">
+                {product.category || "Hair"}
+              </span>
               {product.length && (
                 <>
                   <span className="text-gray-300">•</span>
@@ -221,60 +317,62 @@ const ShopPage = () => {
                 </>
               )}
             </div>
-            
+
             <h3 className="font-medium text-gray-800 text-lg group-hover:text-amber-600 transition-colors line-clamp-2">
               {product.name}
             </h3>
-            
+
             {ratingValue > 0 && (
               <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {renderStars(ratingValue)}
-                </div>
+                <div className="flex gap-1">{renderStars(ratingValue)}</div>
                 <span className="text-sm text-gray-500">({reviewCount})</span>
               </div>
             )}
-            
+
             <div className="flex items-center gap-3">
               <p className="font-semibold text-2xl text-gray-900">
-                {formatNaira(product.price)}
+                {formatNaira(product.salePrice ?? product.price)}
               </p>
-              {product.originalPrice && (
-                <p className="text-gray-400 line-through text-sm">
-                  {formatNaira(product.originalPrice)}
-                </p>
-              )}
+              {(product.originalPrice || product.salePrice) &&
+                (product.originalPrice ?? product.salePrice) >
+                  (product.salePrice ?? product.price) && (
+                  <p className="text-gray-400 line-through text-sm">
+                    {formatNaira(product.originalPrice ?? product.price)}
+                  </p>
+                )}
             </div>
-            
+
             {product.stock > 0 && product.stock < 10 && (
-              <p className="text-amber-600 text-xs font-medium">Only {product.stock} left</p>
+              <p className="text-amber-600 text-xs font-medium">
+                Only {product.stock} left
+              </p>
             )}
           </Link>
-          
+
           <button
             onClick={() => handleAddToCart(product)}
             disabled={product.stock <= 0}
             className={`w-full py-3 rounded-xl font-medium transition-all duration-300 ${
-              product.stock <= 0 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+              product.stock <= 0
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : isInCart
-                  ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-                  : 'bg-black text-white hover:bg-gray-800 hover:shadow-lg transform hover:-translate-y-0.5'
+                  ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                  : "bg-black text-white hover:bg-gray-800 hover:shadow-lg transform hover:-translate-y-0.5"
             }`}
           >
-            {isInCart ? 'Remove from Cart' : 'Add to Cart'}
+            {isInCart ? "Remove from Cart" : "Add to Cart"}
           </button>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const activeFiltersCount = [
-    selectedCategory !== 'all',
-    selectedHairType !== 'all',
-    selectedLength !== 'all',
-    searchQuery !== ''
-  ].filter(Boolean).length
+    selectedCategory !== "all",
+    selectedHairType !== "all",
+    selectedLength !== "all",
+    searchQuery !== "",
+  ].filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-white">
@@ -292,22 +390,61 @@ const ShopPage = () => {
             </h1>
             <div className="w-20 h-px bg-amber-400 mx-auto mb-6"></div>
             <p className="text-gray-500 text-lg font-light leading-relaxed">
-              Discover premium quality human hair wigs, extensions, and accessories
+              Discover premium quality human hair wigs, extensions, and
+              accessories
             </p>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {selectedCategory === "sale" && (
+          <div className="mb-8 rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-600">
+                  On Sale
+                </p>
+                <h2 className="text-3xl font-semibold text-gray-900">
+                  Limited-time offers
+                </h2>
+                <p className="mt-2 text-gray-600">
+                  Fresh discounts handpicked for you.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {activeSales.length > 0 ? (
+                  activeSales.map((sale) => (
+                    <span
+                      key={sale._id}
+                      className="rounded-full bg-white px-4 py-2 text-sm font-medium text-amber-700 shadow-sm"
+                    >
+                      {sale.name}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rounded-full bg-white px-4 py-2 text-sm font-medium text-amber-700 shadow-sm">
+                    Live promotions
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Toast Notification */}
         {toastMessage && (
-          <div className={`fixed top-6 right-6 z-50 px-6 py-3 rounded-xl shadow-2xl backdrop-blur-md transition-all duration-300 ${
-            toastType === 'success' ? 'bg-green-500 text-white' : 'bg-gray-800 text-white'
-          }`}>
+          <div
+            className={`fixed top-6 right-6 z-50 px-6 py-3 rounded-xl shadow-2xl backdrop-blur-md transition-all duration-300 ${
+              toastType === "success"
+                ? "bg-green-500 text-white"
+                : "bg-gray-800 text-white"
+            }`}
+          >
             {toastMessage}
           </div>
         )}
-        
+
         {loading ? (
           <div className="flex justify-center items-center py-24">
             <div className="relative">
@@ -335,18 +472,22 @@ const ShopPage = () => {
 
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Sidebar Filters */}
-              <div className={`${showFilters ? 'block' : 'hidden'} lg:block lg:w-72 flex-shrink-0`}>
+              <div
+                className={`${showFilters ? "block" : "hidden"} lg:block lg:w-72 flex-shrink-0`}
+              >
                 <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-medium text-gray-900 text-lg">Filters</h3>
+                    <h3 className="font-medium text-gray-900 text-lg">
+                      Filters
+                    </h3>
                     {activeFiltersCount > 0 && (
                       <button
                         onClick={() => {
-                          setSelectedCategory('all')
-                          setSelectedHairType('all')
-                          setSelectedLength('all')
-                          setSearchQuery('')
-                          setPriceRange([0, 2000000])
+                          setSelectedCategory("all");
+                          setSelectedHairType("all");
+                          setSelectedLength("all");
+                          setSearchQuery("");
+                          setPriceRange([0, 2000000]);
                         }}
                         className="text-sm text-amber-600 hover:text-amber-700 transition-colors"
                       >
@@ -357,7 +498,9 @@ const ShopPage = () => {
 
                   {/* Search */}
                   <div className="mb-8">
-                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Search</h4>
+                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">
+                      Search
+                    </h4>
                     <div className="relative">
                       <input
                         type="text"
@@ -372,10 +515,15 @@ const ShopPage = () => {
 
                   {/* Category */}
                   <div className="mb-8">
-                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Category</h4>
+                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">
+                      Category
+                    </h4>
                     <div className="space-y-2">
-                      {categories.map(cat => (
-                        <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                      {categories.map((cat) => (
+                        <label
+                          key={cat}
+                          className="flex items-center gap-3 cursor-pointer group"
+                        >
                           <input
                             type="radio"
                             name="category"
@@ -384,7 +532,7 @@ const ShopPage = () => {
                             className="w-4 h-4 accent-amber-500"
                           />
                           <span className="text-gray-600 capitalize group-hover:text-gray-900 transition-colors">
-                            {cat === 'all' ? 'All Categories' : cat}
+                            {cat === "all" ? "All Categories" : cat}
                           </span>
                         </label>
                       ))}
@@ -393,10 +541,15 @@ const ShopPage = () => {
 
                   {/* Hair Type */}
                   <div className="mb-8">
-                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Hair Type</h4>
+                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">
+                      Hair Type
+                    </h4>
                     <div className="space-y-2">
-                      {hairTypes.map(type => (
-                        <label key={type} className="flex items-center gap-3 cursor-pointer group">
+                      {hairTypes.map((type) => (
+                        <label
+                          key={type}
+                          className="flex items-center gap-3 cursor-pointer group"
+                        >
                           <input
                             type="radio"
                             name="hairType"
@@ -405,7 +558,7 @@ const ShopPage = () => {
                             className="w-4 h-4 accent-amber-500"
                           />
                           <span className="text-gray-600 capitalize group-hover:text-gray-900 transition-colors">
-                            {type === 'all' ? 'All Types' : type}
+                            {type === "all" ? "All Types" : type}
                           </span>
                         </label>
                       ))}
@@ -414,10 +567,15 @@ const ShopPage = () => {
 
                   {/* Length */}
                   <div className="mb-8">
-                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Length</h4>
+                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">
+                      Length
+                    </h4>
                     <div className="space-y-2">
-                      {lengths.map(len => (
-                        <label key={len} className="flex items-center gap-3 cursor-pointer group">
+                      {lengths.map((len) => (
+                        <label
+                          key={len}
+                          className="flex items-center gap-3 cursor-pointer group"
+                        >
                           <input
                             type="radio"
                             name="length"
@@ -426,7 +584,7 @@ const ShopPage = () => {
                             className="w-4 h-4 accent-amber-500"
                           />
                           <span className="text-gray-600 group-hover:text-gray-900 transition-colors">
-                            {len === 'all' ? 'All Lengths' : `${len}"`}
+                            {len === "all" ? "All Lengths" : `${len}"`}
                           </span>
                         </label>
                       ))}
@@ -435,7 +593,9 @@ const ShopPage = () => {
 
                   {/* Price Range */}
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Price Range</h4>
+                    <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">
+                      Price Range
+                    </h4>
                     <div className="space-y-3">
                       <input
                         type="range"
@@ -443,7 +603,12 @@ const ShopPage = () => {
                         max="2000000"
                         step="50000"
                         value={priceRange[1]}
-                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                        onChange={(e) =>
+                          setPriceRange([
+                            priceRange[0],
+                            parseInt(e.target.value),
+                          ])
+                        }
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
                       />
                       <div className="flex justify-between text-sm text-gray-600">
@@ -460,8 +625,15 @@ const ShopPage = () => {
                 {/* Sort and View Controls */}
                 <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
                   <p className="text-gray-500 text-sm">
-                    Showing <span className="font-medium text-gray-900">{sortedProducts.length}</span> of{' '}
-                    <span className="font-medium text-gray-900">{products.length}</span> products
+                    Showing{" "}
+                    <span className="font-medium text-gray-900">
+                      {sortedProducts.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-medium text-gray-900">
+                      {products.length}
+                    </span>{" "}
+                    products
                   </p>
 
                   <div className="flex gap-3">
@@ -476,20 +648,24 @@ const ShopPage = () => {
                       <option value="rating">Best Rating</option>
                       <option value="newest">Newest First</option>
                     </select>
-                    
+
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setViewMode('grid')}
+                        onClick={() => setViewMode("grid")}
                         className={`p-2 rounded-lg transition-colors ${
-                          viewMode === 'grid' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          viewMode === "grid"
+                            ? "bg-amber-500 text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}
                       >
                         <BsGrid3X3 />
                       </button>
                       <button
-                        onClick={() => setViewMode('list')}
+                        onClick={() => setViewMode("list")}
                         className={`p-2 rounded-lg transition-colors ${
-                          viewMode === 'list' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          viewMode === "list"
+                            ? "bg-amber-500 text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}
                       >
                         <BsListUl />
@@ -500,12 +676,14 @@ const ShopPage = () => {
 
                 {/* Products Display */}
                 {sortedProducts.length > 0 ? (
-                  <div className={
-                    viewMode === 'grid'
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
-                      : "space-y-8"
-                  }>
-                    {sortedProducts.map(product => (
+                  <div
+                    className={
+                      viewMode === "grid"
+                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
+                        : "space-y-8"
+                    }
+                  >
+                    {sortedProducts.map((product) => (
                       <ProductCard key={product._id} product={product} />
                     ))}
                   </div>
@@ -515,15 +693,19 @@ const ShopPage = () => {
                       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <BsFilter className="text-3xl text-gray-400" />
                       </div>
-                      <h3 className="text-xl font-medium text-gray-800 mb-2">No products found</h3>
-                      <p className="text-gray-500 mb-6">Try adjusting your filters or search criteria</p>
+                      <h3 className="text-xl font-medium text-gray-800 mb-2">
+                        No products found
+                      </h3>
+                      <p className="text-gray-500 mb-6">
+                        Try adjusting your filters or search criteria
+                      </p>
                       <button
                         onClick={() => {
-                          setSelectedCategory('all')
-                          setSelectedHairType('all')
-                          setSelectedLength('all')
-                          setSearchQuery('')
-                          setPriceRange([0, 2000000])
+                          setSelectedCategory("all");
+                          setSelectedHairType("all");
+                          setSelectedLength("all");
+                          setSearchQuery("");
+                          setPriceRange([0, 2000000]);
                         }}
                         className="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors"
                       >
@@ -538,7 +720,7 @@ const ShopPage = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ShopPage
+export default ShopPage;

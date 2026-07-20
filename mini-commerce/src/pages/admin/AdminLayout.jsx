@@ -1,58 +1,73 @@
-
-import React, { useState, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
-import { logoutUser } from '../../store/slices/authSlice'
-import DashboardTopBar from '../../components/DashboardTopBar'
-import { 
-  FaTachometerAlt, FaBox, FaShoppingCart, FaUsers, 
-  FaStar, FaTags, FaCog, FaSignOutAlt, FaBars, 
-  FaTimes, FaChartLine, FaMapMarkerAlt
-} from 'react-icons/fa'
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../../store/slices/authSlice";
+import DashboardTopBar from "../../components/DashboardTopBar";
+import {
+  FaTachometerAlt,
+  FaBox,
+  FaShoppingCart,
+  FaUsers,
+  FaStar,
+  FaTags,
+  FaCog,
+  FaSignOutAlt,
+  FaBars,
+  FaTimes,
+  FaChartLine,
+  FaMapMarkerAlt,
+  FaPercent,
+} from "react-icons/fa";
 
 const AdminLayout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { isAuthenticated, user } = useSelector(state => state.auth)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      navigate('/admin/login')
+    if (!isAuthenticated || user?.role !== "admin") {
+      navigate("/admin/login");
     }
-  }, [isAuthenticated, user, navigate])
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogout = () => {
-    dispatch(logoutUser())
-    navigate('/admin/login')
-  }
+    dispatch(logoutUser());
+    navigate("/admin/login");
+  };
 
   const menuItems = [
-    { path: '/admin/dashboard', name: 'Dashboard', icon: <FaTachometerAlt /> },
-    { path: '/admin/products', name: 'Products', icon: <FaBox /> },
-    { path: '/admin/orders', name: 'Orders', icon: <FaShoppingCart /> },
-    { path: '/admin/customers', name: 'Customers', icon: <FaUsers /> },
-    { path: '/admin/reviews', name: 'Reviews', icon: <FaStar /> },
-    { path: '/admin/coupons', name: 'Coupons', icon: <FaTags /> },
-    { path: '/admin/shipping-locations', name: 'Shipping Locations', icon: <FaMapMarkerAlt /> },
-    { path: '/admin/analytics', name: 'Analytics', icon: <FaChartLine /> },
-    { path: '/admin/settings', name: 'Settings', icon: <FaCog /> },
-  ]
+    { path: "/admin/dashboard", name: "Dashboard", icon: <FaTachometerAlt /> },
+    { path: "/admin/products", name: "Products", icon: <FaBox /> },
+    { path: "/admin/orders", name: "Orders", icon: <FaShoppingCart /> },
+    { path: "/admin/customers", name: "Customers", icon: <FaUsers /> },
+    { path: "/admin/reviews", name: "Reviews", icon: <FaStar /> },
+    { path: "/admin/coupons", name: "Coupons", icon: <FaTags /> },
+    { path: "/admin/sales", name: "Sales", icon: <FaPercent /> },
+    {
+      path: "/admin/shipping-locations",
+      name: "Shipping Locations",
+      icon: <FaMapMarkerAlt />,
+    },
+    { path: "/admin/analytics", name: "Analytics", icon: <FaChartLine /> },
+    { path: "/admin/settings", name: "Settings", icon: <FaCog /> },
+  ];
 
   const pageTitles = {
-    '/admin/dashboard': 'Overview',
-    '/admin/products': 'Products',
-    '/admin/orders': 'Orders',
-    '/admin/customers': 'Customers',
-    '/admin/reviews': 'Reviews',
-    '/admin/coupons': 'Coupons',
-    '/admin/shipping-locations': 'Shipping Locations',
-    '/admin/analytics': 'Analytics',
-    '/admin/settings': 'Settings'
-  }
+    "/admin/dashboard": "Overview",
+    "/admin/products": "Products",
+    "/admin/orders": "Orders",
+    "/admin/customers": "Customers",
+    "/admin/reviews": "Reviews",
+    "/admin/coupons": "Coupons",
+    "/admin/sales": "Sales",
+    "/admin/shipping-locations": "Shipping Locations",
+    "/admin/analytics": "Analytics",
+    "/admin/settings": "Settings",
+  };
 
-  const pageTitle = pageTitles[location.pathname] || 'Dashboard'
+  const pageTitle = pageTitles[location.pathname] || "Dashboard";
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -73,14 +88,18 @@ const AdminLayout = ({ children }) => {
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+      `}
+      >
         <div className="p-6 border-b border-gray-300">
           <div className="flex items-center justify-between">
-            <div className='cursor-pointer' onClick={() => navigate('/')}>
-              <h2 className="text-xl font-bold" style={{ color: '#9b83a3' }}>Admin Panel</h2>
+            <div className="cursor-pointer" onClick={() => navigate("/")}>
+              <h2 className="text-xl font-bold" style={{ color: "#9b83a3" }}>
+                Admin Panel
+              </h2>
               <p className="text-xs text-gray-500">Minka Luxury Hair</p>
             </div>
             <button
@@ -100,9 +119,10 @@ const AdminLayout = ({ children }) => {
               onClick={() => setSidebarOpen(false)}
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200
-                ${location.pathname === item.path
-                  ? 'bg-[#9b83a3] text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+                ${
+                  location.pathname === item.path
+                    ? "bg-[#9b83a3] text-white"
+                    : "text-gray-700 hover:bg-gray-100"
                 }
               `}
             >
@@ -127,14 +147,14 @@ const AdminLayout = ({ children }) => {
           <DashboardTopBar
             title={pageTitle}
             subtitle="Admin Panel"
-            userName={user?.name || 'Administrator'}
-            userRole={user?.role || 'admin'}
+            userName={user?.name || "Administrator"}
+            userRole={user?.role || "admin"}
           />
           {children}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminLayout
+export default AdminLayout;

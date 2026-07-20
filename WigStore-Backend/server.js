@@ -17,6 +17,7 @@ const shippingRoutes = require("./routes/shippingRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const saleRoutes = require("./routes/saleRoutes");
 
 // Import middleware
 const errorMiddleware = require("./middleware/errorMiddleware");
@@ -68,16 +69,15 @@ app.use("/api/shipping-locations", shippingRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/sales", saleRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
-  res
-    .status(200)
-    .json({
-      message: "Server is running",
-      status: "OK",
-      timeStamp: new Date().toISOString(),
-    });
+  res.status(200).json({
+    message: "Server is running",
+    status: "OK",
+    timeStamp: new Date().toISOString(),
+  });
 });
 
 // Error handling middleware
