@@ -304,7 +304,7 @@ const ShopPage = () => {
           <Link to={`/product/${product.slug || product._id}`}>
             <div
               className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 ${
-                viewMode === "list" ? "h-44" : "h-80"
+                viewMode === "list" ? "h-44" : "h-50"
               }`}
             >
               <img
@@ -315,7 +315,7 @@ const ShopPage = () => {
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.jpg";
                 }}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-out"
               />
               {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" /> */}
 
@@ -358,7 +358,7 @@ const ShopPage = () => {
 
         <div className="mt-5 space-y-3">
           <Link to={`/product/${product.slug || product._id}`}>
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
               <span className="uppercase tracking-wide">
                 {product.category || "Hair"}
               </span>
@@ -370,8 +370,8 @@ const ShopPage = () => {
               )}
             </div>
 
-            <h3 className="font-medium text-gray-800 text-lg group-hover:text-amber-600 transition-colors line-clamp-2">
-              {product.name}
+            <h3 className="font-bold text-gray-800 text-lg group-hover:text-amber-600 transition-colors line-clamp-2">
+              {product.name.toUpperCase()}
             </h3>
 
             {ratingValue > 0 && (
@@ -381,8 +381,8 @@ const ShopPage = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-3">
-              <p className="font-semibold text-2xl text-gray-900">
+            <div className="flex flex-col md:flex-row md:items-center">
+              <p className="font-extrabold text-2xl text-gray-900">
                 {formatNaira(product.salePrice ?? product.price)}
               </p>
               {(product.originalPrice || product.salePrice) &&
@@ -435,12 +435,12 @@ const ShopPage = () => {
       />
       {/* Hero Section */}
       <div className="relative bg-gradient-to-r from-gray-50 via-white to-gray-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-20">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-light tracking-tight text-gray-900 mb-4">
+            <h1 className="text-4xl md:text-6xl font-light tracking-tight text-gray-900 mb-2">
               Shop Our Collection
             </h1>
-            <div className="w-20 h-px bg-amber-400 mx-auto mb-6"></div>
+            <div className="w-20 h-px bg-amber-400 mx-auto "></div>
             <p className="text-gray-500 text-lg font-light leading-relaxed">
               Discover premium quality human hair wigs, extensions, and
               accessories
@@ -449,7 +449,7 @@ const ShopPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {selectedCategory === "sale" && (
           <div className="mb-8 rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -734,9 +734,9 @@ const ShopPage = () => {
                 {selectedCategory === "sale" ? (
                   groupedSales.length > 0 ? (
                     groupedSales.map((sale) => (
-                      <div key={sale._id} className="mb-12">
-                        <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div key={sale._id} className="mb-4">
+                        <div className="mb-4 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+                          <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
                                 {sale.isActive
@@ -746,11 +746,11 @@ const ShopPage = () => {
                               <h3 className="text-2xl font-semibold text-gray-900">
                                 {sale.name}
                               </h3>
-                              <p className="mt-2 text-gray-600">
+                              <p className="absolute top-0 right-0 text-gray-600">
                                 {sale.discountPercentage
                                   ? `${sale.discountPercentage}% off`
                                   : sale.salePrice
-                                    ? `${formatNaira(sale.salePrice)} fixed price`
+                                    ? `${formatNaira(sale.salePrice)}`
                                     : "Special pricing"}
                               </p>
                             </div>
@@ -764,8 +764,8 @@ const ShopPage = () => {
                         <div
                           className={
                             viewMode === "grid"
-                              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
-                              : "space-y-8"
+                              ? "grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-10"
+                              : "space-y-4"
                           }
                         >
                           {sale.filteredProducts.map((product) => (
@@ -805,8 +805,8 @@ const ShopPage = () => {
                   <div
                     className={
                       viewMode === "grid"
-                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
-                        : "space-y-8"
+                        ? "grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-10"
+                        : "space-y-6"
                     }
                   >
                     {sortedProducts.map((product) => (
