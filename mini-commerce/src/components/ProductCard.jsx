@@ -162,7 +162,7 @@ const ProductCard = ({ product }) => {
       {/* Product Info */}
       <div className="w-full flex flex-col gap-2 mt-4">
         <h2 className="font-bold text-lg md:text-xl line-clamp-2 hover:text-[#8c6020] transition-colors cursor-pointer">
-          {data.name}
+          {data.name.toUpperCase()}
         </h2>
 
         <div className="flex items-center gap-2">
