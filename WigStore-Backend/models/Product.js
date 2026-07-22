@@ -52,9 +52,6 @@ const productSchema = new mongoose.Schema(
     },
     sku: {
       type: String,
-      unique: true,
-      sparse: true,
-      default: null,
     },
     images: [String],
     features: [String],
@@ -151,5 +148,11 @@ productSchema.virtual("discountPercentage").get(function () {
   }
   return 0;
 });
+
+// Ensure only string SKUs are indexed to avoid null duplicates
+productSchema.index(
+  { sku: 1 },
+  { unique: true, partialFilterExpression: { sku: { $type: "string" } } },
+);
 
 module.exports = mongoose.model("Product", productSchema);

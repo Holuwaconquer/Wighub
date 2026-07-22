@@ -36,12 +36,14 @@ const Sales = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingSale, setEditingSale] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
+
     try {
       setLoading(true);
       const [salesResponse, productsResponse] = await Promise.all([
@@ -59,6 +61,7 @@ const Sales = () => {
   };
 
   const handleSubmit = async (e) => {
+    setSaving(true);
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -115,6 +118,8 @@ const Sales = () => {
     } catch (error) {
       console.error("Failed to save sale:", error);
       toast.error("Failed to save sale");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -492,9 +497,10 @@ const Sales = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-amber-600 text-white"
+                    className="px-4 py-2 rounded-lg bg-amber-600 text-white disabled:opacity-60"
+                    disabled={saving}
                   >
-                    Save Sale
+                    {saving ? "Saving..." : "Save Sale"}
                   </button>
                 </div>
               </form>
