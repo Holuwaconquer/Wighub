@@ -183,7 +183,7 @@ const getAdminOrderNotificationEmail = (order, user) => {
         </div>
         
         <p style="text-align: center; margin-top: 20px;">
-          <a href="${process.env.BACKEND_URL}/api/orders/${order._id}" style="background-color: #9b83a3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">View Order Details</a>
+          <a href="${process.env.CLIENT_URL}/admin/orders/${order._id}" style="background-color: #9b83a3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">View Order Details</a>
         </p>
       </div>
     </div>

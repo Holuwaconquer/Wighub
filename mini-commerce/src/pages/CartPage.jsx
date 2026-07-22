@@ -191,9 +191,9 @@ const CartPage = () => {
                   Proceed to Checkout
                 </button>
                 
-                <p className="text-center text-xs text-gray-400 mt-4">
+                {/* <p className="text-center text-xs text-gray-400 mt-4">
                   Free returns within 14 days • Secure checkout
-                </p>
+                </p> */}
               </div>
             </div>
           </div>

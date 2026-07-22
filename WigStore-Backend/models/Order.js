@@ -96,6 +96,10 @@ const orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  notificationSent: {
+    type: Boolean,
+    default: false,
+  },
   paidAt: Date,
   isDelivered: {
     type: Boolean,

@@ -4,6 +4,7 @@ const Coupon = require("../models/Coupon");
 const axios = require("axios");
 const crypto = require("crypto");
 const generateOrderId = require("../utils/generateOrderId");
+const sendEmail = require("../utils/sendEmail");
 
 const KORA_API_URL =
   process.env.KORA_API_URL || "https://api.korapay.com/merchant/api/v1";
@@ -259,6 +260,41 @@ const verifyPayment = async (req, res) => {
       order.paymentMethod = paymentMethod;
       await order.save();
 
+      // Send confirmation emails if not already sent
+      try {
+        if (!order.notificationSent) {
+          await order.populate("user", "name email");
+          await order.populate("orderItems.product");
+
+          const userEmailHtml =
+            require("../utils/emailTemplates").getUserOrderConfirmationEmail(
+              order,
+              order.user,
+            );
+          await sendEmail({
+            email: order.user.email,
+            subject: `Order Confirmation - Order #${order.orderId}`,
+            html: userEmailHtml,
+          });
+
+          const adminEmailHtml =
+            require("../utils/emailTemplates").getAdminOrderNotificationEmail(
+              order,
+              order.user,
+            );
+          await sendEmail({
+            email: process.env.ADMIN_EMAIL,
+            subject: `New Order Received - Order #${order.orderId}`,
+            html: adminEmailHtml,
+          });
+
+          order.notificationSent = true;
+          await order.save();
+        }
+      } catch (emailErr) {
+        console.error("Failed to send post-payment emails:", emailErr);
+      }
+
       return res.status(200).json({
         status: true,
         message: "Payment verified successfully",
@@ -346,6 +382,44 @@ const handleWebhook = async (req, res) => {
         order.paidAt = new Date();
         order.paymentMethod = paymentMethod;
         await order.save();
+
+        // Send confirmation emails if not already sent
+        try {
+          if (!order.notificationSent) {
+            await order.populate("user", "name email");
+            await order.populate("orderItems.product");
+
+            const userEmailHtml =
+              require("../utils/emailTemplates").getUserOrderConfirmationEmail(
+                order,
+                order.user,
+              );
+            await sendEmail({
+              email: order.user.email,
+              subject: `Order Confirmation - Order #${order.orderId}`,
+              html: userEmailHtml,
+            });
+
+            const adminEmailHtml =
+              require("../utils/emailTemplates").getAdminOrderNotificationEmail(
+                order,
+                order.user,
+              );
+            await sendEmail({
+              email: process.env.ADMIN_EMAIL,
+              subject: `New Order Received - Order #${order.orderId}`,
+              html: adminEmailHtml,
+            });
+
+            order.notificationSent = true;
+            await order.save();
+          }
+        } catch (emailErr) {
+          console.error(
+            "Failed to send webhook post-payment emails:",
+            emailErr,
+          );
+        }
 
         console.log(`Payment confirmed for order ${order.orderId}`);
       }
