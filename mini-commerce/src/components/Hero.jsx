@@ -120,7 +120,7 @@ const Hero = () => {
                     </div>
                     
                     {/* Stats */}
-                    <div className='flex flex-wrap gap-8 pt-4'>
+                    <div className='flex flex-wrap gap-3 pt-4'>
                         <div className='text-center md:text-left'>
                             <h2 className='text-[24px] md:text-3xl font-bold' style={{ color: '#8a0fb3' }}>500+</h2>
                             <p className='text-sm text-gray-500'>Hair Styles</p>
