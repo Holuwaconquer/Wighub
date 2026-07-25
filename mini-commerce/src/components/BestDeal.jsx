@@ -211,7 +211,7 @@ const BestDeal = () => {
           style={{ borderColor: "#8c6020", color: "#8c6020" }}
         >
           <span className="relative z-10 font-medium">View All Deals</span>
-          <span className="absolute inset-0 bg-gradient-to-r from-[#8c6020] to-[#9b83a3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+          <span className="absolute inset-0 bg-gradient-to-r from-[#8c6020] to-[#8a0fb3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
         </button>
       </div>
     </div>

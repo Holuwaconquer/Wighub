@@ -60,7 +60,7 @@ const WhyChooseUs = () => {
   const scrollingBenefits = [...benefits, ...benefits]
 
   return (
-    <div data-aos="fade-up" className='w-full bg-gradient-to-r from-[#9b83a3] to-[#8c6020] overflow-hidden'>
+    <div data-aos="fade-up" className='w-full bg-gradient-to-r from-[#8a0fb3] to-[#8c6020] overflow-hidden'>
       {/* Mobile Horizontal Scrolling Ticker */}
       <div className='md:hidden relative'>
         <div className='flex overflow-hidden py-4'>

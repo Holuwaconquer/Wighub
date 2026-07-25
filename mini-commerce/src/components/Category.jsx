@@ -57,7 +57,7 @@ const Category = () => {
     <div data-aos="zoom-in" className='w-full py-[50px] px-[20px] md:px-[7%] bg-gradient-to-br from-gray-50 to-purple-50'>
       {/* Header Section */}
       <div className='text-center mb-12'>
-        <h1 className='text-3xl md:text-[48px] font-bold mb-4' style={{ color: '#9b83a3' }}>
+        <h1 className='text-3xl md:text-[48px] font-bold mb-4' style={{ color: '#8a0fb3' }}>
           BROWSE BY HAIR STYLE
         </h1>
         <p className='text-gray-600 text-lg max-w-2xl mx-auto'>
