@@ -65,7 +65,7 @@ const LoginPage = () => {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: "#9b83a3" }}>
+            <h1 className="text-3xl font-bold" style={{ color: "#8a0fb3" }}>
               MINKA LUXURY HAIR
             </h1>
             <p className="text-gray-600 mt-2">
@@ -92,7 +92,7 @@ const LoginPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="you@example.com"
                 />
               </div>
@@ -110,7 +110,7 @@ const LoginPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="Enter your password"
                 />
                 <button
@@ -130,14 +130,14 @@ const LoginPage = () => {
                   name="rememberMe"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="w-4 h-4 accent-[#9b83a3]"
+                  className="w-4 h-4 accent-[#8a0fb3]"
                 />
                 <span className="text-sm text-gray-600">Remember me</span>
               </label>
 
               <Link
                 to="/forgot-password"
-                className="text-sm text-[#8c6020] hover:underline"
+                className="text-sm text-[#b98800] hover:underline"
               >
                 Forgot password?
               </Link>
@@ -146,7 +146,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-[#8a0fb3] text-white rounded-lg font-semibold hover:bg-[#b98800] transition-colors disabled:opacity-50"
             >
               {loading ? "Logging in..." : "Sign In"}
             </button>
@@ -156,7 +156,7 @@ const LoginPage = () => {
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="text-[#8c6020] font-semibold hover:underline"
+              className="text-[#b98800] font-semibold hover:underline"
             >
               Sign up
             </Link>

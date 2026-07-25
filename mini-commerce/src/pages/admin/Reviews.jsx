@@ -144,7 +144,7 @@ const Reviews = () => {
       <AdminLayout>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <FaSpinner className="text-4xl text-[#9b83a3] animate-spin mx-auto mb-4" />
+            <FaSpinner className="text-4xl text-[#8a0fb3] animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading reviews...</p>
           </div>
         </div>
@@ -163,7 +163,7 @@ const Reviews = () => {
           </div>
           <button
             onClick={loadReviews}
-            className="px-4 py-2 bg-[#9b83a3] text-white rounded-lg hover:bg-opacity-90 transition-all"
+            className="px-4 py-2 bg-[#8a0fb3] text-white rounded-lg hover:bg-opacity-90 transition-all"
           >
             Refresh
           </button>
@@ -178,7 +178,7 @@ const Reviews = () => {
               placeholder="Search reviews by product, customer, or content..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
             />
 
             {/* Status Filter */}
@@ -189,7 +189,7 @@ const Reviews = () => {
                   onClick={() => setFilter(status)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all ${
                     filter === status
-                      ? 'bg-[#9b83a3] text-white'
+                      ? 'bg-[#8a0fb3] text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -208,7 +208,7 @@ const Reviews = () => {
         <div className="space-y-4">
           {filteredReviews.length > 0 ? (
             filteredReviews.map(review => (
-              <div key={review._id} className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-[#9b83a3]">
+              <div key={review._id} className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-[#8a0fb3]">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   {/* Product Info */}
                   <div>

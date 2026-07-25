@@ -38,7 +38,7 @@ const FeaturedListings = () => {
       {/* Header Section */}
       <div className='flex flex-col md:flex-row justify-between items-center mb-8 gap-4'>
         <div>
-          <h1 className='text-3xl md:text-[48px] font-extrabold' style={{ color: '#9b83a3' }}>
+          <h1 className='text-3xl md:text-[48px] font-extrabold' style={{ color: '#8a0fb3' }}>
             FEATURED LISTINGS
           </h1>
           <p className='text-gray-500 mt-2'>Discover our most popular hair collections</p>
@@ -48,13 +48,13 @@ const FeaturedListings = () => {
         {/* <div className='hidden md:flex gap-3'>
           <button
             onClick={() => scroll('left')}
-            className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#9b83a3] hover:text-white hover:border-[#9b83a3] transition-all duration-300'
+            className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#8a0fb3] hover:text-white hover:border-[#8a0fb3] transition-all duration-300'
           >
             <FaArrowLeft />
           </button>
           <button
             onClick={() => scroll('right')}
-            className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#9b83a3] hover:text-white hover:border-[#9b83a3] transition-all duration-300'
+            className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#8a0fb3] hover:text-white hover:border-[#8a0fb3] transition-all duration-300'
           >
             <FaArrowRight />
           </button>
@@ -64,7 +64,7 @@ const FeaturedListings = () => {
       {/* Loading State */}
       {loading ? (
         <div className='flex justify-center items-center py-12'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3]'></div>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-[#8a0fb3]'></div>
         </div>
       ) : (
         <>
@@ -86,7 +86,7 @@ const FeaturedListings = () => {
             {products.slice(0, 8).map((_, index) => (
               <button
                 key={index}
-                className='w-2 h-2 rounded-full bg-gray-300 hover:bg-[#9b83a3] transition-colors'
+                className='w-2 h-2 rounded-full bg-gray-300 hover:bg-[#8a0fb3] transition-colors'
                 onClick={() => {
                   if (scrollContainerRef.current) {
                     scrollContainerRef.current.scrollTo({
@@ -105,7 +105,7 @@ const FeaturedListings = () => {
       <div className='flex justify-center mt-8'>
         <button
           onClick={() => navigate('/shop')}
-          className='px-8 py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors'
+          className='px-8 py-3 bg-[#8a0fb3] text-white rounded-lg font-semibold hover:bg-[#b98800] transition-colors'
         >
           View All Products
         </button>

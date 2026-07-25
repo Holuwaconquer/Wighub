@@ -178,7 +178,7 @@ const EditProduct = () => {
     return (
       <AdminLayout>
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3] mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8a0fb3] mx-auto"></div>
           <p className="text-gray-500 mt-4">Loading product...</p>
         </div>
       </AdminLayout>
@@ -215,7 +215,7 @@ const EditProduct = () => {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
 
@@ -228,7 +228,7 @@ const EditProduct = () => {
                 value={formData.description}
                 onChange={handleChange}
                 rows="4"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
 
@@ -241,7 +241,7 @@ const EditProduct = () => {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                 >
                   <option value="Wigs">Wigs</option>
                   <option value="Bundles">Bundles</option>
@@ -260,7 +260,7 @@ const EditProduct = () => {
                   value={formData.hairType}
                   onChange={handleChange}
                   placeholder="e.g. Brazilian, Peruvian, etc."
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                 />
               </div>
             </div>
@@ -277,7 +277,7 @@ const EditProduct = () => {
                   value={formData.price}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                 />
               </div>
               <div>
@@ -289,7 +289,7 @@ const EditProduct = () => {
                   name="originalPrice"
                   value={formData.originalPrice}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                 />
               </div>
             </div>
@@ -305,7 +305,7 @@ const EditProduct = () => {
                   value={formData.stock}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                 />
               </div>
               <div>
@@ -317,7 +317,7 @@ const EditProduct = () => {
                   name="sku"
                   value={formData.sku}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                 />
               </div>
             </div>
@@ -330,7 +330,7 @@ const EditProduct = () => {
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -440,7 +440,7 @@ const EditProduct = () => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 text-[#9b83a3] text-sm hover:underline"
+                className="flex items-center gap-2 text-[#8a0fb3] text-sm hover:underline"
                 disabled={uploadingImages}
               >
                 + Add more images
@@ -458,7 +458,7 @@ const EditProduct = () => {
                     value={feature}
                     onChange={(e) => handleFeatureChange(index, e.target.value)}
                     placeholder="Feature"
-                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                   />
                   {index > 0 && (
                     <button
@@ -474,7 +474,7 @@ const EditProduct = () => {
               <button
                 type="button"
                 onClick={addFeature}
-                className="text-[#9b83a3] text-sm hover:underline"
+                className="text-[#8a0fb3] text-sm hover:underline"
               >
                 + Add another feature
               </button>
@@ -486,7 +486,7 @@ const EditProduct = () => {
           <button
             type="submit"
             disabled={saving || uploadingImages}
-            className="px-6 py-2 bg-[#9b83a3] text-white rounded-lg hover:bg-[#8c6020] transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-[#8a0fb3] text-white rounded-lg hover:bg-[#b98800] transition-colors disabled:opacity-50"
           >
             {saving
               ? "Saving..."

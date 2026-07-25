@@ -227,7 +227,7 @@ const ProductDetails = () => {
     return (
       <div className="min-h-screen bg-gray-50 pt-32 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#9b83a3] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#8a0fb3] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading product details...</p>
         </div>
       </div>
@@ -239,7 +239,7 @@ const ProductDetails = () => {
       <div className="min-h-screen bg-gray-50 pt-32 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600">Product not found</p>
-          <Link to="/shop" className="mt-4 inline-block px-6 py-2 bg-[#9b83a3] text-white rounded-lg">
+          <Link to="/shop" className="mt-4 inline-block px-6 py-2 bg-[#8a0fb3] text-white rounded-lg">
             Back to Shop
           </Link>
         </div>
@@ -286,9 +286,9 @@ const ProductDetails = () => {
         {/* Breadcrumb */}
         <div className="mb-6">
           <nav className="flex text-sm text-gray-500">
-            <Link to="/" className="hover:text-[#9b83a3]">Home</Link>
+            <Link to="/" className="hover:text-[#8a0fb3]">Home</Link>
             <span className="mx-2">/</span>
-            <Link to="/shop" className="hover:text-[#9b83a3]">Shop</Link>
+            <Link to="/shop" className="hover:text-[#8a0fb3]">Shop</Link>
             <span className="mx-2">/</span>
             <span className="text-gray-900">{product.name.substring(0, 30)}...</span>
           </nav>
@@ -328,7 +328,7 @@ const ProductDetails = () => {
                     key={idx}
                     onClick={() => setActiveImage(idx)}
                     className={`bg-white rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                      activeImage === idx ? 'border-[#9b83a3] shadow-lg' : 'border-transparent'
+                      activeImage === idx ? 'border-[#8a0fb3] shadow-lg' : 'border-transparent'
                     }`}
                   >
                     <img src={img} alt={`View ${idx + 1}`} className="w-full h-24 object-cover" />
@@ -343,7 +343,7 @@ const ProductDetails = () => {
             {/* Badges */}
             <div className="flex gap-2 mb-3">
               {product.isBestSeller && (
-                <span className="bg-[#8c6020] text-white text-xs px-2 py-1 rounded-full">Bestseller</span>
+                <span className="bg-[#b98800] text-white text-xs px-2 py-1 rounded-full">Bestseller</span>
               )}
               {product.isNew && (
                 <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">New Arrival</span>
@@ -366,7 +366,7 @@ const ProductDetails = () => {
 
             {/* Price */}
             <div className="mb-4">
-              <span className="text-3xl font-bold text-[#9b83a3]">{formatNaira(product.price)}</span>
+              <span className="text-3xl font-bold text-[#8a0fb3]">{formatNaira(product.price)}</span>
               {product.originalPrice && (
                 <>
                   <span className="text-gray-400 line-through text-xl ml-3">{formatNaira(product.originalPrice)}</span>
@@ -388,8 +388,8 @@ const ProductDetails = () => {
                       onClick={() => setSelectedSize(size)}
                       className={`px-4 py-2 border rounded-lg transition-all duration-300 ${
                         selectedSize === size
-                          ? 'border-[#9b83a3] bg-[#9b83a3] text-white'
-                          : 'border-gray-300 hover:border-[#9b83a3]'
+                          ? 'border-[#8a0fb3] bg-[#8a0fb3] text-white'
+                          : 'border-gray-300 hover:border-[#8a0fb3]'
                       }`}
                     >
                       {size}
@@ -410,8 +410,8 @@ const ProductDetails = () => {
                       onClick={() => setSelectedColor(color)}
                       className={`px-4 py-2 border rounded-lg transition-all duration-300 ${
                         selectedColor === color
-                          ? 'border-[#9b83a3] bg-[#9b83a3] text-white'
-                          : 'border-gray-300 hover:border-[#9b83a3]'
+                          ? 'border-[#8a0fb3] bg-[#8a0fb3] text-white'
+                          : 'border-gray-300 hover:border-[#8a0fb3]'
                       }`}
                     >
                       {color}
@@ -445,13 +445,13 @@ const ProductDetails = () => {
             <div className="flex gap-4 mb-6">
               <button
                 onClick={handleAddToCart}
-                className={`flex-1 py-3 rounded-full border-2 ${isInCart ? 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white' : 'border-[#9b83a3] text-[#9b83a3] hover:bg-[#9b83a3] hover:text-white'} font-semibold transition-all duration-300`}
+                className={`flex-1 py-3 rounded-full border-2 ${isInCart ? 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white' : 'border-[#8a0fb3] text-[#8a0fb3] hover:bg-[#8a0fb3] hover:text-white'} font-semibold transition-all duration-300`}
               >
                 {isInCart ? 'Remove from Cart' : 'Add to Cart'}
               </button>
               <button
                 onClick={buyNow}
-                className="flex-1 py-3 rounded-full bg-[#9b83a3] text-white font-semibold hover:bg-[#8c6020] transition-all duration-300"
+                className="flex-1 py-3 rounded-full bg-[#8a0fb3] text-white font-semibold hover:bg-[#b98800] transition-all duration-300"
               >
                 Buy Now
               </button>
@@ -467,11 +467,11 @@ const ProductDetails = () => {
             <div className="border-t border-gray-300 pt-6 space-y-3">
               <div className="flex items-center gap-3 text-gray-600">
                 <FaTruck className="text-xl" />
-                <span>Free shipping on orders over ₦500,000</span>
+                <span>Fast shipping on orders across multiple locations</span>
               </div>
               <div className="flex items-center gap-3 text-gray-600">
                 <FaUndo className="text-xl" />
-                <span>30-day returns policy</span>
+                <span>Read our returns policy on returning items</span>
               </div>
               <div className="flex items-center gap-3 text-gray-600">
                 <FaShieldAlt className="text-xl" />
@@ -480,9 +480,9 @@ const ProductDetails = () => {
             </div>
 
             {/* SKU */}
-            <div className="mt-4 pt-4 border-t border-gray-300">
+            {/* <div className="mt-4 pt-4 border-t border-gray-300">
               <p className="text-xs text-gray-400">SKU: {product.sku || product._id}</p>
-            </div>
+            </div> */}
 
             {/* Share */}
             <div className="mt-4">
@@ -510,7 +510,7 @@ const ProductDetails = () => {
           <div className="mt-16">
             <div className="border-b border-amber-50">
               <div className="flex gap-8 overflow-x-auto">
-                <button className="pb-4 px-2 border-b-2 border-[#9b83a3] text-[#9b83a3] font-semibold whitespace-nowrap">
+                <button className="pb-4 px-2 border-b-2 border-[#8a0fb3] text-[#8a0fb3] font-semibold whitespace-nowrap">
                   Features
                 </button>
               </div>
@@ -554,7 +554,7 @@ const ProductDetails = () => {
               <ul className="space-y-2">
                 {product.careInstructions.map((instruction, idx) => (
                   <li key={idx} className="flex items-center gap-2 text-gray-600">
-                    <span className="text-[#9b83a3] text-lg">•</span> {instruction}
+                    <span className="text-[#8a0fb3] text-lg">•</span> {instruction}
                   </li>
                 ))}
               </ul>
@@ -577,7 +577,7 @@ const ProductDetails = () => {
                     />
                     <div className="p-3">
                       <h3 className="font-semibold text-sm line-clamp-2">{relatedProduct.name}</h3>
-                      <p className="text-[#9b83a3] font-bold mt-1">{formatNaira(relatedProduct.price)}</p>
+                      <p className="text-[#8a0fb3] font-bold mt-1">{formatNaira(relatedProduct.price)}</p>
                     </div>
                   </div>
                 </Link>

@@ -98,10 +98,10 @@ const Navbar = () => {
                 <h1 
                   onClick={() => navigate('/')} 
                   className='text-[18px] sm:text-2xl md:text-3xl lg:text-[32px] font-bold cursor-pointer transition-all duration-300 hover:opacity-80 hover:scale-105 active:scale-95 leading-tight'
-                  style={{ color: '#9b83a3' }}
+                  style={{ color: '#8a0fb3' }}
                 >
                   MINKA LUXURY
-                  <span style={{ color: '#9b83a3' }} className='block sm:hidden text-[14px] text-gray-600'>HAIR</span>
+                  <span style={{ color: '#8a0fb3' }} className='block sm:hidden text-[14px] text-gray-600'>HAIR</span>
                   <span className='hidden sm:inline'> HAIR</span>
                 </h1>
               </div>
@@ -113,10 +113,10 @@ const Navbar = () => {
                 <Link 
                   key={index}
                   to={link.path} 
-                  className='text-sm lg:text-base font-medium transition-all duration-300 hover:text-[#8c6020] hover:scale-105 relative group'
+                  className='text-sm lg:text-base font-medium transition-all duration-300 hover:text-[#b98800] hover:scale-105 relative group'
                 >
                   {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#8c6020] transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#b98800] transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               ))}
             </div>
@@ -130,7 +130,7 @@ const Navbar = () => {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder='Search for hair products...' 
-                  className='w-full pl-11 pr-4 py-2.5 rounded-full bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent transition-all duration-300 focus:scale-105'
+                  className='w-full pl-11 pr-4 py-2.5 rounded-full bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent transition-all duration-300 focus:scale-105'
                 />
               </div>
             </form>
@@ -209,7 +209,7 @@ const Navbar = () => {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder='Search for hair products...' 
-                className='w-full pl-11 pr-4 py-3 rounded-full bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent transition-all duration-300'
+                className='w-full pl-11 pr-4 py-3 rounded-full bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent transition-all duration-300'
                 autoFocus={isSearchOpen}
               />
               {isSearchOpen && (
@@ -242,7 +242,7 @@ const Navbar = () => {
         >
           {/* Menu Header */}
           <div className='flex justify-between items-center p-5 border-b border-gray-100'>
-            <h2 className='text-xl font-bold transition-all duration-300 hover:scale-105' style={{ color: '#9b83a3' }}>Menu</h2>
+            <h2 className='text-xl font-bold transition-all duration-300 hover:scale-105' style={{ color: '#8a0fb3' }}>Menu</h2>
             <button 
               onClick={() => setIsMenuOpen(false)}
               className='p-2 hover:bg-gray-100 rounded-full transition-all duration-300 hover:rotate-90 hover:scale-110'
@@ -259,7 +259,7 @@ const Navbar = () => {
                 key={index}
                 to={link.path}
                 onClick={() => setIsMenuOpen(false)}
-                className='px-4 py-3 text-gray-700 font-medium rounded-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-[#8c6020] hover:translate-x-2'
+                className='px-4 py-3 text-gray-700 font-medium rounded-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-[#b98800] hover:translate-x-2'
                 style={{ transitionDelay: `${index * 50}ms` }}
               >
                 {link.name}
@@ -279,7 +279,7 @@ const Navbar = () => {
                     setIsMenuOpen(false);
                   }
                 }}
-                className='flex flex-col items-center gap-1 text-gray-600 transition-all duration-300 hover:text-[#9b83a3] hover:scale-110'
+                className='flex flex-col items-center gap-1 text-gray-600 transition-all duration-300 hover:text-[#8a0fb3] hover:scale-110'
               >
                 <FaRegUserCircle className='text-2xl' />
                 <span className='text-xs'>{isAuthenticated ? 'Account' : 'Login'}</span>
@@ -289,7 +289,7 @@ const Navbar = () => {
                   navigate('/cart')
                   setIsMenuOpen(false)
                 }}
-                className='flex flex-col items-center gap-1 text-gray-600 transition-all duration-300 hover:text-[#9b83a3] hover:scale-110 relative'
+                className='flex flex-col items-center gap-1 text-gray-600 transition-all duration-300 hover:text-[#8a0fb3] hover:scale-110 relative'
               >
                 <BsCart2 className='text-2xl' />
                 <span className='text-xs'>Cart</span>

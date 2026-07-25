@@ -121,7 +121,7 @@ const CustomerReview = () => {
       {/* Header Section */}
       <div className='flex flex-col md:flex-row justify-between items-center mb-8 gap-4'>
         <div className='text-center md:text-left'>
-          <h1 className='text-3xl md:text-[48px] font-extrabold' style={{ color: '#9b83a3' }}>
+          <h1 className='text-3xl md:text-[48px] font-extrabold' style={{ color: '#8a0fb3' }}>
             OUR HAPPY CUSTOMERS
           </h1>
           <p className='text-gray-500 mt-2'>Join 10,000+ satisfied women who love their hair</p>
@@ -132,13 +132,13 @@ const CustomerReview = () => {
           <div className='flex gap-3'>
             <button 
               onClick={() => scroll('left')}
-              className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#9b83a3] hover:text-white hover:border-[#9b83a3] transition-all duration-300'
+              className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#8a0fb3] hover:text-white hover:border-[#8a0fb3] transition-all duration-300'
             >
               <FaArrowLeft />
             </button>
             <button 
               onClick={() => scroll('right')}
-              className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#9b83a3] hover:text-white hover:border-[#9b83a3] transition-all duration-300'
+              className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#8a0fb3] hover:text-white hover:border-[#8a0fb3] transition-all duration-300'
             >
               <FaArrowRight />
             </button>
@@ -152,7 +152,7 @@ const CustomerReview = () => {
         {isMobile && showLeftArrow && (
           <button 
             onClick={() => scroll('left')}
-            className='absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-[#9b83a3] hover:text-white transition-all duration-300'
+            className='absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-[#8a0fb3] hover:text-white transition-all duration-300'
           >
             <FaArrowLeft className='text-sm' />
           </button>
@@ -183,7 +183,7 @@ const CustomerReview = () => {
         {isMobile && showRightArrow && (
           <button 
             onClick={() => scroll('right')}
-            className='absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-[#9b83a3] hover:text-white transition-all duration-300'
+            className='absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-[#8a0fb3] hover:text-white transition-all duration-300'
           >
             <FaArrowRight className='text-sm' />
           </button>
@@ -196,7 +196,7 @@ const CustomerReview = () => {
           {reviews.map((_, index) => (
             <button
               key={index}
-              className='w-2 h-2 rounded-full bg-gray-300 hover:bg-[#9b83a3] transition-colors'
+              className='w-2 h-2 rounded-full bg-gray-300 hover:bg-[#8a0fb3] transition-colors'
               onClick={() => {
                 if (scrollContainerRef.current) {
                   scrollContainerRef.current.scrollTo({
@@ -214,7 +214,7 @@ const CustomerReview = () => {
       <div className='mt-12 pt-8 border-t border-gray-200'>
         <div className='grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-center'>
           <div>
-            <p className='text-2xl font-bold' style={{ color: '#9b83a3' }}>4.9</p>
+            <p className='text-2xl font-bold' style={{ color: '#8a0fb3' }}>4.9</p>
             <p className='text-sm text-gray-500'>Average Rating</p>
             <div className='flex justify-center gap-1 mt-1'>
               {[...Array(5)].map((_, i) => (
@@ -223,22 +223,22 @@ const CustomerReview = () => {
             </div>
           </div>
           <div>
-            <p className='text-2xl font-bold' style={{ color: '#9b83a3' }}>10,000+</p>
+            <p className='text-2xl font-bold' style={{ color: '#8a0fb3' }}>10,000+</p>
             <p className='text-sm text-gray-500'>Happy Customers</p>
           </div>
           <div>
-            <p className='text-2xl font-bold' style={{ color: '#9b83a3' }}>98%</p>
+            <p className='text-2xl font-bold' style={{ color: '#8a0fb3' }}>98%</p>
             <p className='text-sm text-gray-500'>Would Recommend</p>
           </div>
           <div>
-            <p className='text-2xl font-bold' style={{ color: '#9b83a3' }}>500+</p>
+            <p className='text-2xl font-bold' style={{ color: '#8a0fb3' }}>500+</p>
             <p className='text-sm text-gray-500'>5-Star Reviews</p>
           </div>
         </div>
       </div>
 
       {/* Trust Badge */}
-      <div className='mt-8 bg-gradient-to-r from-[#9b83a3]/10 to-[#8c6020]/10 rounded-2xl p-4 text-center max-w-2xl mx-auto'>
+      <div className='mt-8 bg-gradient-to-r from-[#8a0fb3]/10 to-[#b98800]/10 rounded-2xl p-4 text-center max-w-2xl mx-auto'>
         <p className='text-gray-700 text-sm'>
           ⭐⭐⭐⭐⭐ "The hair quality exceeded my expectations! Will definitely be a returning customer." - <span className='font-semibold'>Verified Buyer</span>
         </p>

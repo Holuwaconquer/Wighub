@@ -123,13 +123,13 @@ const BestDeal = () => {
         <div className="hidden md:flex gap-3">
           <button
             onClick={() => scroll("left")}
-            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#8c6020] hover:text-white hover:border-[#8c6020] transition-all duration-300"
+            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#b98800] hover:text-white hover:border-[#b98800] transition-all duration-300"
           >
             <FaArrowLeft />
           </button>
           <button
             onClick={() => scroll("right")}
-            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#8c6020] hover:text-white hover:border-[#8c6020] transition-all duration-300"
+            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-[#b98800] hover:text-white hover:border-[#b98800] transition-all duration-300"
           >
             <FaArrowRight />
           </button>
@@ -142,25 +142,25 @@ const BestDeal = () => {
           <span className="text-gray-600 font-medium">⏰ Sale Ends In:</span>
           <div className="flex gap-4">
             <div className="text-center">
-              <div className="bg-[#8c6020] text-white rounded-lg px-3 py-1 font-bold text-2xl">
+              <div className="bg-[#b98800] text-white rounded-lg px-3 py-1 font-bold text-2xl">
                 {countdown.days}
               </div>
               <span className="text-xs text-gray-500">Days</span>
             </div>
             <div className="text-center">
-              <div className="bg-[#8c6020] text-white rounded-lg px-3 py-1 font-bold text-2xl">
+              <div className="bg-[#b98800] text-white rounded-lg px-3 py-1 font-bold text-2xl">
                 {countdown.hours}
               </div>
               <span className="text-xs text-gray-500">Hours</span>
             </div>
             <div className="text-center">
-              <div className="bg-[#8c6020] text-white rounded-lg px-3 py-1 font-bold text-2xl">
+              <div className="bg-[#b98800] text-white rounded-lg px-3 py-1 font-bold text-2xl">
                 {countdown.minutes}
               </div>
               <span className="text-xs text-gray-500">Mins</span>
             </div>
             <div className="text-center">
-              <div className="bg-[#8c6020] text-white rounded-lg px-3 py-1 font-bold text-2xl">
+              <div className="bg-[#b98800] text-white rounded-lg px-3 py-1 font-bold text-2xl">
                 {countdown.seconds}
               </div>
               <span className="text-xs text-gray-500">Secs</span>
@@ -190,7 +190,7 @@ const BestDeal = () => {
         {bestDealProducts.map((_, index) => (
           <button
             key={index}
-            className="w-2 h-2 rounded-full bg-gray-300 hover:bg-[#8c6020] transition-colors"
+            className="w-2 h-2 rounded-full bg-gray-300 hover:bg-[#b98800] transition-colors"
             onClick={() => {
               if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTo({
@@ -211,7 +211,7 @@ const BestDeal = () => {
           style={{ borderColor: "#8c6020", color: "#8c6020" }}
         >
           <span className="relative z-10 font-medium">View All Deals</span>
-          <span className="absolute inset-0 bg-gradient-to-r from-[#8c6020] to-[#8a0fb3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+          <span className="absolute inset-0 bg-gradient-to-r from-[#b98800] to-[#8a0fb3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
         </button>
       </div>
     </div>

@@ -44,10 +44,10 @@ const AdminLogin = () => {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#9b83a3] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-[#8a0fb3] rounded-full flex items-center justify-center mx-auto mb-4">
               <FaStore className="text-white text-2xl" />
             </div>
-            <h1 className="text-2xl font-bold" style={{ color: '#9b83a3' }}>Admin Portal</h1>
+            <h1 className="text-2xl font-bold" style={{ color: '#8a0fb3' }}>Admin Portal</h1>
             <p className="text-gray-600 mt-2">Minka Luxury Hair</p>
           </div>
 
@@ -68,7 +68,7 @@ const AdminLogin = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                   placeholder="admin@minka.com"
                 />
               </div>
@@ -84,7 +84,7 @@ const AdminLogin = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
                   placeholder="••••••••"
                 />
                 <button
@@ -100,7 +100,7 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-[#8a0fb3] text-white rounded-lg font-semibold hover:bg-[#b98800] transition-colors disabled:opacity-50"
             >
               {loading ? 'Logging in...' : 'Login to Admin'}
             </button>

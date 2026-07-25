@@ -65,7 +65,7 @@ const Settings = () => {
         </div>
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 px-4 py-2 bg-[#9b83a3] text-white rounded-lg hover:bg-[#8c6020] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#8a0fb3] text-white rounded-lg hover:bg-[#b98800] transition-colors"
         >
           <FaSave /> Save Changes
         </button>
@@ -81,7 +81,7 @@ const Settings = () => {
         {/* Store Settings */}
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <FaStore className="text-2xl text-[#9b83a3]" />
+            <FaStore className="text-2xl text-[#8a0fb3]" />
             <h2 className="text-xl font-bold">Store Settings</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,7 +92,7 @@ const Settings = () => {
                 name="name"
                 value={settings.store.name}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
             <div>
@@ -102,7 +102,7 @@ const Settings = () => {
                 name="email"
                 value={settings.store.email}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
             <div>
@@ -112,7 +112,7 @@ const Settings = () => {
                 name="phone"
                 value={settings.store.phone}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
             <div>
@@ -122,7 +122,7 @@ const Settings = () => {
                 name="address"
                 value={settings.store.address}
                 onChange={handleStoreChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
           </div>
@@ -131,7 +131,7 @@ const Settings = () => {
         {/* Shipping Settings */}
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <FaShippingFast className="text-2xl text-[#9b83a3]" />
+            <FaShippingFast className="text-2xl text-[#8a0fb3]" />
             <h2 className="text-xl font-bold">Shipping Settings</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -142,7 +142,7 @@ const Settings = () => {
                 name="freeShippingThreshold"
                 value={settings.shipping.freeShippingThreshold}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
             <div>
@@ -152,7 +152,7 @@ const Settings = () => {
                 name="shippingCost"
                 value={settings.shipping.shippingCost}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
             <div>
@@ -162,7 +162,7 @@ const Settings = () => {
                 name="processingTime"
                 value={settings.shipping.processingTime}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
             <div>
@@ -172,7 +172,7 @@ const Settings = () => {
                 name="deliveryEstimate"
                 value={settings.shipping.deliveryEstimate}
                 onChange={handleShippingChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3]"
               />
             </div>
           </div>
@@ -181,7 +181,7 @@ const Settings = () => {
         {/* Payment Settings */}
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <FaCreditCard className="text-2xl text-[#9b83a3]" />
+            <FaCreditCard className="text-2xl text-[#8a0fb3]" />
             <h2 className="text-xl font-bold">Payment Settings</h2>
           </div>
           <div className="space-y-3">
@@ -193,7 +193,7 @@ const Settings = () => {
                   ...prev,
                   payment: { ...prev.payment, codEnabled: e.target.checked }
                 }))}
-                className="w-4 h-4 accent-[#9b83a3]"
+                className="w-4 h-4 accent-[#8a0fb3]"
               />
               <span>Enable Cash on Delivery</span>
             </label>
@@ -205,7 +205,7 @@ const Settings = () => {
                   ...prev,
                   payment: { ...prev.payment, bankTransferEnabled: e.target.checked }
                 }))}
-                className="w-4 h-4 accent-[#9b83a3]"
+                className="w-4 h-4 accent-[#8a0fb3]"
               />
               <span>Enable Bank Transfer</span>
             </label>
@@ -215,7 +215,7 @@ const Settings = () => {
         {/* Notification Settings */}
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <FaBell className="text-2xl text-[#9b83a3]" />
+            <FaBell className="text-2xl text-[#8a0fb3]" />
             <h2 className="text-xl font-bold">Notification Settings</h2>
           </div>
           <div className="space-y-3">
@@ -227,7 +227,7 @@ const Settings = () => {
                   ...prev,
                   notifications: { ...prev.notifications, orderEmail: e.target.checked }
                 }))}
-                className="w-4 h-4 accent-[#9b83a3]"
+                className="w-4 h-4 accent-[#8a0fb3]"
               />
               <span>Send order confirmation emails</span>
             </label>
@@ -239,7 +239,7 @@ const Settings = () => {
                   ...prev,
                   notifications: { ...prev.notifications, lowStockAlert: e.target.checked }
                 }))}
-                className="w-4 h-4 accent-[#9b83a3]"
+                className="w-4 h-4 accent-[#8a0fb3]"
               />
               <span>Low stock alerts</span>
             </label>

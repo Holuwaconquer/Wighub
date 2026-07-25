@@ -25,7 +25,7 @@ const getUserOrderConfirmationEmail = (order, user) => {
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-      <div style="background-color: #9b83a3; color: white; padding: 20px; text-align: center;">
+      <div style="background-color: #8a0fb3; color: white; padding: 20px; text-align: center;">
         <h1 style="margin: 0;">Order Confirmation</h1>
       </div>
       
@@ -34,18 +34,18 @@ const getUserOrderConfirmationEmail = (order, user) => {
         <p>Thank you for your order! We've received it and will start processing it shortly.</p>
         
         <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h2 style="color: #9b83a3; margin-top: 0;">Order Details</h2>
-          <p><strong>Order ID:</strong> <span style="color: #9b83a3; font-weight: bold;">${order.orderId}</span></p>
+          <h2 style="color: #8a0fb3; margin-top: 0;">Order Details</h2>
+          <p><strong>Order ID:</strong> <span style="color: #8a0fb3; font-weight: bold;">${order.orderId}</span></p>
           <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString('en-NG')}</p>
           <p><strong>Status:</strong> <span style="background-color: #fff3cd; padding: 4px 8px; border-radius: 4px; color: #856404;">${order.status.toUpperCase()}</span></p>
           
-          <h3 style="color: #333; border-bottom: 2px solid #9b83a3; padding-bottom: 10px;">Items Ordered</h3>
+          <h3 style="color: #333; border-bottom: 2px solid #8a0fb3; padding-bottom: 10px;">Items Ordered</h3>
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr>
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #9b83a3;">Product</th>
-                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #9b83a3;">Qty</th>
-                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #9b83a3;">Price</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8a0fb3;">Product</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #8a0fb3;">Qty</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #8a0fb3;">Price</th>
               </tr>
             </thead>
             <tbody>
@@ -53,7 +53,7 @@ const getUserOrderConfirmationEmail = (order, user) => {
             </tbody>
           </table>
           
-          <div style="border-top: 2px solid #9b83a3; margin-top: 20px; padding-top: 20px;">
+          <div style="border-top: 2px solid #8a0fb3; margin-top: 20px; padding-top: 20px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
               <span>Subtotal:</span>
               <strong>₦${order.itemsPrice.toLocaleString('en-NG')}</strong>
@@ -74,7 +74,7 @@ const getUserOrderConfirmationEmail = (order, user) => {
             }
             <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; font-size: 18px;">
               <span style="font-weight: bold;">Total:</span>
-              <strong style="color: #9b83a3;">₦${order.totalPrice.toLocaleString('en-NG')}</strong>
+              <strong style="color: #8a0fb3;">₦${order.totalPrice.toLocaleString('en-NG')}</strong>
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ const getUserOrderConfirmationEmail = (order, user) => {
         </div>
         
         <p style="margin-top: 30px; text-align: center;">
-          You can track your order using Order ID: <strong style="color: #9b83a3;">${order.orderId}</strong>
+          You can track your order using Order ID: <strong style="color: #8a0fb3;">${order.orderId}</strong>
         </p>
         
         <p style="color: #666; font-size: 12px; text-align: center; margin-top: 20px;">
@@ -129,7 +129,7 @@ const getAdminOrderNotificationEmail = (order, user) => {
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-      <div style="background-color: #9b83a3; color: white; padding: 20px; text-align: center;">
+      <div style="background-color: #8a0fb3; color: white; padding: 20px; text-align: center;">
         <h1 style="margin: 0;">🎉 New Order Received!</h1>
       </div>
       
@@ -137,8 +137,8 @@ const getAdminOrderNotificationEmail = (order, user) => {
         <p>A new order has been placed on your store.</p>
         
         <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h2 style="color: #9b83a3; margin-top: 0;">Order Information</h2>
-          <p><strong>Order ID:</strong> <span style="color: #9b83a3; font-weight: bold; font-size: 16px;">${order.orderId}</span></p>
+          <h2 style="color: #8a0fb3; margin-top: 0;">Order Information</h2>
+          <p><strong>Order ID:</strong> <span style="color: #8a0fb3; font-weight: bold; font-size: 16px;">${order.orderId}</span></p>
           <p><strong>Customer:</strong> ${user.name}</p>
           <p><strong>Email:</strong> ${user.email}</p>
           <p><strong>Phone:</strong> ${order.shippingAddress.phone}</p>
@@ -151,13 +151,13 @@ const getAdminOrderNotificationEmail = (order, user) => {
           })}</p>
           <p><strong>Payment Method:</strong> ${order.paymentMethod.toUpperCase()}</p>
           
-          <h3 style="color: #333; border-bottom: 2px solid #9b83a3; padding-bottom: 10px; margin-top: 20px;">Items</h3>
+          <h3 style="color: #333; border-bottom: 2px solid #8a0fb3; padding-bottom: 10px; margin-top: 20px;">Items</h3>
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr style="background-color: #f0f0f0;">
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #9b83a3;">Product</th>
-                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #9b83a3;">Qty</th>
-                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #9b83a3;">Amount</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8a0fb3;">Product</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #8a0fb3;">Qty</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #8a0fb3;">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -165,10 +165,10 @@ const getAdminOrderNotificationEmail = (order, user) => {
             </tbody>
           </table>
           
-          <div style="border-top: 2px solid #9b83a3; margin-top: 20px; padding-top: 20px;">
+          <div style="border-top: 2px solid #8a0fb3; margin-top: 20px; padding-top: 20px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
               <span>Order Total:</span>
-              <strong style="color: #9b83a3; font-size: 18px;">₦${order.totalPrice.toLocaleString('en-NG')}</strong>
+              <strong style="color: #8a0fb3; font-size: 18px;">₦${order.totalPrice.toLocaleString('en-NG')}</strong>
             </div>
           </div>
         </div>
@@ -183,7 +183,7 @@ const getAdminOrderNotificationEmail = (order, user) => {
         </div>
         
         <p style="text-align: center; margin-top: 20px;">
-          <a href="${process.env.CLIENT_URL}/admin/orders/${order._id}" style="background-color: #9b83a3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">View Order Details</a>
+          <a href="${process.env.CLIENT_URL}/admin/orders/${order._id}" style="background-color: #8a0fb3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">View Order Details</a>
         </p>
       </div>
     </div>
@@ -220,7 +220,7 @@ const getOrderStatusUpdateEmail = (order, user, newStatus) => {
         
         <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h2 style="color: #333; margin-top: 0;">Order Update</h2>
-          <p><strong>Order ID:</strong> <span style="color: #9b83a3; font-weight: bold;">${order.orderId}</span></p>
+          <p><strong>Order ID:</strong> <span style="color: #8a0fb3; font-weight: bold;">${order.orderId}</span></p>
           <p><strong>New Status:</strong> 
             <span style="background-color: ${statusColors[newStatus]}; color: white; padding: 6px 12px; border-radius: 4px;">
               ${newStatus.toUpperCase()}

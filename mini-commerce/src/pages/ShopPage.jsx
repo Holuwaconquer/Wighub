@@ -35,7 +35,7 @@ const ShopPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [wishlist, setWishlist] = useState([]);
   const [activeSales, setActiveSales] = useState([]);
-
+  const [saleProducts, setSaleProducts] = useState([]);
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);

@@ -88,7 +88,7 @@ const RegisterPage = () => {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#9b83a3' }}>MINKA LUXURY HAIR</h1>
+            <h1 className="text-3xl font-bold" style={{ color: '#8a0fb3' }}>MINKA LUXURY HAIR</h1>
             <p className="text-gray-600 mt-2">Create your account</p>
           </div>
           
@@ -109,7 +109,7 @@ const RegisterPage = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="John Doe"
                 />
               </div>
@@ -125,7 +125,7 @@ const RegisterPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="you@example.com"
                 />
               </div>
@@ -140,7 +140,7 @@ const RegisterPage = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="+234 801 234 5678"
                 />
               </div>
@@ -156,7 +156,7 @@ const RegisterPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="Minimum 6 characters"
                 />
                 <button
@@ -179,7 +179,7 @@ const RegisterPage = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="Confirm your password"
                 />
                 <button
@@ -198,15 +198,15 @@ const RegisterPage = () => {
                 name="agreeTerms"
                 checked={formData.agreeTerms}
                 onChange={handleChange}
-                className="w-4 h-4 accent-[#9b83a3]"
+                className="w-4 h-4 accent-[#8a0fb3]"
               />
               <label className="text-sm text-gray-600">
                 I agree to the{' '}
-                <Link to="/terms" className="text-[#8c6020] hover:underline">
+                <Link to="/terms" className="text-[#b98800] hover:underline">
                   Terms & Conditions
                 </Link>
                 {' '}and{' '}
-                <Link to="/privacy" className="text-[#8c6020] hover:underline">
+                <Link to="/privacy" className="text-[#b98800] hover:underline">
                   Privacy Policy
                 </Link>
               </label>
@@ -215,7 +215,7 @@ const RegisterPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-[#8a0fb3] text-white rounded-lg font-semibold hover:bg-[#b98800] transition-colors disabled:opacity-50"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
@@ -223,7 +223,7 @@ const RegisterPage = () => {
           
           <p className="text-center text-gray-600 mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-[#8c6020] font-semibold hover:underline">
+            <Link to="/login" className="text-[#b98800] font-semibold hover:underline">
               Sign in
             </Link>
           </p>

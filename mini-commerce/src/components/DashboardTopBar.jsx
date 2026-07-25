@@ -15,7 +15,7 @@ const DashboardTopBar = ({ title, subtitle, userName, userRole }) => {
         </div>
 
         <div className="flex items-center gap-4 rounded-3xl bg-[#f7f5f9] p-4">
-          <div className="rounded-2xl bg-[#9b83a3] px-4 py-2 text-sm font-semibold text-white shadow-sm">
+          <div className="rounded-2xl bg-[#8a0fb3] px-4 py-2 text-sm font-semibold text-white shadow-sm">
             {formattedRole}
           </div>
           <div className="text-right">

@@ -118,21 +118,21 @@ const Footer = () => {
             <button
               type="button"
               onClick={() => setActiveModal("delivery")}
-              className="text-left text-[16px] font-medium hover:text-[#9b83a3]"
+              className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
             >
               Delivery Details
             </button>
             <button
               type="button"
               onClick={() => setActiveModal("terms")}
-              className="text-left text-[16px] font-medium hover:text-[#9b83a3]"
+              className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
             >
               Terms & Conditions
             </button>
             <button
               type="button"
               onClick={() => setActiveModal("privacy")}
-              className="text-left text-[16px] font-medium hover:text-[#9b83a3]"
+              className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
             >
               Privacy Policy
             </button>

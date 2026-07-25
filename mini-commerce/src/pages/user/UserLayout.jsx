@@ -43,7 +43,7 @@ const UserLayout = ({ children }) => {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9b83a3]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8a0fb3]"></div>
       </div>
     )
   }
@@ -86,7 +86,7 @@ const UserLayout = ({ children }) => {
         {/* User Info */}
         <div className="p-6 border-b border-gray-300">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-[#9b83a3] rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-[#8a0fb3] rounded-full flex items-center justify-center">
               <FaUserCircle className="text-white text-2xl" />
             </div>
             <div>
@@ -106,7 +106,7 @@ const UserLayout = ({ children }) => {
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200
                 ${location.pathname === item.path
-                  ? 'bg-[#9b83a3] text-white'
+                  ? 'bg-[#8a0fb3] text-white'
                   : 'text-gray-700 hover:bg-gray-100'
                 }
               `}

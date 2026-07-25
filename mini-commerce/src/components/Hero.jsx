@@ -90,8 +90,8 @@ const Hero = () => {
   return (
     <div className='w-full bg-gradient-to-br from-[#F9F5F7] via-[#F2F0F1] to-[#F0E6F0] flex flex-col overflow-hidden relative'>
         {/* Background decorative elements */}
-        <div className='absolute top-20 left-10 w-72 h-72 bg-[#9b83a3]/5 rounded-full blur-3xl'></div>
-        <div className='absolute bottom-20 right-10 w-96 h-96 bg-[#8c6020]/5 rounded-full blur-3xl'></div>
+        <div className='absolute top-20 left-10 w-72 h-72 bg-[#8a0fb3]/5 rounded-full blur-3xl'></div>
+        <div className='absolute bottom-20 right-10 w-96 h-96 bg-[#b98800]/5 rounded-full blur-3xl'></div>
         
         <div className='w-full pt-[20px] pb-[60px] px-[20px] md:px-[7%] relative z-10'>
             <div className='grid lg:grid-cols-2 gap-12 items-center'>
@@ -101,8 +101,8 @@ const Hero = () => {
                     <div className='space-y-4'>
                         <h1 className='text-[40px] md:text-[64px] font-bold leading-[1.1]'>
                             <span className='block'>Elevate Your</span>
-                            <span className='text-[#9b83a3]'>Crown With</span>
-                            <span className='text-[#8c6020]'> Minka Luxury HAIR</span>
+                            <span className='text-[#8a0fb3]'>Crown With</span>
+                            <span className='text-[#b98800]'> Minka Luxury HAIR</span>
                         </h1>
                     </div>
                     
@@ -114,7 +114,7 @@ const Hero = () => {
                     
                     <div className='flex flex-wrap gap-4'>
                         <button onClick={() => navigate('/shop')} className="group relative px-8 py-4 bg-black text-white rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-105">
-                            <span className="absolute inset-0 bg-gradient-to-r from-[#9b83a3] to-[#8c6020] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                            <span className="absolute inset-0 bg-gradient-to-r from-[#8a0fb3] to-[#b98800] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                             <span className="relative z-10 font-medium">Shop Collection →</span>
                         </button>
                     </div>
@@ -122,15 +122,15 @@ const Hero = () => {
                     {/* Stats */}
                     <div className='flex flex-wrap gap-8 pt-4'>
                         <div className='text-center md:text-left'>
-                            <h2 className='text-[24px] md:text-3xl font-bold' style={{ color: '#9b83a3' }}>500+</h2>
+                            <h2 className='text-[24px] md:text-3xl font-bold' style={{ color: '#8a0fb3' }}>500+</h2>
                             <p className='text-sm text-gray-500'>Hair Styles</p>
                         </div>
                         <div className='text-center md:text-left'>
-                            <h2 className='text-[24px] md:text-3xl font-bold' style={{ color: '#9b83a3' }}>10K+</h2>
+                            <h2 className='text-[24px] md:text-3xl font-bold' style={{ color: '#8a0fb3' }}>10K+</h2>
                             <p className='text-sm text-gray-500'>Happy Customers</p>
                         </div>
                         <div className='text-center md:text-left'>
-                            <h2 className='text-[24px] md:text-3xl font-bold' style={{ color: '#9b83a3' }}>100%</h2>
+                            <h2 className='text-[24px] md:text-3xl font-bold' style={{ color: '#8a0fb3' }}>100%</h2>
                             <p className='text-sm text-gray-500'>Virgin Human Hair</p>
                         </div>
                     </div>
@@ -146,7 +146,7 @@ const Hero = () => {
                                 onClick={() => handleDotClick(index)}
                                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                                     currentImageIndex === index 
-                                        ? 'w-8 bg-[#9b83a3]' 
+                                        ? 'w-8 bg-[#8a0fb3]' 
                                         : 'bg-gray-300 hover:bg-gray-400'
                                 }`}
                             />
@@ -159,7 +159,7 @@ const Hero = () => {
                             onClick={() => handleShapeClick('diagonal', 0)}
                             className={`w-8 h-8 rounded-full transition-all duration-300 ${
                                 imageStyle === 'diagonal' 
-                                    ? 'bg-[#9b83a3] scale-110' 
+                                    ? 'bg-[#8a0fb3] scale-110' 
                                     : 'bg-gray-300 hover:bg-gray-400'
                             }`}
                             title="Diagonal Shape"
@@ -168,7 +168,7 @@ const Hero = () => {
                             onClick={() => handleShapeClick('slant', 1)}
                             className={`w-8 h-8 rounded-full transition-all duration-300 ${
                                 imageStyle === 'slant' 
-                                    ? 'bg-[#9b83a3] scale-110' 
+                                    ? 'bg-[#8a0fb3] scale-110' 
                                     : 'bg-gray-300 hover:bg-gray-400'
                             }`}
                             title="Slant Shape"
@@ -177,7 +177,7 @@ const Hero = () => {
                             onClick={() => handleShapeClick('parallelogram', 2)}
                             className={`w-8 h-8 rounded-full transition-all duration-300 ${
                                 imageStyle === 'parallelogram' 
-                                    ? 'bg-[#9b83a3] scale-110' 
+                                    ? 'bg-[#8a0fb3] scale-110' 
                                     : 'bg-gray-300 hover:bg-gray-400'
                             }`}
                             title="Parallelogram Shape"
@@ -186,14 +186,14 @@ const Hero = () => {
                     
                     <div className='relative w-full max-w-[550px] mx-auto'>
                         {/* Animated background shapes */}
-                        <div className='absolute -top-8 -left-8 w-32 h-32 bg-[#9b83a3]/20 rounded-full animate-pulse'></div>
-                        <div className='absolute -bottom-8 -right-8 w-40 h-40 bg-[#8c6020]/20 rounded-full animate-pulse delay-1000'></div>
+                        <div className='absolute -top-8 -left-8 w-32 h-32 bg-[#8a0fb3]/20 rounded-full animate-pulse'></div>
+                        <div className='absolute -bottom-8 -right-8 w-40 h-40 bg-[#b98800]/20 rounded-full animate-pulse delay-1000'></div>
                         
                         {/* Main diagonal image container */}
                         <div className='relative group'>
                             {/* Shadow layers */}
                             <div 
-                                className='absolute inset-0 bg-gradient-to-br from-[#9b83a3] to-[#8c6020] rounded-3xl transition-all duration-500'
+                                className='absolute inset-0 bg-gradient-to-br from-[#8a0fb3] to-[#b98800] rounded-3xl transition-all duration-500'
                                 style={{ transform: 'rotate(3deg) translate(10px, 10px)' }}
                             ></div>
                             
@@ -226,7 +226,7 @@ const Hero = () => {
                             
                             {/* Decorative badge */}
                             <div className='absolute -bottom-4 -right-4 bg-white rounded-full p-3 shadow-lg transform transition-transform group-hover:scale-110'>
-                                <div className='w-12 h-12 bg-gradient-to-br from-[#9b83a3] to-[#8c6020] rounded-full flex items-center justify-center'>
+                                <div className='w-12 h-12 bg-gradient-to-br from-[#8a0fb3] to-[#b98800] rounded-full flex items-center justify-center'>
                                     <span className='text-white text-xs font-bold text-center leading-tight'>
                                         {currentImageIndex + 1}/{carouselImages.length}
                                     </span>
@@ -238,7 +238,7 @@ const Hero = () => {
                     {/* Carousel Navigation Arrows */}
                     <button 
                         onClick={() => handleImageChange((currentImageIndex - 1 + carouselImages.length) % carouselImages.length)}
-                        className='absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 bg-white rounded-full p-2 shadow-lg hover:bg-[#9b83a3] hover:text-white transition-all duration-300 z-20'
+                        className='absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 bg-white rounded-full p-2 shadow-lg hover:bg-[#8a0fb3] hover:text-white transition-all duration-300 z-20'
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -246,7 +246,7 @@ const Hero = () => {
                     </button>
                     <button 
                         onClick={() => handleImageChange((currentImageIndex + 1) % carouselImages.length)}
-                        className='absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 bg-white rounded-full p-2 shadow-lg hover:bg-[#9b83a3] hover:text-white transition-all duration-300 z-20'
+                        className='absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 bg-white rounded-full p-2 shadow-lg hover:bg-[#8a0fb3] hover:text-white transition-all duration-300 z-20'
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

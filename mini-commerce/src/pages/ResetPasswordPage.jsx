@@ -75,7 +75,7 @@ const ResetPasswordPage = () => {
             </p>
             
             <Link to="/forgot-password">
-              <button className="px-6 py-2 bg-[#9b83a3] text-white rounded-lg hover:bg-[#8c6020] transition-colors">
+              <button className="px-6 py-2 bg-[#8a0fb3] text-white rounded-lg hover:bg-[#b98800] transition-colors">
                 Request New Link
               </button>
             </Link>
@@ -95,7 +95,7 @@ const ResetPasswordPage = () => {
             <p className="text-gray-600 mb-6">
               Your password has been reset. Redirecting to login...
             </p>
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#9b83a3] mx-auto"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8a0fb3] mx-auto"></div>
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@ const ResetPasswordPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="Minimum 6 characters"
                 />
                 <button
@@ -157,7 +157,7 @@ const ResetPasswordPage = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="Confirm your new password"
                 />
                 <button
@@ -173,7 +173,7 @@ const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-[#8a0fb3] text-white rounded-lg font-semibold hover:bg-[#b98800] transition-colors disabled:opacity-50"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>

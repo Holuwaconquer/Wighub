@@ -97,7 +97,7 @@ const AdminLayout = ({ children }) => {
         <div className="p-6 border-b border-gray-300">
           <div className="flex items-center justify-between">
             <div className="cursor-pointer" onClick={() => navigate("/")}>
-              <h2 className="text-xl font-bold" style={{ color: "#9b83a3" }}>
+              <h2 className="text-xl font-bold" style={{ color: "#8a0fb3" }}>
                 Admin Panel
               </h2>
               <p className="text-xs text-gray-500">Minka Luxury Hair</p>
@@ -121,7 +121,7 @@ const AdminLayout = ({ children }) => {
                 flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200
                 ${
                   location.pathname === item.path
-                    ? "bg-[#9b83a3] text-white"
+                    ? "bg-[#8a0fb3] text-white"
                     : "text-gray-700 hover:bg-gray-100"
                 }
               `}

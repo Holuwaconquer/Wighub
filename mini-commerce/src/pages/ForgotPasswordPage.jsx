@@ -53,11 +53,11 @@ const ForgotPasswordPage = () => {
               Click the link in the email to reset your password. The link will expire in 1 hour.
             </p>
             {/* {lastResetUrl && (
-              <p className="text-xs text-gray-400 break-words">Test link: <a href={lastResetUrl} className="text-[#9b83a3] underline">Open reset link</a></p>
+              <p className="text-xs text-gray-400 break-words">Test link: <a href={lastResetUrl} className="text-[#8a0fb3] underline">Open reset link</a></p>
             )} */}
             
             <Link to="/login">
-              <button className="text-[#9b83a3] font-semibold hover:underline">
+              <button className="text-[#8a0fb3] font-semibold hover:underline">
                 Back to Login
               </button>
             </Link>
@@ -72,7 +72,7 @@ const ForgotPasswordPage = () => {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Back Button */}
-          <Link to="/login" className="inline-flex items-center gap-2 text-gray-500 hover:text-[#9b83a3] mb-6">
+          <Link to="/login" className="inline-flex items-center gap-2 text-gray-500 hover:text-[#8a0fb3] mb-6">
             <FaArrowLeft className="text-sm" />
             Back to Login
           </Link>
@@ -102,7 +102,7 @@ const ForgotPasswordPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b83a3] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a0fb3] focus:border-transparent"
                   placeholder="you@example.com"
                 />
               </div>
@@ -111,7 +111,7 @@ const ForgotPasswordPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#9b83a3] text-white rounded-lg font-semibold hover:bg-[#8c6020] transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-[#8a0fb3] text-white rounded-lg font-semibold hover:bg-[#b98800] transition-colors disabled:opacity-50"
             >
               {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
@@ -119,7 +119,7 @@ const ForgotPasswordPage = () => {
           
           <p className="text-center text-sm text-gray-500 mt-6">
             Remember your password?{' '}
-            <Link to="/login" className="text-[#8c6020] font-semibold hover:underline">
+            <Link to="/login" className="text-[#b98800] font-semibold hover:underline">
               Sign in
             </Link>
           </p>

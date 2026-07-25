@@ -101,7 +101,7 @@ const ProductCard = ({ product }) => {
       {/* Badges */}
       <div className="absolute top-3 left-3 z-10 flex gap-2">
         {data.isBestSeller && (
-          <span className="bg-[#8c6020] text-white text-xs px-2 py-1 rounded-full font-medium">
+          <span className="bg-[#b98800] text-white text-xs px-2 py-1 rounded-full font-medium">
             Bestseller
           </span>
         )}
@@ -148,7 +148,7 @@ const ProductCard = ({ product }) => {
           <button
             type="button"
             className="bg-white rounded-full px-4 py-3 flex items-center gap-2 transform transition-all duration-300 hover:scale-110 shadow-lg"
-            style={{ color: "#9b83a3" }}
+            style={{ color: "#8a0fb3" }}
             onClick={addOrRemoveFromCart}
           >
             <FaShoppingCart className="text-2xl" />
@@ -161,27 +161,15 @@ const ProductCard = ({ product }) => {
 
       {/* Product Info */}
       <div className="w-full flex flex-col gap-2 mt-4">
-        <h2 className="font-bold text-lg md:text-xl line-clamp-2 hover:text-[#8c6020] transition-colors cursor-pointer">
+        <h2 className="font-bold text-lg md:text-xl line-clamp-2 hover:text-[#b98800] transition-colors cursor-pointer">
           {data.name.toUpperCase()}
         </h2>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <span
-                key={i}
-                className={`text-sm ${i < Math.floor(productRating) ? "text-yellow-400" : "text-gray-300"}`}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-          <span className="text-gray-500 text-sm">({productReviewCount})</span>
-        </div>
+        
 
         {/* Price */}
         <div className="flex items-center gap-2">
-          <p className="font-bold text-2xl" style={{ color: "#9b83a3" }}>
+          <p className="font-extraBold text-2xl" style={{ color: "#8a0fb3" }}>
             ₦{displayPrice.toLocaleString()}
           </p>
           {originalPrice > displayPrice && (
@@ -195,12 +183,24 @@ const ProductCard = ({ product }) => {
             </>
           )}
         </div>
-
+        <div className="flex items-center gap-2">
+          <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <span
+                key={i}
+                className={`text-sm ${i < Math.floor(productRating) ? "text-yellow-400" : "text-gray-300"}`}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+          <span className="text-gray-500 text-sm">({productReviewCount})</span>
+        </div>
         {/* Add to Cart Button for Mobile */}
         <button
           type="button"
-          className={`md:hidden w-full py-2 rounded-full transition-all duration-300 flex items-center justify-center gap-2 mt-2 ${isInCart ? "bg-red-500 text-white border-transparent" : "border-2 border-[#9b83a3] text-[#9b83a3]"}`}
-          style={{ borderColor: isInCart ? "transparent" : "#9b83a3" }}
+          className={`md:hidden w-full py-2 rounded-full transition-all duration-300 flex items-center justify-center gap-2 mt-2 ${isInCart ? "bg-red-500 text-white border-transparent" : "border-2 border-[#8a0fb3] text-[#8a0fb3]"}`}
+          style={{ borderColor: isInCart ? "transparent" : "#8a0fb3" }}
           onClick={addOrRemoveFromCart}
         >
           <FaShoppingCart />
