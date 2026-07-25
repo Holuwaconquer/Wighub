@@ -100,7 +100,7 @@ const LegalModal = ({ isOpen, type, onClose }) => {
           Close
         </button>
 
-        <div className="space-y-4 pr-16">
+        <div className="space-y-4">
           <h2
             id="legal-modal-title"
             className="text-2xl font-bold text-[#8a0fb3]"
@@ -110,11 +110,11 @@ const LegalModal = ({ isOpen, type, onClose }) => {
           <p className="text-sm leading-6 text-[#4b5563]">{content.intro}</p>
 
           {content.sections.map((section, index) => (
-            <div key={index} className="space-y-1">
+            <div key={index} className="space-y-1 w-full">
               <h3 className="text-base font-semibold text-[#111827]">
                 {section.heading}
               </h3>
-              <p className="text-sm leading-6 text-[#4b5563]">{section.body}</p>
+              <p className="text-sm leading-6 text-[#4b5563] w-full">{section.body}</p>
             </div>
           ))}
 

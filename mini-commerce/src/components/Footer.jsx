@@ -12,6 +12,10 @@ const Footer = () => {
   const year = date.getFullYear();
   const [activeModal, setActiveModal] = useState(null);
 
+  const handleFaqClick = (type) => {
+    setActiveModal(type);
+  };
+
   return (
     <div className="w-full pt-[18%] md:pt-[5%]  flex flex-col gap-4 justify-center items-center bg-gradient-to-br from-purple-100 to-pink-100">
       <div className="w-full py-[3%] px-[7%] flex flex-col md:flex-row items-start justify-between border-b-2 border-[#0000001A]">
@@ -142,18 +146,34 @@ const Footer = () => {
         <div className="w-full flex flex-col gap-1 mb-4">
           <h2 className="text-[16px] font-medium">FAQ</h2>
           <div className="flex flex-col gap-2 text-[#00000099]">
-            <Link to="/about" className="text-[16px] font-medium">
+            <button
+              type="button"
+              onClick={() => handleFaqClick("privacy")}
+              className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
+            >
               Account
-            </Link>
-            <Link to="/feature" className="text-[16px] font-medium">
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFaqClick("delivery")}
+              className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
+            >
               Managing Deliveries
-            </Link>
-            <Link to="/privacy" className="text-[16px] font-medium">
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFaqClick("terms")}
+              className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
+            >
               Orders
-            </Link>
-            <Link to="/privacy" className="text-[16px] font-medium">
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFaqClick("privacy")}
+              className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
+            >
               Payments
-            </Link>
+            </button>
           </div>
         </div>
       </div>

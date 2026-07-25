@@ -60,6 +60,7 @@ const ShopPage = () => {
     const params = new URLSearchParams(location.search);
     const searchParam = params.get("search");
     const categoryParam = params.get("category");
+    const typeParam = params.get("type");
 
     if (searchParam) {
       setSearchQuery(searchParam);
@@ -76,6 +77,13 @@ const ShopPage = () => {
       setSelectedCategory(normalizedCategory);
     } else {
       setSelectedCategory("all");
+    }
+
+    const normalizedHairType = normalizeHairTypeValue(typeParam);
+    if (normalizedHairType && normalizedHairType !== "all") {
+      setSelectedHairType(normalizedHairType);
+    } else {
+      setSelectedHairType("all");
     }
   }, [location.search]);
 
@@ -147,12 +155,21 @@ const ShopPage = () => {
           selectedCategory !== "all" &&
           selectedCategory !== "sale" &&
           selectedCategory !== "new" &&
-          product.category !== selectedCategory
+          String(product.category || "").toLowerCase() !==
+            String(selectedCategory).toLowerCase()
         )
           return false;
-        if (selectedHairType !== "all" && product.hairType !== selectedHairType)
+        if (
+          selectedHairType !== "all" &&
+          String(product.hairType || "").toLowerCase() !==
+            String(selectedHairType).toLowerCase()
+        )
           return false;
-        if (selectedLength !== "all" && product.length !== selectedLength)
+        if (
+          selectedLength !== "all" &&
+          String(product.length || "").toLowerCase() !==
+            String(selectedLength).toLowerCase()
+        )
           return false;
 
         const effectivePrice =
@@ -190,7 +207,11 @@ const ShopPage = () => {
         String(selectedCategory).toLowerCase()
     )
       return false;
-    if (selectedHairType !== "all" && product.hairType !== selectedHairType)
+    if (
+      selectedHairType !== "all" &&
+      String(product.hairType || "").toLowerCase() !==
+        String(selectedHairType).toLowerCase()
+    )
       return false;
     if (selectedLength !== "all" && product.length !== selectedLength)
       return false;
@@ -204,7 +225,34 @@ const ShopPage = () => {
     return true;
   });
 
+  const getProductDateValue = (product) => {
+    const candidates = [
+      product?.createdAt,
+      product?.updatedAt,
+      product?.publishedAt,
+      product?.dateCreated,
+      product?.created_at,
+      product?.updated_at,
+    ];
+
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+      const parsed = new Date(candidate);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed.getTime();
+      }
+    }
+
+    return 0;
+  };
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (selectedCategory === "new" || sortBy === "newest") {
+      const dateDifference = getProductDateValue(b) - getProductDateValue(a);
+      if (dateDifference !== 0) return dateDifference;
+      return Number(b.isNew) - Number(a.isNew);
+    }
+
     switch (sortBy) {
       case "price-low":
         return a.price - b.price;
@@ -212,8 +260,6 @@ const ShopPage = () => {
         return b.price - a.price;
       case "rating":
         return getProductRating(b) - getProductRating(a);
-      case "newest":
-        return b.isNew ? 1 : -1;
       default:
         return 0;
     }
@@ -234,6 +280,27 @@ const ShopPage = () => {
     if (normalized === "extensions") return "Extensions";
     if (normalized === "closures") return "Closures";
     if (normalized === "frontals") return "Frontals";
+
+    return value;
+  };
+
+  const normalizeHairTypeValue = (value) => {
+    if (!value) return "all";
+
+    const normalized = value.toLowerCase();
+
+    if (normalized === "straight" || normalized === "straight hair") {
+      return "Straight Hair";
+    }
+    if (normalized === "curly" || normalized === "curly hair") {
+      return "Curly Hair";
+    }
+    if (normalized === "wavy" || normalized === "wavy hair") {
+      return "Wavy Hair";
+    }
+    if (normalized === "kinky" || normalized === "kinky hair") {
+      return "Kinky Hair";
+    }
 
     return value;
   };
