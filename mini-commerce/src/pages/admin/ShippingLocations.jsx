@@ -167,7 +167,7 @@ const ShippingLocations = () => {
         {/* Locations Table */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[900px] divide-y divide-gray-100">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
@@ -180,7 +180,7 @@ const ShippingLocations = () => {
               <tbody className="divide-y divide-gray-100">
                 {locations.map((location) => (
                   <tr key={location._id} className="hover:bg-gray-50 transition-colors group">
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 ">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center">
                           <FaMapMarkerAlt className="text-amber-600" />
