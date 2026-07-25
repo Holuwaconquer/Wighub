@@ -237,9 +237,6 @@ const CheckoutPage = () => {
 
       // Redirect to Kora checkout URL
       if (paymentInit.data && paymentInit.data.checkout_url) {
-        // Clear cart and local storage before redirect
-        dispatch(clearCart());
-        localStorage.removeItem("minka_cart");
         // Store order data temporarily for reference after payment
         localStorage.setItem("pending_checkout", JSON.stringify(orderData));
         // Redirect to Kora
@@ -249,9 +246,14 @@ const CheckoutPage = () => {
         throw new Error("Failed to get checkout URL from payment provider");
       }
     } catch (error) {
-      if(error?.message=="It seems there`s an issue with your input. Please correct it and try again."){
-        setOrderError("Minimum amount to checkout is ₦1,000,000 (1 Million Naira).");
-      }else{
+      if (
+        error?.message ==
+        "It seems there`s an issue with your input. Please correct it and try again."
+      ) {
+        setOrderError(
+          "Minimum amount to checkout is ₦1,000,000 (1 Million Naira).",
+        );
+      } else {
         setOrderError(
           error?.message ||
             error ||

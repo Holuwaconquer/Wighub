@@ -33,36 +33,66 @@ const OrderConfirmationPage = () => {
   useEffect(() => {
     const verifyAndFetchOrder = async () => {
       try {
-        // Check if this is a redirect from Kora payment
         const searchParams = new URLSearchParams(location.search);
         const paymentRef = searchParams.get("payment_ref");
 
-        // If there's a payment reference, verify the payment first
         if (paymentRef) {
           try {
-            await verifyPayment(orderId);
-            setPaymentVerified(true);
-            toast.success("Payment verified successfully!");
-            // Clear cart after successful payment verification
-            dispatch(clearCart());
-            localStorage.removeItem("minka_cart");
-            localStorage.removeItem("pending_order_id");
+            const verificationResponse = await verifyPayment(orderId);
+            const paymentStatus = verificationResponse?.data?.paymentStatus;
+
+            if (paymentStatus === "completed" || verificationResponse?.status) {
+              setPaymentVerified(true);
+              toast.success("Payment verified successfully!");
+              dispatch(clearCart());
+              localStorage.removeItem("minka_cart");
+              localStorage.removeItem("pending_checkout");
+              localStorage.removeItem("pending_order_id");
+            } else {
+              throw new Error(
+                verificationResponse?.message || "Payment verification failed",
+              );
+            }
           } catch (error) {
             setVerificationError(error?.message || "Failed to verify payment");
-            toast.error("Payment verification failed. Please contact support.");
-            console.error("Payment verification error:", error);
+            setOrder(null);
+            toast.error(
+              "Payment verification failed. No order has been placed.",
+            );
+            setLoading(false);
+            return;
           }
         }
 
-        // Fetch order details
         const response = await getOrderById(orderId);
+        const isConfirmedOrder =
+          response &&
+          (response.isPaid ||
+            response.paymentStatus === "completed" ||
+            response.paymentStatus === "success");
+
+        if (!isConfirmedOrder) {
+          setOrder(null);
+          return;
+        }
+
         setOrder(response);
       } catch (error) {
         const orders = JSON.parse(localStorage.getItem("orders") || "[]");
         const foundOrder = orders.find(
           (o) => o._id === orderId || o.id === parseInt(orderId),
         );
-        setOrder(foundOrder);
+        const isConfirmedOrder =
+          foundOrder &&
+          (foundOrder.isPaid ||
+            foundOrder.paymentStatus === "completed" ||
+            foundOrder.paymentStatus === "success");
+
+        if (!isConfirmedOrder) {
+          setOrder(null);
+        } else {
+          setOrder(foundOrder);
+        }
       } finally {
         setLoading(false);
       }
@@ -172,10 +202,12 @@ const OrderConfirmationPage = () => {
             <FaBox className="text-4xl text-gray-400" />
           </div>
           <h2 className="text-2xl font-light text-gray-800 mb-2">
-            Order Not Found
+            {verificationError ? "Payment Not Completed" : "Order Not Found"}
           </h2>
           <p className="text-gray-500 mb-8">
-            We couldn't find the order you're looking for.
+            {verificationError
+              ? "Your payment was not completed, so no order has been placed."
+              : "We couldn't find the order you're looking for."}
           </p>
           <Link to="/shop">
             <button className="px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-300">
@@ -251,9 +283,9 @@ const OrderConfirmationPage = () => {
                 <p className="text-xs font-medium text-gray-500">Delivered</p>
               </div>
             </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {formatDate(orderDate)}
-              </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {formatDate(orderDate)}
+            </p>
           </div>
         </div>
 

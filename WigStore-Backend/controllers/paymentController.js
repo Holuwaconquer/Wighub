@@ -236,6 +236,7 @@ const verifyPayment = async (req, res) => {
     }
 
     if (!koraResponse.data.status) {
+      await Order.findByIdAndDelete(orderId);
       return res.status(400).json({
         message: koraResponse.data.message || "Failed to verify payment",
         paymentStatus: "failed",
@@ -318,8 +319,7 @@ const verifyPayment = async (req, res) => {
         },
       });
     } else {
-      order.paymentStatus = "failed";
-      await order.save();
+      await Order.findByIdAndDelete(orderId);
 
       return res.status(400).json({
         status: false,
@@ -336,6 +336,11 @@ const verifyPayment = async (req, res) => {
       "Payment verification error:",
       error.response?.data || error.message,
     );
+
+    if (req.body?.orderId) {
+      await Order.findByIdAndDelete(req.body.orderId).catch(() => {});
+    }
+
     return res.status(500).json({
       message:
         error.response?.data?.message ||
