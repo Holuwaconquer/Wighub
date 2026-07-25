@@ -59,18 +59,21 @@ const ShopPage = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const searchParam = params.get("search");
-    const categoryParam = params.get("category")?.toLowerCase();
+    const categoryParam = params.get("category");
 
     if (searchParam) {
       setSearchQuery(searchParam);
+    } else {
+      setSearchQuery("");
     }
 
-    if (categoryParam === "sale") {
+    const normalizedCategory = normalizeCategoryValue(categoryParam);
+    if (normalizedCategory === "sale") {
       setSelectedCategory("sale");
-    } else if (categoryParam === "new") {
+    } else if (normalizedCategory === "new") {
       setSelectedCategory("new");
-    } else if (categoryParam && categoryParam !== "all") {
-      setSelectedCategory(categoryParam);
+    } else if (normalizedCategory && normalizedCategory !== "all") {
+      setSelectedCategory(normalizedCategory);
     } else {
       setSelectedCategory("all");
     }
@@ -183,7 +186,8 @@ const ShopPage = () => {
       selectedCategory !== "all" &&
       selectedCategory !== "sale" &&
       selectedCategory !== "new" &&
-      product.category !== selectedCategory
+      String(product.category || "").toLowerCase() !==
+        String(selectedCategory).toLowerCase()
     )
       return false;
     if (selectedHairType !== "all" && product.hairType !== selectedHairType)
@@ -217,6 +221,22 @@ const ShopPage = () => {
 
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("success");
+
+  const normalizeCategoryValue = (value) => {
+    if (!value) return "all";
+
+    const normalized = value.toLowerCase();
+
+    if (normalized === "sale") return "sale";
+    if (normalized === "new" || normalized === "new-arrivals") return "new";
+    if (normalized === "wigs") return "Wigs";
+    if (normalized === "bundles") return "Bundles";
+    if (normalized === "extensions") return "Extensions";
+    if (normalized === "closures") return "Closures";
+    if (normalized === "frontals") return "Frontals";
+
+    return value;
+  };
 
   const showToast = (message, type = "success") => {
     setToastMessage(message);

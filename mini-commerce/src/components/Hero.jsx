@@ -90,16 +90,16 @@ const Hero = () => {
   return (
     <div className='w-full bg-gradient-to-br from-[#F9F5F7] via-[#F2F0F1] to-[#F0E6F0] flex flex-col overflow-hidden relative'>
         {/* Background decorative elements */}
-        <div className='absolute top-20 left-10 w-72 h-72 bg-[#8a0fb3]/5 rounded-full blur-3xl'></div>
-        <div className='absolute bottom-20 right-10 w-96 h-96 bg-[#b98800]/5 rounded-full blur-3xl'></div>
+        <div className='absolute -top-5 -left-20 w-72 h-72 bg-[#8a0fb3]/20 rounded-full blur-3xl'></div>
+        <div className='absolute bottom-20 right-10 w-96 h-96 bg-[#b98800]/30 rounded-full blur-3xl'></div>
         
         <div className='w-full pt-[20px] pb-[60px] px-[20px] md:px-[7%] relative z-10'>
             <div className='grid lg:grid-cols-2 gap-12 items-center'>
                 
                 {/* Left Side - Text Content */}
-                <div className='w-full space-y-8 animate-slideInLeft'>
-                    <div className='space-y-4'>
-                        <h1 className='text-[40px] md:text-[64px] font-bold leading-[1.1]'>
+                <div className='w-full space-y-4 animate-slideInLeft'>
+                    <div className='space-y-2'>
+                        <h1 className='text-[35px] md:text-[64px] font-bold leading-[1.1]'>
                             <span className='block'>Elevate Your</span>
                             <span className='text-[#8a0fb3]'>Crown With</span>
                             <span className='text-[#b98800]'> Minka Luxury HAIR</span>
