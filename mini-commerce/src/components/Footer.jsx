@@ -148,28 +148,28 @@ const Footer = () => {
           <div className="flex flex-col gap-2 text-[#00000099]">
             <button
               type="button"
-              onClick={() => handleFaqClick("privacy")}
+              onClick={() => handleFaqClick("account")}
               className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
             >
               Account
             </button>
             <button
               type="button"
-              onClick={() => handleFaqClick("delivery")}
+              onClick={() => handleFaqClick("managingDeliveries")}
               className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
             >
               Managing Deliveries
             </button>
             <button
               type="button"
-              onClick={() => handleFaqClick("terms")}
+              onClick={() => handleFaqClick("orders")}
               className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
             >
               Orders
             </button>
             <button
               type="button"
-              onClick={() => handleFaqClick("privacy")}
+              onClick={() => handleFaqClick("payments")}
               className="text-left text-[16px] font-medium hover:text-[#8a0fb3]"
             >
               Payments
@@ -182,13 +182,13 @@ const Footer = () => {
         <p className="w-full">
           MINKA LUXURY HAIR © {year}, All Rights Reserved
         </p>
-        <div className="w-full flex gap-4 justify-center md:justify-end items-center">
+        {/* <div className="w-full flex gap-4 justify-center md:justify-end items-center">
           <img src={visa} alt="Visa" className="h-8 w-auto" />
           <img src={mastercard} alt="Mastercard" className="h-8 w-auto" />
           <img src={paypal} alt="PayPal" className="h-8 w-auto" />
           <img src={applepay} alt="Apple Pay" className="h-8 w-auto" />
           <img src={googlepay} alt="Google Pay" className="h-8 w-auto" />
-        </div>
+        </div> */}
       </div>
 
       <LegalModal

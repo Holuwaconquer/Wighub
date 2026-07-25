@@ -70,6 +70,82 @@ const modalContent = {
       },
     ],
   },
+  account: {
+    title: "Account Help",
+    intro:
+      "Your Minka account helps you save favorites, track orders, and keep your details ready for a faster checkout.",
+    sections: [
+      {
+        heading: "1. Creating an account",
+        body: "You can create an account in seconds using your email address and a secure password. This lets you view past orders and save your shipping details.",
+      },
+      {
+        heading: "2. Updating your profile",
+        body: "From your profile, you can update your name, contact details, and shipping preferences whenever your information changes.",
+      },
+      {
+        heading: "3. Managing saved items",
+        body: "Your account keeps your wishlist and cart ready, so you can return later and pick up where you left off.",
+      },
+    ],
+  },
+  managingDeliveries: {
+    title: "Managing Deliveries",
+    intro:
+      "We make it easy to stay informed about your package from dispatch to delivery, whether you are ordering locally or overseas.",
+    sections: [
+      {
+        heading: "1. Delivery updates",
+        body: "You will receive shipping notifications once your order is packed and again when it is on the way.",
+      },
+      {
+        heading: "2. Change requests",
+        body: "If your delivery address changes before the package is dispatched, contact us as soon as possible so we can update it.",
+      },
+      {
+        heading: "3. Delivery support",
+        body: "If a package is delayed or marked as delivered unexpectedly, our support team can help investigate the issue.",
+      },
+    ],
+  },
+  orders: {
+    title: "Orders & Checkout",
+    intro:
+      "Our checkout process is designed to be simple, secure, and clear from the moment you add an item to your cart.",
+    sections: [
+      {
+        heading: "1. Placing an order",
+        body: "Select your preferred hair style, size, and shipping option, then confirm your order with secure payment.",
+      },
+      {
+        heading: "2. Order confirmation",
+        body: "You will receive an email confirmation with your order summary and tracking details as soon as your purchase is confirmed.",
+      },
+      {
+        heading: "3. Order support",
+        body: "If your order needs changes, cancellations, or a status check, our team is available to assist you quickly.",
+      },
+    ],
+  },
+  payments: {
+    title: "Payments & Security",
+    intro:
+      "We use secure payment options and protect your transaction details so you can shop with confidence.",
+    sections: [
+      {
+        heading: "1. Accepted methods",
+        body: "We support trusted payment methods such as Visa, Mastercard, and bank transfers.",
+      },
+      {
+        heading: "2. Payment confirmation",
+        body: "Once your payment is successful, you will receive a confirmation email and your order will move into processing.",
+      },
+      {
+        heading: "3. Security",
+        body: "Your financial information is handled securely and is never shared with unauthorized third parties.",
+      },
+    ],
+  },
 };
 
 const LegalModal = ({ isOpen, type, onClose }) => {
@@ -114,7 +190,9 @@ const LegalModal = ({ isOpen, type, onClose }) => {
               <h3 className="text-base font-semibold text-[#111827]">
                 {section.heading}
               </h3>
-              <p className="text-sm leading-6 text-[#4b5563] w-full">{section.body}</p>
+              <p className="text-sm leading-6 text-[#4b5563] w-full">
+                {section.body}
+              </p>
             </div>
           ))}
 

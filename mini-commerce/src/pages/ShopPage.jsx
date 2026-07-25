@@ -383,7 +383,7 @@ const ShopPage = () => {
 
     return (
       <div
-        className={`group ${viewMode === "list" ? "flex gap-8" : ""} animate-fadeIn`}
+        className={`group ${viewMode === "list" ? "flex gap-4" : ""} animate-fadeIn`}
       >
         <div
           className={`relative ${viewMode === "list" ? "w-44 flex-shrink-0" : ""}`}
