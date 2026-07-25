@@ -36,7 +36,7 @@ const CartPage = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 md:pt-20 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 md:pt-5 flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="bg-white w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
             <FaShoppingBag className="text-5xl text-gray-400" />
@@ -55,12 +55,12 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0">
         {/* Header */}
-        <div className="mb-10">
+        <div className="mb-5">
           <button 
             onClick={() => navigate('/shop')}
-            className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors mb-6"
+            className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors mb-2"
           >
             <FaArrowLeft className="text-sm" />
             <span className="text-sm font-light">Continue Shopping</span>
