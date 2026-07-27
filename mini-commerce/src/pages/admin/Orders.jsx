@@ -9,7 +9,7 @@ import {
   FaTruck,
   FaCheckCircle,
   FaClock,
-  FaExclamationCircle,
+  FaExclamationCircle, FaShoppingCart
 } from "react-icons/fa";
 import { getAllOrders } from "../../services/api";
 
