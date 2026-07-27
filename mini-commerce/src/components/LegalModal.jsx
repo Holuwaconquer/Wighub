@@ -20,7 +20,7 @@ const modalContent = {
       },
       {
         heading: "4. Returns and disputes",
-        body: "Please review our return and exchange policy before purchasing. Any disputes should be reported to our support team promptly so we can assist you.",
+        body: "We do not offer refunds. If you are not satisfied with your purchase, we allow exchanges for another product per our exchange policy. Any disputes should be reported to our support team promptly so we can assist you.",
       },
     ],
   },
