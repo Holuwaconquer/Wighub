@@ -32,6 +32,7 @@ import api, {
   addToWishlist,
   removeFromWishlist,
 } from "../services/api";
+import { getProductImageUrl } from "../utils/image";
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -428,13 +429,20 @@ const ProductDetails = () => {
           <div>
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg mb-4 relative group">
               <img
-                src={
+                src={getProductImageUrl(
                   product.images?.[activeImage] ||
-                  product.image ||
-                  "/placeholder.jpg"
-                }
+                    product.image ||
+                    "/placeholder.jpg",
+                  {
+                    width: 1200,
+                    height: 1200,
+                    crop: "fill",
+                  },
+                )}
                 alt={product.name}
                 className="w-full h-[400px] object-cover"
+                loading="eager"
+                decoding="async"
               />
               {/* Navigation Arrows */}
               {product.images && product.images.length > 1 && (
@@ -475,9 +483,15 @@ const ProductDetails = () => {
                     }`}
                   >
                     <img
-                      src={img}
+                      src={getProductImageUrl(img, {
+                        width: 300,
+                        height: 300,
+                        crop: "fill",
+                      })}
                       alt={`View ${idx + 1}`}
                       className="w-full h-24 object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                 ))}
@@ -781,13 +795,20 @@ const ProductDetails = () => {
                 >
                   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                     <img
-                      src={
+                      src={getProductImageUrl(
                         relatedProduct.images?.[0] ||
-                        relatedProduct.image ||
-                        "/placeholder.jpg"
-                      }
+                          relatedProduct.image ||
+                          "/placeholder.jpg",
+                        {
+                          width: 500,
+                          height: 500,
+                          crop: "fill",
+                        },
+                      )}
                       alt={relatedProduct.name}
                       className="w-full h-48 object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="p-3">
                       <h3 className="font-semibold text-sm line-clamp-2">

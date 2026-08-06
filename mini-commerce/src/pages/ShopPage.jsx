@@ -19,6 +19,7 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from "../services/api";
+import { getProductImageUrl } from "../utils/image";
 
 const ShopPage = () => {
   const dispatch = useDispatch();
@@ -395,10 +396,17 @@ const ShopPage = () => {
               }`}
             >
               <img
-                src={
-                  product?.images?.[0] || product.image || "/placeholder.jpg"
-                }
+                src={getProductImageUrl(
+                  product?.images?.[0] || product.image || "/placeholder.jpg",
+                  {
+                    width: 700,
+                    height: 700,
+                    crop: "fit",
+                  },
+                )}
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.jpg";
                 }}

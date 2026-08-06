@@ -4,6 +4,7 @@ import { addToCart, removeFromCart } from "../store/slices/cartSlice";
 import { FaShoppingCart, FaHeart, FaRegHeart } from "react-icons/fa";
 import { BsLightningCharge } from "react-icons/bs";
 import { addToWishlist, removeFromWishlist } from "../services/api";
+import { getProductImageUrl } from "../utils/image";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -133,9 +134,18 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative w-full h-[250px] md:h-[300px] rounded-[20px] overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100">
         <img
-          src={data.images?.[0] || data.image || "/placeholder.jpg"}
+          src={getProductImageUrl(
+            data.images?.[0] || data.image || "/placeholder.jpg",
+            {
+              width: 800,
+              height: 800,
+              crop: "fill",
+            },
+          )}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           alt={data.name}
+          loading="lazy"
+          decoding="async"
           onError={(e) => {
             e.currentTarget.src = "/placeholder.jpg";
           }}
@@ -164,8 +174,6 @@ const ProductCard = ({ product }) => {
         <h2 className="font-bold text-lg md:text-xl line-clamp-2 hover:text-[#b98800] transition-colors cursor-pointer">
           {data.name.toUpperCase()}
         </h2>
-
-        
 
         {/* Price */}
         <div className="flex items-center gap-2">
