@@ -114,6 +114,18 @@ export const updateProfile = async (userData) => {
   }
 };
 
+export const changePassword = async (currentPassword, newPassword) => {
+  try {
+    const response = await api.put("/auth/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
 export const forgotPassword = async (email) => {
   try {
     const response = await api.post("/auth/forgot-password", { email });
